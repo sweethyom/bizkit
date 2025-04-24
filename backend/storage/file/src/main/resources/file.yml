@@ -1,0 +1,7 @@
+aws:
+  s3:
+    access-key: ${S3_ACCESS_KEY:test}
+    secret-key: ${S3_SECRET_KEY:test}
+    region: ${S3_BUCKET:ap-northeast-2}
+    endpoint: ${S3_ENDPOINT:http://localhost:4566}
+    bucket-name: ${S3_BUCKET_NAME:a-chu}

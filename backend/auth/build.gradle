@@ -1,0 +1,9 @@
+dependencies {
+    compileOnly 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    testImplementation project(":tests:api-docs")
+    testImplementation 'org.springframework.security:spring-security-test'
+}
