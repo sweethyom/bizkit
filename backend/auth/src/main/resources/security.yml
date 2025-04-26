@@ -1,0 +1,12 @@
+taskit:
+  docs:
+    enabled: true
+  jwt:
+    properties:
+      secret: ${JWT_SECRET:itIsLocalDefaultJwtSecret!!!!!!!!!!!!!}
+      access-token:
+        expiration-seconds: ${ACCESS_TOKEN_EXPIRATION_SECOND:1800}
+      refresh-token:
+        expiration-seconds: 604800
+        renew-available-seconds: 172800
+      token-type: Bearer

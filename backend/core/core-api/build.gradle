@@ -2,15 +2,15 @@ bootJar.enabled = true
 jar.enabled = false
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     implementation project(':core:core-domain')
-
-    runtimeOnly project(':storage:db-core')
-    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     implementation project(':support:logging')
     implementation project(':support:monitoring')
 
+    runtimeOnly project(':storage:db-core')
+    runtimeOnly project(':storage:file')
     runtimeOnly project(':auth')
 
     testImplementation project(":tests:api-docs")

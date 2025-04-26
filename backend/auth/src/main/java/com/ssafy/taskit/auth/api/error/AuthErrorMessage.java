@@ -1,6 +1,7 @@
 package com.ssafy.taskit.auth.api.error;
 
-import com.ssafy.taskit.domain.error.AuthCoreErrorType;
+
+import com.ssafy.taskit.auth.domain.error.AuthCoreErrorType;
 
 public class AuthErrorMessage {
 
