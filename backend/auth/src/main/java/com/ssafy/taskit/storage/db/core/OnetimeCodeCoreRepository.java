@@ -28,8 +28,7 @@ public class OnetimeCodeCoreRepository implements VerificationCodeRepository {
   @Override
   public Optional<VerificationCode> findLatestByPhone(String email) {
     return oneTimeCodeJpaRepository
-        .findTopByEmailAndEntityStatusOrderByCreatedAtDesc(
-            email, AuthEntityStatus.ACTIVE)
+        .findTopByEmailAndEntityStatusOrderByCreatedAtDesc(email, AuthEntityStatus.ACTIVE)
         .map(OneTimeCodeEntity::toVerificationCode);
   }
 

@@ -17,11 +17,7 @@ public class AuthUserEntity extends AuthBaseEntity {
 
   protected AuthUserEntity() {}
 
-  public AuthUserEntity(
-      String email,
-      String password,
-      String nickname,
-      String profileImageUrl) {
+  public AuthUserEntity(String email, String password, String nickname, String profileImageUrl) {
     this.email = email;
     this.password = password;
     this.nickname = nickname;
@@ -30,10 +26,7 @@ public class AuthUserEntity extends AuthBaseEntity {
 
   public static AuthUserEntity from(NewAuthUser newAuthUser) {
     return new AuthUserEntity(
-        newAuthUser.email(),
-        newAuthUser.password(),
-        newAuthUser.nickname(),
-        null);
+        newAuthUser.email(), newAuthUser.password(), newAuthUser.nickname(), null);
   }
 
   public AuthUser toAuthUser() {

@@ -52,12 +52,7 @@ public class OneTimeCodeEntity extends AuthMetaEntity {
   public static OneTimeCodeEntity from(
       NewVerificationCode verificationCode, String email, VerificationPurpose purpose) {
     return new OneTimeCodeEntity(
-        null,
-        email,
-        verificationCode.code(),
-        purpose,
-        false,
-        verificationCode.expiresIn());
+        null, email, verificationCode.code(), purpose, false, verificationCode.expiresIn());
   }
 
   public static OneTimeCodeEntity from(VerificationCode verificationCode) {

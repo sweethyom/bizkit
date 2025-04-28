@@ -20,8 +20,8 @@ public class EmailVerificationMailSender implements VerificationCodeSendClient {
   private final JavaMailSender mailSender;
   private final EmailVerificationCodeHtmlLoader htmlLoader;
 
-  public EmailVerificationMailSender(JavaMailSender mailSender,
-      EmailVerificationCodeHtmlLoader htmlLoader) {
+  public EmailVerificationMailSender(
+      JavaMailSender mailSender, EmailVerificationCodeHtmlLoader htmlLoader) {
     this.mailSender = mailSender;
     this.htmlLoader = htmlLoader;
   }

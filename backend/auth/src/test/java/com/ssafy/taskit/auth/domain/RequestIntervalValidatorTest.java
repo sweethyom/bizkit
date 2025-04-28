@@ -1,4 +1,5 @@
 package com.ssafy.taskit.auth.domain;
+
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;

@@ -57,7 +57,6 @@ public class VerificationCode {
     return email;
   }
 
-
   public String getCode() {
     return code;
   }

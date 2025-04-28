@@ -22,12 +22,12 @@ public class AuthUserService {
     this.authUserReader = authUserReader;
   }
 
-  public boolean isEmailUnique(String nickname) {
-    return authUserValidator.isNicknameUnique(nickname);
+  public boolean isEmailUnique(String email) {
+    return authUserValidator.isEmailUnique(email);
   }
 
-  public boolean isUsernameUnique(String username) {
-    return authUserValidator.isUsernameUnique(username);
+  public boolean isNicknameUnique(String nickname) {
+    return authUserValidator.isNicknameUnique(nickname);
   }
 
   public AuthUser appendAuthUser(NewAuthUser newAuthUser, UUID verificationCodeId) {

@@ -1,10 +1,10 @@
 == User 관련 API
 
-=== 휴대폰 인증 번호 요청
+=== 인증 번호 요청
 
 operation::request-verification[snippets='http-request,request-fields,http-response,response-fields']
 
-=== 휴대폰 인증 번호 확인
+=== 인증 번호 확인
 
 operation::verify-verification[snippets='http-request,request-fields,http-response,response-fields']
 
@@ -56,9 +56,3 @@ operation::reset-password[snippets='http-request,request-fields,http-response,re
 user 객체의 프로필을 업데이트합니다.
 
 operation::modify-profile-image[snippets='http-request,request-parts,http-response,response-fields']
-
-=== 전화번호 변경
-
-user 객체의 전화번호를 업데이트합니다.
-
-operation::modify-email-number[snippets='http-request,request-fields,http-response,response-fields']

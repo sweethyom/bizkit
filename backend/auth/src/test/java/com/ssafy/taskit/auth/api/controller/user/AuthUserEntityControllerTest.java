@@ -7,13 +7,13 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 
+import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
+import com.ssafy.s12p21d206.achu.test.api.RestDocsUtils;
 import com.ssafy.taskit.auth.domain.image.AuthImageService;
 import com.ssafy.taskit.auth.domain.support.AuthDefaultDateTime;
 import com.ssafy.taskit.auth.domain.user.AuthUser;
 import com.ssafy.taskit.auth.domain.user.AuthUserImageFacade;
 import com.ssafy.taskit.auth.domain.user.AuthUserService;
-import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
-import com.ssafy.s12p21d206.achu.test.api.RestDocsUtils;
 import io.restassured.http.ContentType;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -54,18 +54,17 @@ class AuthUserEntityControllerTest extends RestDocsTest {
 
     given()
         .contentType(ContentType.JSON)
-        .body(new AppendAuthUserRequest(
-            "test@test.com", "password!", "nick",  UUID.randomUUID()))
+        .body(new AppendAuthUserRequest("test@test.com", "password!", "nick", UUID.randomUUID()))
         .post("/users")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "append-user",
             requestFields(
-                fieldWithPath("username")
+                fieldWithPath("email")
                     .type(JsonFieldType.STRING)
-                    .description("생성할 user 아이디")
-                    .attributes(RestDocsUtils.constraints("유저 아이디는 영어 대소문자, 숫자 포함 4~16자리여야 합니다.")),
+                    .description("생성할 user email")
+                    .attributes(RestDocsUtils.constraints("이메일 형식")),
                 fieldWithPath("password")
                     .type(JsonFieldType.STRING)
                     .description("생성할 user 비밀번호")
@@ -75,10 +74,6 @@ class AuthUserEntityControllerTest extends RestDocsTest {
                     .type(JsonFieldType.STRING)
                     .description("생성할 user 닉네임")
                     .attributes(RestDocsUtils.constraints("닉네임은 한글, 영어, 숫자 포함 2~6자리여야 합니다")),
-                fieldWithPath("phoneNumber")
-                    .type(JsonFieldType.STRING)
-                    .description("생성할 user 전화번호")
-                    .attributes(RestDocsUtils.constraints("휴대폰 번호는 10 ~ 11자리의 숫자여야 합니다.")),
                 fieldWithPath("verificationCodeId")
                     .type(JsonFieldType.STRING)
                     .description("인증 코드 식별자")),
@@ -114,29 +109,26 @@ class AuthUserEntityControllerTest extends RestDocsTest {
                     .type(JsonFieldType.STRING)
                     .description("성공 여부 (예: SUCCESS 혹은 ERROR)"),
                 fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("user id"),
-                fieldWithPath("data.username").type(JsonFieldType.STRING).description("user 유저네임"),
+                fieldWithPath("data.email").type(JsonFieldType.STRING).description("user 이메일"),
                 fieldWithPath("data.nickname").type(JsonFieldType.STRING).description("user 닉네임"),
-                fieldWithPath("data.phoneNumber")
-                    .type(JsonFieldType.STRING)
-                    .description("user 전화번호"),
                 fieldWithPath("data.profileImageUrl")
                     .type(JsonFieldType.STRING)
                     .description("user 프로필 이미지 URL"))));
   }
 
   @Test
-  void checkUsernameIsUnique() {
+  void checkEmailIsUnique() {
     given()
         .contentType(ContentType.JSON)
-        .queryParam("username", "아이디")
-        .get("/users/username/is-unique")
+        .queryParam("email", "test@test.com")
+        .get("/users/email/is-unique")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "check-username",
-            queryParameters(parameterWithName("username")
-                .description("중복검사 할 아이디")
-                .attributes(RestDocsUtils.constraints("20자 이하"))),
+            queryParameters(parameterWithName("email")
+                .description("중복검사 할 이메일")
+                .attributes(RestDocsUtils.constraints("이메일 형식"))),
             responseFields(
                 fieldWithPath("result")
                     .type(JsonFieldType.STRING)
@@ -181,7 +173,7 @@ class AuthUserEntityControllerTest extends RestDocsTest {
             requestFields(fieldWithPath("nickname")
                 .type(JsonFieldType.STRING)
                 .description("새로운 nickname")
-                .attributes(RestDocsUtils.constraints("36자 이하"))),
+                .attributes(RestDocsUtils.constraints("닉네임은 한글, 영어, 숫자 포함 2~6자리여야 합니다"))),
             responseFields(fieldWithPath("result")
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 (예: SUCCESS 혹은 ERROR)"))));

@@ -41,23 +41,22 @@ class EmailVerificationControllerTest extends RestDocsTest {
 
     given()
         .contentType(ContentType.JSON)
-        .body(new EmailVerificationRequest("01012341234", VerificationPurpose.SIGN_UP))
+        .body(new EmailVerificationRequest("test@test.com", VerificationPurpose.SIGN_UP))
         .post("/verification/request")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "request-verification",
             requestFields(
-                fieldWithPath("phoneNumber")
+                fieldWithPath("email")
                     .type(JsonFieldType.STRING)
-                    .description("생성할 user 아이디")
-                    .attributes(RestDocsUtils.constraints("11자리 전화번호 숫자")),
+                    .description("생성할 user email")
+                    .attributes(RestDocsUtils.constraints("이메일 형식")),
                 fieldWithPath("purpose")
                     .type(JsonFieldType.STRING)
                     .description("인증 목적")
                     .attributes(
-                        RestDocsUtils.constraints(
-                            "SIGN_UP(회원가입), CHANGE_PASSWORD(비밀번호 변경), RESET_PASSWORD(비밀번호 초기화), CHANGE_PHONE_NUMBER(전화번호 변경)"))),
+                        RestDocsUtils.constraints("SIGN_UP(회원가입), RESET_PASSWORD(비밀번호 초기화)"))),
             responseFields(
                 fieldWithPath("result")
                     .type(JsonFieldType.STRING)

@@ -13,18 +13,12 @@ public class AuthUserValidator {
     this.authUserRepository = authUserRepository;
   }
 
+  public boolean isEmailUnique(String email) {
+    return !authUserRepository.existsByEmail(email);
+  }
+
   public boolean isNicknameUnique(String nickname) {
     return !authUserRepository.existsByNickname(nickname);
-  }
-
-  public boolean isUsernameUnique(String username) {
-    return !authUserRepository.existsByEmail(username);
-  }
-
-  public void validateUsernameUnique(String username) {
-    if (authUserRepository.existsByEmail(username)) {
-      throw new AuthCoreException(AuthCoreErrorType.DUPLICATED_USERNAME);
-    }
   }
 
   public void validateNicknameUnique(String nickname) {

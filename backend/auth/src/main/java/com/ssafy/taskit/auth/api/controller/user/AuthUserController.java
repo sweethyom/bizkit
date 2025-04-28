@@ -3,6 +3,7 @@ package com.ssafy.taskit.auth.api.controller.user;
 import com.ssafy.taskit.auth.api.controller.AuthApiUser;
 import com.ssafy.taskit.auth.api.controller.support.AuthFileConverter;
 import com.ssafy.taskit.auth.api.controller.validation.AuthFileSize;
+import com.ssafy.taskit.auth.api.controller.validation.Nickname;
 import com.ssafy.taskit.auth.api.response.AuthApiResponse;
 import com.ssafy.taskit.auth.api.response.AuthDefaultIdResponse;
 import com.ssafy.taskit.auth.api.response.AuthIsUniqueResponse;
@@ -10,6 +11,7 @@ import com.ssafy.taskit.auth.domain.image.AuthFile;
 import com.ssafy.taskit.auth.domain.user.AuthUser;
 import com.ssafy.taskit.auth.domain.user.AuthUserImageFacade;
 import com.ssafy.taskit.auth.domain.user.AuthUserService;
+import jakarta.validation.constraints.Email;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -61,19 +63,18 @@ public class AuthUserController {
     return AuthApiResponse.success(response);
   }
 
-  @GetMapping("/users/username/is-unique")
-  public AuthApiResponse<AuthIsUniqueResponse> checkUsernameIsUnique(
-      @RequestParam String username) {
+  @GetMapping("/users/nickname/is-unique")
+  public AuthApiResponse<AuthIsUniqueResponse> checkNicknameIsUnique(
+      @RequestParam @Validated @Nickname String nickname) {
     AuthIsUniqueResponse response =
-        new AuthIsUniqueResponse(authUserService.isUsernameUnique(username));
+        new AuthIsUniqueResponse(authUserService.isNicknameUnique(nickname));
     return AuthApiResponse.success(response);
   }
 
   @GetMapping("/users/email/is-unique")
   public AuthApiResponse<AuthIsUniqueResponse> checkEmailIsUnique(
-      @RequestParam String email) {
-    AuthIsUniqueResponse response =
-        new AuthIsUniqueResponse(authUserService.isEmailUnique(email));
+      @RequestParam @Validated @Email String email) {
+    AuthIsUniqueResponse response = new AuthIsUniqueResponse(authUserService.isEmailUnique(email));
     return AuthApiResponse.success(response);
   }
 
@@ -92,5 +93,4 @@ public class AuthUserController {
     authUserImageFacade.modifyProfileImage(authApiUser.id(), profileImageFile);
     return AuthApiResponse.success();
   }
-
 }

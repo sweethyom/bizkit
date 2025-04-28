@@ -1,5 +1,4 @@
-= A-Chu 백엔드 API 문서
-김덕윤(팀장) <duk9741@gmail.com>
+= BizKit 백엔드 API 문서
 :doctype: book
 :icons: font
 :source-highlighter: highlightjs
@@ -20,14 +19,14 @@ endif::[]
 
 == 개요
 
-이 API문서는 'A-Chu' 프로젝트의 산출물입니다.
+이 API문서는 'BizKit' 프로젝트의 산출물입니다.
 
 === API 서버 경로
 
 [cols="2,5,3"]
 |====
 |환경         |DNS |비고
-|개발(dev)    | https://api.a-chu.dukcode.org |API 문서 제공
+|개발(dev)    | https://api.bizkit.dukcode.org |API 문서 제공
 |운영(prod)   | link:[추후 확정 예정] |API 문서 미제공
 |====
 
@@ -118,22 +117,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI...
 ==== Access Token 불필요 API
 
 * 회원가입: POST /users
-* 유저네임 중복 검사: GET /users/username/is-unique
+* 이메일 중복 검사: GET /users/email/is-unique
 * 닉네임 중복 검사: GET /users/nickname/is-unique
 * 인증 코드 발급: POST /verification/request
 * 인증 코드 확인: POST /verification/verify
 * 비밀번호 초기화: PATCH /users/password/reset
 
 
-:snippets: +{project-root}+/build/generated-snippets/user-auth
-include::modules/auth-user/auth.adoc[]
-include::modules/auth-user/user.adoc[]
-
-:snippets: +{project-root}+/build/generated-snippets/core-api
-include::modules/core-api/baby.adoc[]
-include::modules/core-api/goods.adoc[]
-include::modules/core-api/like.adoc[]
-include::modules/core-api/memory.adoc[]
-
-:snippets: +{project-root}+/build/generated-snippets/chat
-include::modules/chat/chat.adoc[]
+:snippets: +{project-root}+/build/generated-snippets/auth
+include::modules/auth/auth.adoc[]
+include::modules/auth/user.adoc[]

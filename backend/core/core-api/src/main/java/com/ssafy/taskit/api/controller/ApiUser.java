@@ -1,6 +1,5 @@
 package com.ssafy.taskit.api.controller;
 
-
 import com.ssafy.taskit.domain.User;
 
 public record ApiUser(Long id) {
