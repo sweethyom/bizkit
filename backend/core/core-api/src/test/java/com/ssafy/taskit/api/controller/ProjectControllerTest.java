@@ -129,4 +129,19 @@ class ProjectControllerTest extends RestDocsTest {
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 (예: SUCCESS 혹은 ERROR)"))));
   }
+
+  @Test
+  public void deleteProject() {
+    given()
+        .contentType(ContentType.JSON)
+        .delete("projects/{projectId}", 2L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "delete-project",
+            pathParameters(parameterWithName("projectId").description("삭제할 프로젝트 id")),
+            responseFields(fieldWithPath("result")
+                .type(JsonFieldType.STRING)
+                .description("성공 여부 (예: SUCCESS 혹은 ERROR)"))));
+  }
 }
