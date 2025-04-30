@@ -13,3 +13,7 @@ operation::find-project[snippets='http-request,path-parameters,http-response,res
 === [미구현] 프로젝트 이름 수정
 
 operation::modify-project[snippets='http-request,path-parameters,http-request,http-response,response-fields']
+
+=== [미구현] 프로젝트 이미지 수정
+
+operation::modify-project-image[snippets='http-request,path-parameters,http-request,http-response,response-fields']

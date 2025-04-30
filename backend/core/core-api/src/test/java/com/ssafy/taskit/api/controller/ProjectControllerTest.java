@@ -111,4 +111,22 @@ class ProjectControllerTest extends RestDocsTest {
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 (예: SUCCESS 혹은 ERROR)"))));
   }
+
+  @Test
+  public void modifyProjectImage() {
+    given()
+        .contentType(ContentType.JSON)
+        .body(new ModifyProjectImageRequest("default001.jpg"))
+        .patch("projects/{projectId}/image", 1L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "modify-project-image",
+            pathParameters(parameterWithName("projectId").description("이미지를 수정할 프로젝트 id")),
+            requestFields(
+                fieldWithPath("image").type(JsonFieldType.STRING).description("수정할 프로젝트 이미지")),
+            responseFields(fieldWithPath("result")
+                .type(JsonFieldType.STRING)
+                .description("성공 여부 (예: SUCCESS 혹은 ERROR)"))));
+  }
 }
