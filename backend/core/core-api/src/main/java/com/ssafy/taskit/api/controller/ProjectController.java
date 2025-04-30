@@ -26,7 +26,7 @@ public class ProjectController {
   @GetMapping("/projects/{projectId}")
   public ApiResponse<ProjectDetailResponse> findProject(@PathVariable Long projectId) {
     ProjectDetailResponse response =
-        new ProjectDetailResponse(1L, "프로젝트 이름1", "default1.jpg", 4, true);
+        new ProjectDetailResponse(1L, "프로젝트 이름1", "default1.jpg", true);
     return ApiResponse.success(response);
   }
 }
