@@ -144,4 +144,28 @@ class ProjectControllerTest extends RestDocsTest {
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 (예: SUCCESS 혹은 ERROR)"))));
   }
+
+  @Test
+  public void findInvitationProject() {
+    given()
+            .contentType(ContentType.JSON)
+            .get("projects/invitation/{invitationId}", 1L)
+            .then()
+            .status(HttpStatus.OK)
+            .apply(document(
+                    "find-invitation-project",
+                    pathParameters(parameterWithName("invitationId").description("프로젝트 초대 id")),
+                    responseFields(
+                            fieldWithPath("result")
+                                    .type(JsonFieldType.STRING)
+                                    .description("성공 여부 (예: SUCCESS 혹은 ERROR)"),
+                            fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("초대된 프로젝트 id"),
+                            fieldWithPath("data.name").type(JsonFieldType.STRING).description("초대된 프로젝트 이름"),
+                            fieldWithPath("data.image").type(JsonFieldType.STRING).description("초대된 프로젝트 이미지"),
+                            fieldWithPath("data.leader.id").type(JsonFieldType.NUMBER).description("초대한 프로젝트 팀장 id"),
+                            fieldWithPath("data.leader.nickname").type(JsonFieldType.STRING).description("초대한 프로젝트 팀장 닉네임"),
+                            fieldWithPath("data.leader.image").type(JsonFieldType.STRING).description("초대한 프로젝트 팀장 이미지")
+                    )
+            ));
+  }
 }
