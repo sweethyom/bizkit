@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ComponentController {
 
-  @PostMapping("/projects/{projectId}/component")
+  @PostMapping("/projects/{projectId}/components")
   public ApiResponse<DefaultIdResponse> appendComponent(
       ApiUser apiUser, @PathVariable Long projectId, @RequestBody AppendComponentRequest request) {
     DefaultIdResponse response = new DefaultIdResponse(1L);
