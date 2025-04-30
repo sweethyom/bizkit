@@ -93,4 +93,22 @@ class ProjectControllerTest extends RestDocsTest {
                     .type(JsonFieldType.BOOLEAN)
                     .description("프로젝트 팀장 여부"))));
   }
+
+  @Test
+  public void modifyProjectName() {
+    given()
+        .contentType(ContentType.JSON)
+        .body(new ModifyProjectNameRequest("프로젝트 제목1"))
+        .patch("/projects/{projectId}", 1L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "modify-project",
+            pathParameters(parameterWithName("projectId").description("수정할 프로젝트 id")),
+            requestFields(
+                fieldWithPath("name").type(JsonFieldType.STRING).description("수정할 프로젝트 이름")),
+            responseFields(fieldWithPath("result")
+                .type(JsonFieldType.STRING)
+                .description("성공 여부 (예: SUCCESS 혹은 ERROR)"))));
+  }
 }

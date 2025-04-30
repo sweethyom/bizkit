@@ -9,3 +9,7 @@ operation::find-projects[snippets='http-request,query-parameters,http-response,r
 === [미구현] 프로젝트 상세조회
 
 operation::find-project[snippets='http-request,path-parameters,http-response,response-fields']
+
+=== [미구현] 프로젝트 이름 수정
+
+operation::modify-project[snippets='http-request,path-parameters,http-request,http-response,response-fields']
