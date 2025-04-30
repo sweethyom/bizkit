@@ -101,4 +101,19 @@ class ComponentControllerTest extends RestDocsTest {
                     .description("성공 여부 (예: SUCCESS 혹은 ERROR"),
                 fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("수정된 컴포넌트 아이디"))));
   }
+
+  @Test
+  void deleteComponent() {
+    given()
+        .contentType(ContentType.JSON)
+        .delete("/components/{componentId}", 1L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "delete-component",
+            pathParameters(parameterWithName("componentId").description("삭제하고 싶은 컴포넌트 아이디")),
+            responseFields(fieldWithPath("result")
+                .type(JsonFieldType.STRING)
+                .description("성공 여부 (예: SUCCESS 혹은 ERROR"))));
+  }
 }

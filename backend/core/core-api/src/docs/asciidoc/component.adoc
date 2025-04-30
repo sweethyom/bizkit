@@ -12,3 +12,7 @@ operation::find-components[snippets='http-request,path-parameters,http-response,
 
 operation::modify-component[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
+=== [미구현] 컴포넌트 삭제
+
+operation::delete-component[snippets='http-request,path-parameters,http-response,response-fields']
+

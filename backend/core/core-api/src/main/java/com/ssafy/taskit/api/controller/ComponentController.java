@@ -34,4 +34,9 @@ public class ComponentController {
     DefaultIdResponse response = new DefaultIdResponse(1L);
     return ApiResponse.success(response);
   }
+
+  @DeleteMapping("/components/{componentId}")
+  public ApiResponse<Void> deleteComponent(ApiUser apiUser, @PathVariable Long componentId) {
+    return ApiResponse.success();
+  }
 }
