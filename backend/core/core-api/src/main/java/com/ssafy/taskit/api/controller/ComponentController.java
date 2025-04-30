@@ -25,4 +25,13 @@ public class ComponentController {
         new ComponentResponse(3L, "프로젝트 이름3", "프로젝트 설명3"));
     return ApiResponse.success(responses);
   }
+
+  @PutMapping("/components/{componentId}")
+  public ApiResponse<DefaultIdResponse> modifyComponent(
+      ApiUser apiUser,
+      @PathVariable Long componentId,
+      @RequestBody ModifyComponentRequest request) {
+    DefaultIdResponse response = new DefaultIdResponse(1L);
+    return ApiResponse.success(response);
+  }
 }
