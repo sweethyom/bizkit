@@ -1,0 +1,5 @@
+== 컴포넌트 관련 API
+
+=== 컴포넌트 등록
+
+operation::append-component[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
