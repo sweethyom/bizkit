@@ -2,8 +2,7 @@ package com.ssafy.taskit.api.controller;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
 import com.ssafy.s12p21d206.achu.test.api.RestDocsUtils;
@@ -69,5 +68,29 @@ class ProjectControllerTest extends RestDocsTest {
                 fieldWithPath("data.[].count")
                     .type(JsonFieldType.NUMBER)
                     .description("프로젝트 내 나의 할 일 개수"))));
+  }
+
+  @Test
+  public void findProject() {
+    given()
+        .contentType(ContentType.JSON)
+        .get("/projects/{projectId}", 1L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "find-project",
+            pathParameters(parameterWithName("projectId").description("조회할 프로젝트 id")),
+            responseFields(
+                fieldWithPath("result")
+                    .type(JsonFieldType.STRING)
+                    .description("성공 여부 (예: SUCCESS 혹은 ERROR)"),
+                fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("내가 속한 프로젝트 id"),
+                fieldWithPath("data.name").type(JsonFieldType.STRING).description("내가 속한 프로젝트 이름"),
+                fieldWithPath("data.image")
+                    .type(JsonFieldType.STRING)
+                    .description("내가 속한 프로젝트 이미지 경로"),
+                fieldWithPath("data.leader")
+                    .type(JsonFieldType.BOOLEAN)
+                    .description("프로젝트 팀장 여부"))));
   }
 }
