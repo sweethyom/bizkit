@@ -35,4 +35,10 @@ public class ProjectController {
       @PathVariable Long projectId, @RequestBody ModifyProjectNameRequest request) {
     return ApiResponse.success();
   }
+
+  @PatchMapping("/projects/{projectId}/image")
+  public ApiResponse<Void> modifyProjectImage(
+      @PathVariable Long projectId, @RequestBody ModifyProjectImageRequest request) {
+    return ApiResponse.success();
+  }
 }
