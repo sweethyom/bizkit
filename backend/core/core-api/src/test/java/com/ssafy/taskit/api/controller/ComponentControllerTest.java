@@ -52,4 +52,25 @@ class ComponentControllerTest extends RestDocsTest {
                     .description("성공 여부 (예: SUCCESS 혹은 ERROR"),
                 fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("생성된 컴포넌트 아이디"))));
   }
+
+  @Test
+  void findComponents() {
+    given()
+        .contentType(ContentType.JSON)
+        .get("/projects/{projectId}/components", 1L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "find-components",
+            pathParameters(parameterWithName("projectId").description("컴포넌트 목록을 조회하고 싶은 프로젝트 아이디")),
+            responseFields(
+                fieldWithPath("result")
+                    .type(JsonFieldType.STRING)
+                    .description("성공 여부 (예: SUCCESS 혹은 ERROR"),
+                fieldWithPath("data.[].id").type(JsonFieldType.NUMBER).description("컴포넌트 아이디"),
+                fieldWithPath("data.[].title").type(JsonFieldType.STRING).description("컴포넌트 이름"),
+                fieldWithPath("data.[].description")
+                    .type(JsonFieldType.STRING)
+                    .description("컴포넌트 설명"))));
+  }
 }
