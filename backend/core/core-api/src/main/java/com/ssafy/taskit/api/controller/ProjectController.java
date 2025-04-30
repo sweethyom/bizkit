@@ -41,4 +41,9 @@ public class ProjectController {
       @PathVariable Long projectId, @RequestBody ModifyProjectImageRequest request) {
     return ApiResponse.success();
   }
+
+  @DeleteMapping("/projects/{projectId}")
+  public ApiResponse<Void> deleteProject(@PathVariable Long projectId) {
+    return ApiResponse.success();
+  }
 }
