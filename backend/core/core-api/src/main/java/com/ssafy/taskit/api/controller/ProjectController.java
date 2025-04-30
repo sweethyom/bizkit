@@ -3,10 +3,7 @@ package com.ssafy.taskit.api.controller;
 import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ProjectController {
@@ -17,7 +14,8 @@ public class ProjectController {
   }
 
   @GetMapping("/projects")
-  public ApiResponse<List<ProjectResponse>> findProjects() {
+  public ApiResponse<List<ProjectResponse>> findProjects(
+      @RequestParam(required = false) Long cursor) {
     List<ProjectResponse> response = List.of(
         new ProjectResponse(1L, "프로젝트 이름1", "default1.jpg", 4),
         new ProjectResponse(2L, "프로젝트 이름2", "default2.jpg", 3),
