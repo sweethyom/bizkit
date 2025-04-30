@@ -29,4 +29,10 @@ public class ProjectController {
         new ProjectDetailResponse(1L, "프로젝트 이름1", "default1.jpg", true);
     return ApiResponse.success(response);
   }
+
+  @PatchMapping("/projects/{projectId}")
+  public ApiResponse<Void> modifyProjectName(
+      @PathVariable Long projectId, @RequestBody ModifyProjectNameRequest request) {
+    return ApiResponse.success();
+  }
 }
