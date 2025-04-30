@@ -46,4 +46,13 @@ public class ProjectController {
   public ApiResponse<Void> deleteProject(@PathVariable Long projectId) {
     return ApiResponse.success();
   }
+
+  @GetMapping("/projects/{projectId}/invitation")
+  public ApiResponse<InvitationProjectResponse> findInvitationProject(
+      @PathVariable Long projectId) {
+    LeaderResponse leaderResponse = new LeaderResponse(1L, "팀장1", "profile1.jpg");
+    InvitationProjectResponse response =
+        new InvitationProjectResponse(1L, "프로젝트 이름1", "default1.jpg", leaderResponse);
+    return ApiResponse.success(response);
+  }
 }
