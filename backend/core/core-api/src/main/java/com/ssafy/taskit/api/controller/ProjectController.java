@@ -22,4 +22,11 @@ public class ProjectController {
         new ProjectResponse(3L, "프로젝트 이름3", "default3.jpg", 2));
     return ApiResponse.success(response);
   }
+
+  @GetMapping("/projects/{projectId}")
+  public ApiResponse<ProjectDetailResponse> findProject(@PathVariable Long projectId) {
+    ProjectDetailResponse response =
+        new ProjectDetailResponse(1L, "프로젝트 이름1", "default1.jpg", 4, true);
+    return ApiResponse.success(response);
+  }
 }
