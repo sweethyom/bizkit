@@ -64,10 +64,10 @@ class EpicControllerTest extends RestDocsTest {
                 fieldWithPath("data.[].id").type(JsonFieldType.NUMBER).description("에픽 id"),
                 fieldWithPath("data.[].key").type(JsonFieldType.STRING).description("해당 에픽의 키"),
                 fieldWithPath("data.[].name").type(JsonFieldType.STRING).description("해당 에픽의 이름"),
-                fieldWithPath("data.[].totalIssues")
+                fieldWithPath("data.[].cntTotalIssues")
                     .type(JsonFieldType.NUMBER)
                     .description("해당 에픽의 전체 이슈 갯수"),
-                fieldWithPath("data.[].remainIssues")
+                fieldWithPath("data.[].cntRemainIssues")
                     .type(JsonFieldType.NUMBER)
                     .description("해당 에픽의 남은 이슈 갯수"))));
   }
