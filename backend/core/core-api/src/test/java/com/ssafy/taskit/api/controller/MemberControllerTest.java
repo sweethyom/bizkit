@@ -131,4 +131,19 @@ class MemberControllerTest extends RestDocsTest {
                     .type(JsonFieldType.STRING)
                     .description("검색한 사용자의 프로필 이미지"))));
   }
+
+  @Test
+  public void deleteMember() {
+    given()
+        .contentType(ContentType.JSON)
+        .delete("projects/{projectId}/members", 1L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "delete-member",
+            pathParameters(parameterWithName("projectId").description("나가는 팀원이 속한 프로젝트 id")),
+            responseFields(fieldWithPath("result")
+                .type(JsonFieldType.STRING)
+                .description("성공 여부 : SUCCESS 혹은 ERROR"))));
+  }
 }

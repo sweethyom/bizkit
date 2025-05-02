@@ -12,3 +12,6 @@ operation::append-member[snippets='http-request,path-parameters,request-fields,h
 
 === [미구현] 유저 검색
 operation::search-user[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
+
+=== [미구현] 팀 나가기
+operation::delete-member[snippets='http-request,path-parameters,http-response,response-fields']
