@@ -18,33 +18,23 @@ public class MemberController {
   }
 
   @GetMapping("projects/{projectId}/members/invitation")
-  public ApiResponse<List<InvitationMemberResponse>> findInvitationMembers(
+  public ApiResponse<List<InvitedMemberResponse>> findInvitationMembers(
       ApiUser apiUser, @PathVariable Long projectId) {
-    List<InvitationMemberResponse> responses = List.of(
-        new InvitationMemberResponse("초대아이디1", 4L, "초대사용자닉네임1", "초대사용자이메일1", "default1.jpg"),
-        new InvitationMemberResponse("초대아이디2", 5L, "초대사용자닉네임2", "초대사용자이메일2", "default2.jpg"),
-        new InvitationMemberResponse("초대아이디3", 6L, "초대사용자닉네임3", "초대사용자이메일3", "default3.jpg"));
+    List<InvitedMemberResponse> responses = List.of(
+        new InvitedMemberResponse("초대아이디1", 4L, "초대사용자닉네임1", "초대사용자이메일1", "default1.jpg"),
+        new InvitedMemberResponse("초대아이디2", 5L, "초대사용자닉네임2", "초대사용자이메일2", "default2.jpg"),
+        new InvitedMemberResponse("초대아이디3", 6L, "초대사용자닉네임3", "초대사용자이메일3", "default3.jpg"));
     return ApiResponse.success(responses);
   }
 
   @PostMapping("projects/{projectId}/members")
-  public ApiResponse<InvitationResponse> appendMember(
-      ApiUser apiUser, @PathVariable Long projectId, @RequestBody AppendMemberRequest request) {
+  public ApiResponse<InvitationResponse> appendInvitation(
+      ApiUser apiUser, @PathVariable Long projectId, @RequestBody AppendInvitationRequest request) {
     InvitationResponse response = new InvitationResponse("초대코드1");
     return ApiResponse.success(response);
   }
 
-  @PostMapping("projects/{projectId}/members/search")
-  public ApiResponse<List<UserSearchResponse>> searchUser(
-      ApiUser apiUser, @PathVariable Long projectId, @RequestBody SearchUserRequest request) {
-    List<UserSearchResponse> response = List.of(
-        new UserSearchResponse(4L, "검색된 사용자 이메일1", "검색된 사용자 닉네임1", "default1.jpg"),
-        new UserSearchResponse(5L, "검색된 사용자 이메일2", "검색된 사용자 닉네임2", "default2.jpg"),
-        new UserSearchResponse(6L, "검색된 사용자 이메일3", "검색된 사용자 닉네임3", "default3.jpg"));
-    return ApiResponse.success(response);
-  }
-
-  @DeleteMapping("projects/{projectId}/member")
+  @DeleteMapping("projects/{projectId}/members/me")
   public ApiResponse<Void> leaveProject(ApiUser apiUser, @PathVariable Long projectId) {
     return ApiResponse.success();
   }
