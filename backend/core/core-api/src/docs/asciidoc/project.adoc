@@ -17,3 +17,11 @@ operation::modify-project[snippets='http-request,path-parameters,http-request,ht
 === [미구현] 프로젝트 이미지 수정
 
 operation::modify-project-image[snippets='http-request,path-parameters,http-request,http-response,response-fields']
+
+=== [미구현] 프로젝트 삭제
+
+operation::delete-project[snippets='http-request,path-parameters,http-response,response-fields']
+
+=== [미구현] 초대 아이디로 프로젝트 정보 조회
+
+operation::find-invitation-project[snippets=''http-request,path-parameters,http-request,http-response,response-fields']
