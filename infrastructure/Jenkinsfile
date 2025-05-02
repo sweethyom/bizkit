@@ -71,7 +71,7 @@ pipeline {
         string(name: 'API_GITOPS_FILE_PATH', defaultValue: 'bizkit/api.yaml', description: 'API 문서 GitOps 메니페스트 위치')
         string(name: 'API_DOCKERFILE_PATH', defaultValue: 'infrastructure/Dockerfile.api',  description: 'API 문서 Dockerfile 경로')
 
-        string(name: 'SONAR_PROJECT_KEY', defaultValue: 'com.ssafy:bizkit', description: 'SonarQube 프로젝트 키')
+        string(name: 'SONAR_PROJECT_KEY', defaultValue: 'com.ssafy:taskit', description: 'SonarQube 프로젝트 키')
     }
 
     stages {
