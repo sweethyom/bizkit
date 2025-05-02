@@ -2,3 +2,7 @@
 
 === [미구현] 현재 팀원 목록 조회
 operation::find-members[snippets='http-request,path-parameters,http-response,response-fields']
+
+
+=== [미구현] 초대 팀원 목록 조회
+operation::find-invitation-members[snippets='http-request,path-parameters,http-response,response-fields']
