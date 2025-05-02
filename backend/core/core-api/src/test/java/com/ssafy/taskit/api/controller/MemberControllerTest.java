@@ -180,4 +180,19 @@ class MemberControllerTest extends RestDocsTest {
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 : SUCCESS 혹은 ERROR"))));
   }
+
+  @Test
+  public void acceptInvitation() {
+    given()
+        .contentType(ContentType.JSON)
+        .post("members/invitation/{invitationId}", "초대아이디1")
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "accept-invitation",
+            pathParameters(parameterWithName("invitationId").description("사용자가 수락할 초대 id")),
+            responseFields(fieldWithPath("result")
+                .type(JsonFieldType.STRING)
+                .description("성공 여부 : SUCCESS 혹은 ERROR"))));
+  }
 }

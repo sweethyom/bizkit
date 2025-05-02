@@ -21,3 +21,6 @@ operation::delete-invitation-member[snippets='http-request,path-parameters,http-
 
 === [미구현] 현재 팀원 삭제
 operation::delete-member[snippets='http-request,path-parameters,http-response,response-fields']
+
+=== [미구현] 초대 수락
+operation::accept-invitation[snippets='http-request,path-parameters,http-response,response-fields']
