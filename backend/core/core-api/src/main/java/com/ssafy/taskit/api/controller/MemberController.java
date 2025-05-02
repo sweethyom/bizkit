@@ -48,4 +48,10 @@ public class MemberController {
   public ApiResponse<Void> deleteMember(ApiUser apiUser, @PathVariable Long projectId) {
     return ApiResponse.success();
   }
+
+  @DeleteMapping("projects/{projectId}/members/invitation/{invitationId}")
+  public ApiResponse<Void> deleteInvitationMember(
+      ApiUser apiUser, @PathVariable Long projectId, @PathVariable String invitationId) {
+    return ApiResponse.success();
+  }
 }
