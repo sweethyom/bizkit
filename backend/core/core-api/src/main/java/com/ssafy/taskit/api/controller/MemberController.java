@@ -33,4 +33,14 @@ public class MemberController {
     InvitationResponse response = new InvitationResponse("초대코드1");
     return ApiResponse.success(response);
   }
+
+  @PostMapping("projects/{projectId}/members/search")
+  public ApiResponse<List<UserSearchResponse>> searchUser(
+      @PathVariable Long projectId, @RequestBody SearchUserRequest request) {
+    List<UserSearchResponse> response = List.of(
+        new UserSearchResponse(4L, "검색된 사용자 이메일1", "검색된 사용자 닉네임1", "default1.jpg"),
+        new UserSearchResponse(5L, "검색된 사용자 이메일2", "검색된 사용자 닉네임2", "default2.jpg"),
+        new UserSearchResponse(6L, "검색된 사용자 이메일3", "검색된 사용자 닉네임3", "default3.jpg"));
+    return ApiResponse.success(response);
+  }
 }
