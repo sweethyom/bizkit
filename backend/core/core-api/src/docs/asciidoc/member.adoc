@@ -1,0 +1,4 @@
+=== 멤버 관련 API
+
+=== [미구현] 현재 팀원 목록 조회
+operation::find-members[snippets='http-request,path-parameters,http-response,response-fields']
