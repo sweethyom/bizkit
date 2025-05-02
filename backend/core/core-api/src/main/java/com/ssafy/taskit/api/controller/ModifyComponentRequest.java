@@ -1,3 +1,3 @@
 package com.ssafy.taskit.api.controller;
 
-public record ModifyComponentRequest(String title, String description) {}
+public record ModifyComponentRequest(String name, String content) {}

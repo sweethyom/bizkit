@@ -41,7 +41,7 @@ class ComponentControllerTest extends RestDocsTest {
                     .type(JsonFieldType.STRING)
                     .description("등록할 컴포넌트의 이름")
                     .attributes(key("constraints").value("최대 20bytes (앞, 뒤 공백 불가)")),
-                fieldWithPath("description")
+                fieldWithPath("content")
                     .optional()
                     .type(JsonFieldType.STRING)
                     .description("등록할 컴포넌트의 설명")
@@ -68,8 +68,8 @@ class ComponentControllerTest extends RestDocsTest {
                     .type(JsonFieldType.STRING)
                     .description("성공 여부 (예: SUCCESS 혹은 ERROR"),
                 fieldWithPath("data.[].id").type(JsonFieldType.NUMBER).description("컴포넌트 아이디"),
-                fieldWithPath("data.[].title").type(JsonFieldType.STRING).description("컴포넌트 이름"),
-                fieldWithPath("data.[].description")
+                fieldWithPath("data.[].name").type(JsonFieldType.STRING).description("컴포넌트 이름"),
+                fieldWithPath("data.[].content")
                     .type(JsonFieldType.STRING)
                     .description("컴포넌트 설명"))));
   }
@@ -86,11 +86,11 @@ class ComponentControllerTest extends RestDocsTest {
             "modify-component",
             pathParameters(parameterWithName("componentId").description("수정하고 싶은 컴포넌트 아이디")),
             requestFields(
-                fieldWithPath("title")
+                fieldWithPath("name")
                     .type(JsonFieldType.STRING)
                     .description("수정할 컴포넌트 이름")
                     .attributes(key("constraints").value("최대 20bytes (앞, 뒤 공백 불가)")),
-                fieldWithPath("description")
+                fieldWithPath("content")
                     .optional()
                     .type(JsonFieldType.STRING)
                     .description("수정할 컴포넌트의 설명")
