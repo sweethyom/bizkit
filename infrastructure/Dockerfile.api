@@ -1,0 +1,9 @@
+FROM eclipse-temurin:17.0.10_7-jre-focal AS build
+
+WORKDIR /app
+
+COPY backend/core/core-api/build/libs/core-api-0.0.1-SNAPSHOT.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

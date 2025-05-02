@@ -1,0 +1,419 @@
+def develop() {
+    return env.BRANCH_NAME == 'backend' && env.GITLAB_OBJECT_KIND == 'push'
+}
+
+def mr() {
+    def isMRToBackendDevelop = env.GITLAB_OBJECT_KIND == 'merge_request' && env.GITLAB_OA_TARGET_BRANCH == 'backend'
+    def isMROpen = env.GITLAB_OA_ACTION == 'open'
+    def isMRUpdate = env.GITLAB_OA_ACTION == 'update'
+    
+    return isMRToBackendDevelop && (isMROpen || isMRUpdate)
+}
+
+def triggerType() {
+    if (develop()) {
+        return "PUSH"
+    } else if (mr()) {
+        return "MR 변경"
+    }
+    return ""
+}
+
+def getEmoji(success) {
+    return success ? '✅' : '⛔'
+}
+
+def updateGitOpsRepository(String gitopsFilePath, String dockerImageName) {
+    withCredentials([usernamePassword(credentialsId: 'github-macnini-gitops-repo-credential',
+                                        passwordVariable: 'GIT_PASSWORD',
+                                        usernameVariable: 'GIT_USERNAME')]) {
+        sh """
+            rm -rf ${GITOPS_TEMP_DIR}
+            mkdir -p ${GITOPS_TEMP_DIR}
+            cd ${GITOPS_TEMP_DIR}
+            
+            git clone "https://\$GIT_USERNAME:\$GIT_PASSWORD@\${GITOPS_REPO#https://}"
+            cd ${GITOPS_REPO_NAME}
+            
+            git config user.name "\$GIT_USERNAME"
+            git config user.email "${GIT_COMMIT_EMAIL}"
+            
+            sed -i "s|image: ${DOCKER_HUB_USERNAME}/${dockerImageName}:[0-9]*|image: ${DOCKER_HUB_USERNAME}/${dockerImageName}:${env.BUILD_NUMBER}|g" ${gitopsFilePath}
+            
+            git add ${gitopsFilePath}
+            git commit -m "Update ${dockerImageName} image tag to ${env.BUILD_NUMBER}"
+            git push "https://\$GIT_USERNAME:\$GIT_PASSWORD@\${GITOPS_REPO#https://}"
+            
+            cd ../..
+        """
+    }
+}
+
+pipeline {
+    agent { label 'master' }
+
+    parameters {
+
+        string(name: 'BACKEND_DIR', defaultValue: './backend', description: "Repository 내 backend 프로젝트 위치")
+        string(name: 'DOCKER_REGISTRY_URL', defaultValue: 'docker.io', description: 'Docker 레지스트리 URL')
+        string(name: 'DOCKER_HUB_USERNAME', defaultValue: 'duk9741', description: 'Docker Hub 사용자명')
+        string(name: 'GITOPS_REPO', defaultValue: 'https://github.com/dukcode/macmini-gitops.git', description: 'GitOps 저장소 URL')
+        string(name: 'GITOPS_REPO_NAME', defaultValue: 'macmini-gitops', description: 'GitOps 저장소 이름')
+        string(name: 'GITOPS_TEMP_DIR', defaultValue: 'tmp_gitops', description: 'GitOps 임시 디렉터리')
+        string(name: 'GIT_COMMIT_EMAIL', defaultValue: 'jenkins@dukcode.org', description: 'Git 커밋 이메일')
+        string(name: 'IMAGE_REGISTRY_ACCOUNT', defaultValue: 'duk9741', description: 'Docker 레지스트리 계정')
+
+        string(name: 'API_DOCS_DOCKER_IMAGE_NAME',defaultValue: 'bizkit-api-docs', description: 'API 문서 Docker 이미지 이름')
+        string(name: 'API_DOCS_GITOPS_FILE_PATH', defaultValue: 'bizkit/api-docs.yaml', description: 'API 문서 GitOps 메니페스트 위치')
+        string(name: 'API_DOCS_DOCKERFILE_PATH', defaultValue: 'infrastructure/Dockerfile.api-docs',  description: 'API 문서 Dockerfile 경로')
+
+        string(name: 'API_DOCKER_IMAGE_NAME',defaultValue: 'bizkit-api', description: 'API 문서 Docker 이미지 이름')
+        string(name: 'API_GITOPS_FILE_PATH', defaultValue: 'bizkit/api.yaml', description: 'API 문서 GitOps 메니페스트 위치')
+        string(name: 'API_DOCKERFILE_PATH', defaultValue: 'infrastructure/Dockerfile.api',  description: 'API 문서 Dockerfile 경로')
+
+        string(name: 'SONAR_PROJECT_KEY', defaultValue: 'com.ssafy:bizkit', description: 'SonarQube 프로젝트 키')
+    }
+
+    stages {
+
+        stage('Trigger Notification') {
+            steps {
+                script {
+                    def authorName = env.GITLAB_USER_NAME ?: 'N/A'
+
+                    def triggerType = develop() ? "🚀 **PUSH 이벤트**" : "🔄 **MR 이벤트**"
+                    
+                    def branchInfo = develop() ? 
+                        "▫️ 브랜치: `${env.BRANCH_NAME}`" : 
+                        "▫️ 소스 브랜치: `${env.GITLAB_OA_SOURCE_BRANCH}`\n▫️ 타겟 브랜치: `${env.GITLAB_OA_TARGET_BRANCH}`"
+                    
+                    def commitInfo = ""
+                    if (develop()) {
+                        commitInfo = """
+                        |▫️ 작성자: ${authorName}
+                        """.stripMargin().trim()
+                    } else {
+                        def mrTitle = env.GITLAB_OA_TITLE ?: 'N/A'
+                        commitInfo = """
+                        |▫️ MR 링크: [${mrTitle}](${env.GITLAB_OA_URL})
+                        |▫️ MR 작성자: ${authorName}
+                        """.stripMargin()
+                    }
+
+                    def message = """
+                    |### ${triggerType} 감지됨
+                    |
+                    |**✔️ 작업이 시작되었습니다** 
+                    |
+                    |**📌 기본 정보**
+                    |${branchInfo}
+                    |${commitInfo}
+                    |
+                    |**📝 실행 정보**
+                    |▫️ [빌드 실행 보기](${env.BUILD_URL})
+                    |▫️ 작업 ID: `${env.BUILD_ID}`
+                    """.stripMargin().replaceAll(/\n\s+\|/, '\n').trim()
+
+                    mattermostSend(
+                        color: '#00AAFF',
+                        message: message
+                    )
+                }
+            }
+        }
+
+        stage('Check Lint') {
+            steps {
+                sh "cd ${params.BACKEND_DIR} && ./gradlew clean spotlessCheck"
+            }
+            post {
+                always {
+                    script {
+                        env.LINT_CHECK = getEmoji(currentBuild.currentResult == 'SUCCESS')
+                    }
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh "cd ${params.BACKEND_DIR} && ./gradlew build -x test -x spotlessCheck"
+                stash includes: 'backend/core/core-api/build/libs/core-api-0.0.1-SNAPSHOT.jar', name: 'api-jar-stash'
+            }
+            post {
+                always {
+                    script {
+                        env.BUILD_STATUS = getEmoji(currentBuild.currentResult == 'SUCCESS')
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh "cd ${params.BACKEND_DIR} && ./gradlew test"
+            }
+            post {
+                always {
+                    script {
+                        env.TEST_STATUS = getEmoji(currentBuild.currentResult == 'SUCCESS')
+                    }
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('dukcode-sonarqube') {
+                    sh "cd ${params.BACKEND_DIR} && ./gradlew sonar"
+                    
+                    // SonarQube 프로젝트 URL 저장
+                    script {
+                        def sonarServerUrl = env.SONAR_HOST_URL
+                        env.SONARQUBE_PROJECT_URL = "${sonarServerUrl}/dashboard?id=${params.SONAR_PROJECT_KEY}"
+                    }
+                }
+            }
+            post {
+                always {
+                    script {
+                        env.SONARQUBE_ANALYSIS_STATUS = getEmoji(currentBuild.currentResult == 'SUCCESS')
+                    }
+                }
+            }
+        }
+
+        stage('Check Quality Gate') {
+            steps {
+                script {
+                    // Wait for SonarQube Quality Gate and get results
+                    def qg = waitForQualityGate()
+                    env.SONARQUBE_QG_STATUS = qg.status
+                    
+                    // 퀄리티 게이트의 세부 내용 저장
+                    if (qg.status != 'OK') {
+                        // 조건들을 파싱하여 실패한 조건 정보 저장
+                        def failedConditions = []
+                        qg.conditions.each { condition ->
+                            if (condition.status != 'OK') {
+                                failedConditions.add("${condition.metricKey}: ${condition.actualValue} (임계값: ${condition.errorThreshold})")
+                            }
+                        }
+                        env.SONARQUBE_QG_DETAILS = failedConditions.join(', ')
+                    }
+                }
+            }
+            post {
+                always {
+                    script {
+                        // Set emoji based on Quality Gate status
+                        env.SONARQUBE_QG_ANALYSIS_STATUS = getEmoji(env.SONARQUBE_QG_STATUS == 'OK')
+                    }
+                }
+            }
+        }
+
+        stage('API Documentation') {
+            steps {
+                sh """
+                cd ${params.BACKEND_DIR} && ./gradlew asciidoctor
+                """
+                stash includes: 'backend/support/restdocs/build/docs/asciidoc/index.html', name: 'api-docs-stash'
+            }
+            post {
+                always {
+                    script {
+                        env.API_DOCS_STATUS = getEmoji(currentBuild.currentResult == 'SUCCESS')
+                    }
+                }
+            }
+        }
+
+        stage('API Docs: Build and Tag Docker Image with Kaniko') {
+            when {
+                beforeAgent true
+                expression { develop() }
+            }
+            agent {
+                kubernetes {
+                    yaml """
+kind: Pod
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: Always
+    command:
+    - sleep
+    args:
+    - 9999999
+    volumeMounts:
+      - name: jenkins-docker-cfg
+        mountPath: /kaniko/.docker
+  volumes:
+  - name: jenkins-docker-cfg
+    projected:
+      sources:
+      - secret:
+          name: dockerhub-credentials
+          items:
+            - key: .dockerconfigjson
+              path: config.json
+"""
+                }
+            }
+            steps {
+                container(name: 'kaniko', shell: '/busybox/sh') {
+                    script {
+                        unstash 'api-docs-stash'
+                        sh """
+                        /kaniko/executor \\
+                            --context `pwd` \\
+                            --dockerfile=${API_DOCS_DOCKERFILE_PATH} \\
+                            --destination=${DOCKER_REGISTRY_URL}/${DOCKER_HUB_USERNAME}/${API_DOCS_DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} \\
+                            --insecure \\
+                            --skip-tls-verify \\
+                            --cache=true \\
+                            --cache-dir=/workspace/cache
+                        """
+                    }
+                }
+            }
+            post {
+                always {
+                    script {
+                        env.API_DOCS_IMAGE_BUILD_PUSH_STATUS = getEmoji(currentBuild.currentResult == 'SUCCESS')
+                    }
+                }
+            }
+        }
+
+        stage('API: Build and Tag Docker Image with Kaniko') {
+            when {
+                beforeAgent true
+                expression { develop() }
+            }
+            agent {
+                kubernetes {
+                    yaml """
+kind: Pod
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: Always
+    command:
+    - sleep
+    args:
+    - 9999999
+    volumeMounts:
+      - name: jenkins-docker-cfg
+        mountPath: /kaniko/.docker
+  volumes:
+  - name: jenkins-docker-cfg
+    projected:
+      sources:
+      - secret:
+          name: dockerhub-credentials
+          items:
+            - key: .dockerconfigjson
+              path: config.json
+"""
+                }
+            }
+            steps {
+                container(name: 'kaniko', shell: '/busybox/sh') {
+                    script {
+                        unstash 'api-jar-stash'
+                        sh """
+                        /kaniko/executor \\
+                            --context `pwd` \\
+                            --dockerfile=${API_DOCKERFILE_PATH} \\
+                            --destination=${DOCKER_REGISTRY_URL}/${DOCKER_HUB_USERNAME}/${API_DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} \\
+                            --insecure \\
+                            --skip-tls-verify \\
+                            --cache=true \\
+                            --cache-dir=/workspace/cache
+                        """
+                    }
+                }
+            }
+            post {
+                always {
+                    script {
+                        env.API_IMAGE_BUILD_PUSH_STATUS = getEmoji(currentBuild.currentResult == 'SUCCESS')
+                    }
+                }
+            }
+        }
+        
+        stage('Update GitOps Repository') {
+            when { expression { develop() } }
+            steps {
+                script {
+                    updateGitOpsRepository(API_DOCS_GITOPS_FILE_PATH, API_DOCS_DOCKER_IMAGE_NAME)
+                    updateGitOpsRepository(API_GITOPS_FILE_PATH, API_DOCKER_IMAGE_NAME)
+                }
+            }
+            post {
+                always {
+                    script {
+                        env.COMMIT_TO_GITOPS_REPO_STATUS = getEmoji(currentBuild.currentResult == 'SUCCESS')
+                    }
+                }
+            }
+        }
+
+    }
+    
+post {
+    always {
+        script {
+            def resultEmoji = currentBuild.currentResult == 'SUCCESS' ? '## 🎉 *빌드 성공*' : '## 🔥 *빌드 실패*'
+            def triggerEmoji = develop() ? '📌 PUSH' : '🔄 MR 변경'
+            def duration = currentBuild.durationString.replace(' and counting', '')
+            
+            def message = """
+            |${resultEmoji}
+            |*빌드 번호*: #${env.BUILD_NUMBER}
+            |*트리거*: ${triggerEmoji}
+            |*소요 시간*: ${duration}
+
+            |\n**🔍 빌드 상태 요약**
+            |▫️ 린트 검사: ${env.LINT_CHECK ?: '❔'}  
+            |▫️ 빌드 결과: ${env.BUILD_STATUS ?: '❔'}  
+            |▫️ 테스트 결과: ${env.TEST_STATUS ?: '❔'}  
+
+            |\n**🛠 코드 품질 분석**
+            |▫️ 소나큐브 분석: ${env.SONARQUBE_ANALYSIS_STATUS ?: '❔'}  
+            |▫️ 퀄리티 게이트: ${env.SONARQUBE_QG_ANALYSIS_STATUS ?: '❔'} ${env.SONARQUBE_QG_STATUS ? "(상태: ${env.SONARQUBE_QG_STATUS})" : ""}
+            |${env.SONARQUBE_PROJECT_URL ? "▫️ [소나큐브 대시보드 보기](${env.SONARQUBE_PROJECT_URL})" : ""}
+            ${env.SONARQUBE_QG_DETAILS ? "|⚠️ *실패 항목*: ${env.SONARQUBE_QG_DETAILS}" : ""}
+
+            |\n**📚 API 문서화**
+            |▫️ 문서 생성: ${env.API_DOCS_STATUS ?: '❔'} 
+
+            ${develop() ? """|
+            |\n**🐳 컨테이너 이미지 빌드&푸시**
+            |▫️ API DOCS 이미지 빌드&푸시: ${env.API_DOCS_IMAGE_BUILD_PUSH_STATUS ?: '❔'}
+            |▫️ API 이미지 빌드&푸시: ${env.API_IMAGE_BUILD_PUSH_STATUS ?: '❔'}
+            |▫️ GitOps 업데이트: ${env.COMMIT_TO_GITOPS_REPO_STATUS ?: '❔'}
+            """ : ""}
+
+            ${develop() ? """|
+            |\n**📦 아티팩트 정보**
+            |▫️ API Docs Docker Image: ${DOCKER_HUB_USERNAME}/${API_DOCS_DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}
+            |▫️ API Docker Image: ${DOCKER_HUB_USERNAME}/${API_DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}
+            """ : ""}
+            """
+
+            message = message.replaceAll(/\n\s+\|/, '\n').trim()
+
+            mattermostSend(
+                color: currentBuild.currentResult == 'SUCCESS' ? '#00CC00' : '#FF3300',
+                message: message
+            )
+        }
+    }
+}
+}
