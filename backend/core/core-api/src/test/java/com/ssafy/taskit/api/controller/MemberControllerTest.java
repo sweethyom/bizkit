@@ -133,14 +133,14 @@ class MemberControllerTest extends RestDocsTest {
   }
 
   @Test
-  public void deleteMember() {
+  public void leaveProject() {
     given()
         .contentType(ContentType.JSON)
-        .delete("projects/{projectId}/members", 1L)
+        .delete("projects/{projectId}/member", 1L)
         .then()
         .status(HttpStatus.OK)
         .apply(document(
-            "delete-member",
+            "leave-project",
             pathParameters(parameterWithName("projectId").description("나가는 팀원이 속한 프로젝트 id")),
             responseFields(fieldWithPath("result")
                 .type(JsonFieldType.STRING)
@@ -151,7 +151,7 @@ class MemberControllerTest extends RestDocsTest {
   public void deleteInvitationMember() {
     given()
         .contentType(ContentType.JSON)
-        .delete("projects/{projectId}/members/invitation/{invitationId}", 1L, "초대아이디1")
+        .delete("members/invitation/{invitationId}", "초대아이디1")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
@@ -159,6 +159,23 @@ class MemberControllerTest extends RestDocsTest {
             pathParameters(
                 parameterWithName("projectId").description("초대 요청이 생성된 프로젝트의 ID"),
                 parameterWithName("invitationId").description("삭제할 초대된 사용자의 초대 ID")),
+            responseFields(fieldWithPath("result")
+                .type(JsonFieldType.STRING)
+                .description("성공 여부 : SUCCESS 혹은 ERROR"))));
+  }
+
+  @Test
+  public void deleteMember() {
+    given()
+        .contentType(ContentType.JSON)
+        .delete("members/{memberId}", 2L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "delete-member",
+            pathParameters(
+                parameterWithName("projectId").description("팀원을 삭제할 프로젝트 id"),
+                parameterWithName("memberId").description("삭제할 팀원 id")),
             responseFields(fieldWithPath("result")
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 : SUCCESS 혹은 ERROR"))));
