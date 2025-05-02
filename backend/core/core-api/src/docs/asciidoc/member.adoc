@@ -15,3 +15,6 @@ operation::search-user[snippets='http-request,path-parameters,request-fields,htt
 
 === [미구현] 팀 나가기
 operation::delete-member[snippets='http-request,path-parameters,http-response,response-fields']
+
+=== [미구현] 초대 팀원 삭제
+operation::delete-invitation-member[snippets='http-request,path-parameters,http-response,response-fields']

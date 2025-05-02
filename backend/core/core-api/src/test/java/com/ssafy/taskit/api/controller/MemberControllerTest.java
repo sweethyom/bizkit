@@ -146,4 +146,21 @@ class MemberControllerTest extends RestDocsTest {
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 : SUCCESS 혹은 ERROR"))));
   }
+
+  @Test
+  public void deleteInvitationMember() {
+    given()
+        .contentType(ContentType.JSON)
+        .delete("projects/{projectId}/members/invitation/{invitationId}", 1L, "초대아이디1")
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "delete-invitation-member",
+            pathParameters(
+                parameterWithName("projectId").description("초대 요청이 생성된 프로젝트의 ID"),
+                parameterWithName("invitationId").description("삭제할 초대된 사용자의 초대 ID")),
+            responseFields(fieldWithPath("result")
+                .type(JsonFieldType.STRING)
+                .description("성공 여부 : SUCCESS 혹은 ERROR"))));
+  }
 }
