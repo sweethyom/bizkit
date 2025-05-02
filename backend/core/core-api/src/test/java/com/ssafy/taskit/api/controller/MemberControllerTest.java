@@ -80,4 +80,26 @@ class MemberControllerTest extends RestDocsTest {
                     .type(JsonFieldType.STRING)
                     .description("초대한 사용자의 프로필 이미지"))));
   }
+
+  @Test
+  public void appendMember() {
+    given()
+        .contentType(ContentType.JSON)
+        .body(new AppendMemberRequest("초대할 팀원의 이메일"))
+        .post("projects/{projectId}/members", 1L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "append-member",
+            pathParameters(parameterWithName("projectId").description("팀원을 초대할 프로젝트")),
+            requestFields(
+                fieldWithPath("email").type(JsonFieldType.STRING).description("초대할 팀원의 이메일")),
+            responseFields(
+                fieldWithPath("result")
+                    .type(JsonFieldType.STRING)
+                    .description("성공 여부 : SUCCESS 혹은 ERROR"),
+                fieldWithPath("data.invitationId")
+                    .type(JsonFieldType.STRING)
+                    .description("팀원을 초대한 초대 id"))));
+  }
 }
