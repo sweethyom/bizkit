@@ -156,9 +156,7 @@ class MemberControllerTest extends RestDocsTest {
         .status(HttpStatus.OK)
         .apply(document(
             "delete-invitation-member",
-            pathParameters(
-                parameterWithName("projectId").description("초대 요청이 생성된 프로젝트의 ID"),
-                parameterWithName("invitationId").description("삭제할 초대된 사용자의 초대 ID")),
+            pathParameters(parameterWithName("invitationId").description("삭제할 초대된 사용자의 초대 ID")),
             responseFields(fieldWithPath("result")
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 : SUCCESS 혹은 ERROR"))));
@@ -173,9 +171,7 @@ class MemberControllerTest extends RestDocsTest {
         .status(HttpStatus.OK)
         .apply(document(
             "delete-member",
-            pathParameters(
-                parameterWithName("projectId").description("팀원을 삭제할 프로젝트 id"),
-                parameterWithName("memberId").description("삭제할 팀원 id")),
+            pathParameters(parameterWithName("memberId").description("삭제할 팀원 id")),
             responseFields(fieldWithPath("result")
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 : SUCCESS 혹은 ERROR"))));
