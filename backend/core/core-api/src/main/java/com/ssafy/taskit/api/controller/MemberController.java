@@ -26,4 +26,11 @@ public class MemberController {
         new InvitationMemberResponse("초대아이디3", 6L, "초대사용자닉네임3", "초대사용자이메일3", "default3.jpg"));
     return ApiResponse.success(responses);
   }
+
+  @PostMapping("projects/{projectId}/members")
+  public ApiResponse<InvitationResponse> appendMember(
+      @PathVariable Long projectId, @RequestBody AppendMemberRequest request) {
+    InvitationResponse response = new InvitationResponse("초대코드1");
+    return ApiResponse.success(response);
+  }
 }
