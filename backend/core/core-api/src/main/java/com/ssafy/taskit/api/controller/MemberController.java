@@ -45,13 +45,18 @@ public class MemberController {
   }
 
   @DeleteMapping("projects/{projectId}/member")
-  public ApiResponse<Void> deleteMember(ApiUser apiUser, @PathVariable Long projectId) {
+  public ApiResponse<Void> leaveProject(ApiUser apiUser, @PathVariable Long projectId) {
     return ApiResponse.success();
   }
 
-  @DeleteMapping("projects/{projectId}/members/invitation/{invitationId}")
+  @DeleteMapping("members/invitation/{invitationId}")
   public ApiResponse<Void> deleteInvitationMember(
-      ApiUser apiUser, @PathVariable Long projectId, @PathVariable String invitationId) {
+      ApiUser apiUser, @PathVariable String invitationId) {
+    return ApiResponse.success();
+  }
+
+  @DeleteMapping("members/{memberId}")
+  public ApiResponse<Void> deleteMember(ApiUser apiUser, @PathVariable Long memberId) {
     return ApiResponse.success();
   }
 }
