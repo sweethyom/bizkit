@@ -102,4 +102,33 @@ class MemberControllerTest extends RestDocsTest {
                     .type(JsonFieldType.STRING)
                     .description("팀원을 초대한 초대 id"))));
   }
+
+  @Test
+  public void searchUser() {
+    given()
+        .contentType(ContentType.JSON)
+        .body(new SearchUserRequest("검색한 유저의 이메일"))
+        .post("projects/{projectId}/members/search", 1L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "search-user",
+            pathParameters(parameterWithName("projectId").description("검색한 유저를 초대할 프로젝트 id")),
+            requestFields(
+                fieldWithPath("email").type(JsonFieldType.STRING).description("검색할 유저의 이메일")),
+            responseFields(
+                fieldWithPath("result")
+                    .type(JsonFieldType.STRING)
+                    .description("성공 여부 : SUCCESS 혹은 ERROR"),
+                fieldWithPath("data.[].id").type(JsonFieldType.NUMBER).description("검색한 사용자의 id"),
+                fieldWithPath("data.[].nickname")
+                    .type(JsonFieldType.STRING)
+                    .description("검색한 사용자의 닉네임"),
+                fieldWithPath("data.[].email")
+                    .type(JsonFieldType.STRING)
+                    .description("검색한 사용자의 이메일"),
+                fieldWithPath("data.[].profileImage")
+                    .type(JsonFieldType.STRING)
+                    .description("검색한 사용자의 프로필 이미지"))));
+  }
 }
