@@ -59,4 +59,9 @@ public class MemberController {
   public ApiResponse<Void> deleteMember(ApiUser apiUser, @PathVariable Long memberId) {
     return ApiResponse.success();
   }
+
+  @PostMapping("members/invitation/{invitationId}")
+  public ApiResponse<Void> acceptInvitation(ApiUser apiUser, @PathVariable String invitationId) {
+    return ApiResponse.success();
+  }
 }
