@@ -1,5 +1,6 @@
 package com.ssafy.taskit.storage.db.core;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -12,6 +13,7 @@ public class RefreshTokenEntity {
   @Id
   private String username;
 
+  @Column(length = 2000)
   private String refreshToken;
 
   private LocalDateTime expirationTime;
