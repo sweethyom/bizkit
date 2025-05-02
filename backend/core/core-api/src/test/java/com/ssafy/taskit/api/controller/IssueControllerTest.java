@@ -70,7 +70,9 @@ class IssueControllerTest extends RestDocsTest {
                 fieldWithPath("data.content").type(JsonFieldType.STRING).description("이슈 내용"),
                 fieldWithPath("data.key").type(JsonFieldType.STRING).description("이슈 키"),
                 fieldWithPath("data.bizPoint").type(JsonFieldType.NUMBER).description("이슈 비즈포인트"),
-                fieldWithPath("data.importance").type(JsonFieldType.STRING).description("이슈 중요도"),
+                fieldWithPath("data.issueImportance")
+                    .type(JsonFieldType.STRING)
+                    .description("이슈 중요도"),
                 fieldWithPath("data.issueStatus")
                     .type(JsonFieldType.STRING)
                     .description("이슈 진행 상태"),
@@ -202,7 +204,7 @@ class IssueControllerTest extends RestDocsTest {
         .apply(document(
             "modify-issue-importance",
             pathParameters(parameterWithName("issueId").description("수정할 이슈 id")),
-            requestFields(fieldWithPath("importance")
+            requestFields(fieldWithPath("issueImportance")
                 .type(JsonFieldType.STRING)
                 .description("수정할 중요도")
                 .attributes(constraints("중요도는 HIGH, LOW 중 하나여야 함"))),
@@ -289,7 +291,7 @@ class IssueControllerTest extends RestDocsTest {
                 fieldWithPath("data.[].bizPoint")
                     .type(JsonFieldType.NUMBER)
                     .description("이슈 비즈포인트"),
-                fieldWithPath("data.[].importance")
+                fieldWithPath("data.[].issueImportance")
                     .type(JsonFieldType.STRING)
                     .description("이슈 중요도"),
                 fieldWithPath("data.[].issueStatus")
@@ -332,7 +334,7 @@ class IssueControllerTest extends RestDocsTest {
                 fieldWithPath("data.[].bizPoint")
                     .type(JsonFieldType.NUMBER)
                     .description("이슈 비즈포인트"),
-                fieldWithPath("data.[].importance")
+                fieldWithPath("data.[].issueImportance")
                     .type(JsonFieldType.STRING)
                     .description("이슈 중요도"),
                 fieldWithPath("data.[].issueStatus")
@@ -393,7 +395,7 @@ class IssueControllerTest extends RestDocsTest {
                 fieldWithPath("data.[].issues.[].bizPoint")
                     .type(JsonFieldType.NUMBER)
                     .description("이슈 비즈포인트"),
-                fieldWithPath("data.[].issues.[].importance")
+                fieldWithPath("data.[].issues.[].issueImportance")
                     .type(JsonFieldType.STRING)
                     .description("이슈 중요도"),
                 fieldWithPath("data.[].issues.[].component.id")
@@ -465,7 +467,7 @@ class IssueControllerTest extends RestDocsTest {
                 fieldWithPath("data.[].id").type(JsonFieldType.NUMBER).description("이슈 id"),
                 fieldWithPath("data.[].name").type(JsonFieldType.STRING).description("이슈 이름"),
                 fieldWithPath("data.[].key").type(JsonFieldType.STRING).description("이슈 키"),
-                fieldWithPath("data.[].importance")
+                fieldWithPath("data.[].issueImportance")
                     .type(JsonFieldType.STRING)
                     .description("이슈 중요도"),
                 fieldWithPath("data.[].epic.id")

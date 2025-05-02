@@ -8,7 +8,7 @@ public record SprintIssuesResponse(
     String name,
     String key,
     Long bizPoint,
-    Importance importance,
+    Importance issueImportance,
     IssueStatus issueStatus,
     ComponentResponse component,
     AssigneeResponse assignee,

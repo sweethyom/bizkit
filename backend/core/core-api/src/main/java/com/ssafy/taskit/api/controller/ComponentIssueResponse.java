@@ -7,7 +7,7 @@ public record ComponentIssueResponse(
     String name,
     String key,
     Long bizPoint,
-    Importance importance,
+    Importance issueImportance,
     ComponentResponse component,
     AssigneeResponse assignee,
     IssueDetailEpicResponse epic) {}

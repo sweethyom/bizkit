@@ -6,6 +6,6 @@ public record MyIssuesResponse(
     Long id,
     String name,
     String key,
-    Importance importance,
+    Importance issueImportance,
     IssueDetailEpicResponse epic,
     MyIssuesProjectResponse project) {}

@@ -9,7 +9,7 @@ public record IssueDetailResponse(
     String content,
     String key,
     Long bizPoint,
-    Importance importance,
+    Importance issueImportance,
     IssueStatus issueStatus,
     ComponentResponse component,
     AssigneeResponse assignee,
