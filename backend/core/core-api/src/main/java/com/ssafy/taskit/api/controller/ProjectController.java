@@ -48,7 +48,8 @@ public class ProjectController {
   }
 
   @GetMapping("/projects/invitation/{invitationId}")
-  public ApiResponse<InvitationProjectResponse> findInvitationProject(@PathVariable Long invitationId) {
+  public ApiResponse<InvitationProjectResponse> findInvitationProject(
+      @PathVariable Long invitationId) {
     LeaderResponse leaderResponse = new LeaderResponse(1L, "팀장1", "profile1.jpg");
     InvitationProjectResponse response =
         new InvitationProjectResponse(1L, "프로젝트 이름1", "default1.jpg", leaderResponse);
