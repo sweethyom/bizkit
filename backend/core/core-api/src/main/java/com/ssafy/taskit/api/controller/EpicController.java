@@ -24,8 +24,8 @@ public class EpicController {
   @GetMapping("projects/{projectId}/epics")
   public ApiResponse<List<EpicResponse>> findEpics(ApiUser apiUser, @PathVariable Long projectId) {
     List<EpicResponse> response = List.of(
-        new EpicResponse(1L, "프로젝트명-1", "에픽1", 10L, 3L),
-        new EpicResponse(2L, "프로젝트명-2", "에픽2", 20L, 17L));
+        new EpicResponse(1L, "S12P31D207-1", "에픽1", 10L, 3L),
+        new EpicResponse(2L, "S12P31D207-2", "에픽2", 20L, 17L));
     return ApiResponse.success(response);
   }
 
