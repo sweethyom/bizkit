@@ -131,3 +131,5 @@ include::modules/auth/user.adoc[]
 :snippets: +{project-root}+/build/generated-snippets/core-api
 include::modules/core-api/epic.adoc[]
 include::modules/core-api/component.adoc[]
+include::modules/core-api/member.adoc[]
+include::modules/core-api/issue.adoc[]
