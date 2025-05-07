@@ -1,11 +1,15 @@
 package com.ssafy.taskit.api.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
 import com.ssafy.s12p21d206.achu.test.api.RestDocsUtils;
+import com.ssafy.taskit.domain.*;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,18 +18,23 @@ import org.springframework.restdocs.payload.JsonFieldType;
 
 class ProjectControllerTest extends RestDocsTest {
   ProjectController controller;
+  ProjectService projectService;
+  ProjectImageFacade projectImageFacade;
 
   @BeforeEach
   public void setup() {
-    controller = new ProjectController();
+    projectService = mock(ProjectService.class);
+    projectImageFacade = mock(ProjectImageFacade.class);
+    controller = new ProjectController(projectService, projectImageFacade);
     mockMvc = mockController(controller);
   }
 
   @Test
   public void appendProject() {
+    when(projectImageFacade.append(any(User.class), any(NewProject.class))).thenReturn(1L);
     given()
-        .contentType(ContentType.JSON)
-        .body(new AppendProjectRequest("프로젝트 이름1"))
+        .contentType("multipart/form-data")
+        .multiPart("request", new AppendProjectRequest("프로젝트 이름1"), "application/json")
         .post("/projects")
         .then()
         .status(HttpStatus.OK)

@@ -1,3 +1,11 @@
 package com.ssafy.taskit.api.controller;
 
-public record AppendProjectRequest(String name) {}
+import com.ssafy.taskit.api.validation.ProjectName;
+import com.ssafy.taskit.domain.NewProject;
+import jakarta.validation.constraints.NotNull;
+
+public record AppendProjectRequest(@NotNull @ProjectName String name) {
+  public NewProject toNewProject() {
+    return new NewProject(this.name());
+  }
+}
