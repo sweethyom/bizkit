@@ -2,7 +2,11 @@ package com.ssafy.taskit.api.controller;
 
 import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
+import com.ssafy.taskit.domain.Epic;
+import com.ssafy.taskit.domain.EpicService;
+import com.ssafy.taskit.domain.NewEpic;
 import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -14,11 +18,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class EpicController {
 
+  private final EpicService epicService;
+
+  public EpicController(EpicService epicService) {
+    this.epicService = epicService;
+  }
+
   @PostMapping("projects/{projectId}/epics")
   public ApiResponse<DefaultIdResponse> appendEpic(
-      ApiUser apiUser, @PathVariable Long projectId, @RequestBody AppendEpicRequest request) {
-    DefaultIdResponse response = new DefaultIdResponse(1L);
-    return ApiResponse.success(response);
+      ApiUser apiUser,
+      @PathVariable Long projectId,
+      @RequestBody @Validated AppendEpicRequest request) {
+    NewEpic newEpic = request.toNewEpic();
+    String key = "project-1";
+    Epic epic = epicService.append(apiUser.toUser(), projectId, newEpic, key);
+    return ApiResponse.success(new DefaultIdResponse(epic.id()));
   }
 
   @GetMapping("projects/{projectId}/epics")
