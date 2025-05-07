@@ -1,6 +1,10 @@
 package com.ssafy.taskit.api.controller;
 
 import static com.ssafy.s12p21d206.achu.test.api.RestDocsUtils.constraints;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -9,7 +13,13 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
+import com.ssafy.taskit.domain.Epic;
+import com.ssafy.taskit.domain.EpicService;
+import com.ssafy.taskit.domain.NewEpic;
+import com.ssafy.taskit.domain.User;
+import com.ssafy.taskit.domain.support.DefaultDateTime;
 import io.restassured.http.ContentType;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -18,15 +28,24 @@ import org.springframework.restdocs.payload.JsonFieldType;
 class EpicControllerTest extends RestDocsTest {
 
   private EpicController controller;
+  private EpicService epicService;
 
   @BeforeEach
   public void setUp() {
-    controller = new EpicController();
+    epicService = mock(EpicService.class);
+    controller = new EpicController(epicService);
     mockMvc = mockController(controller);
   }
 
   @Test
   public void appendEpic() {
+    when(epicService.append(any(User.class), anyLong(), any(NewEpic.class), any()))
+        .thenReturn(new Epic(
+            1L,
+            "에픽 이름",
+            "프로젝트-1",
+            1L,
+            new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())));
     given()
         .contentType(ContentType.JSON)
         .body(new AppendEpicRequest("에픽 이름"))
