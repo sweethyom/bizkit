@@ -11,7 +11,6 @@ const SignInPage: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSignIn = async (credentials: SignInCredentials) => {
     setIsLoading(true);
@@ -39,14 +38,6 @@ const SignInPage: FC = () => {
           refreshTokenExpiry.getSeconds() + response.data.refreshTokenExpiresIn,
         );
         localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry.toISOString());
-
-        if (rememberMe) {
-          // rememberMe가 true인 경우 로컬 스토리지에 사용자 정보 저장
-          localStorage.setItem('username', credentials.username);
-        } else {
-          // rememberMe가 false인 경우 세션 스토리지에 사용자 정보 저장
-          sessionStorage.setItem('username', credentials.username);
-        }
 
         // 홈페이지로 리다이렉트
         navigate('/');
@@ -86,8 +77,6 @@ const SignInPage: FC = () => {
             setUsername={setUsername}
             password={password}
             setPassword={setPassword}
-            rememberMe={rememberMe}
-            setRememberMe={setRememberMe}
             isLoading={isLoading}
             error={error}
           />

@@ -9,8 +9,6 @@ interface SignInFormProps {
   setUsername: (username: string) => void;
   password: string;
   setPassword: (password: string) => void;
-  rememberMe: boolean;
-  setRememberMe: (rememberMe: boolean) => void;
   isLoading: boolean;
   error: string | null;
 }
@@ -21,8 +19,6 @@ const SignInForm: FC<SignInFormProps> = ({
   setUsername,
   password,
   setPassword,
-  rememberMe,
-  setRememberMe,
   isLoading,
   error,
 }) => {
@@ -82,16 +78,6 @@ const SignInForm: FC<SignInFormProps> = ({
 
       {/* 로그인 상태 유지 & 비밀번호 찾기 */}
       <div className='flex items-center justify-between'>
-        <div className='flex items-center'>
-          <input
-            id='remember-me'
-            name='remember-me'
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-            className='h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'
-          />
-        </div>
-
         <div className='text-sm'>
           <a
             href='#'
