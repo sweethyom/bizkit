@@ -6,6 +6,7 @@ import com.ssafy.taskit.domain.Component;
 import com.ssafy.taskit.domain.ComponentService;
 import com.ssafy.taskit.domain.NewComponent;
 import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +21,9 @@ public class ComponentController {
 
   @PostMapping("/projects/{projectId}/components")
   public ApiResponse<DefaultIdResponse> appendComponent(
-      ApiUser apiUser, @PathVariable Long projectId, @RequestBody AppendComponentRequest request) {
+      ApiUser apiUser,
+      @PathVariable Long projectId,
+      @RequestBody @Validated AppendComponentRequest request) {
     NewComponent newComponent = request.toNewComponent();
     Component component = componentService.append(apiUser.toUser(), projectId, newComponent);
     return ApiResponse.success(new DefaultIdResponse(component.id()));
