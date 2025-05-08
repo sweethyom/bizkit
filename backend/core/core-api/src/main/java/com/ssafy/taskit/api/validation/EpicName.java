@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = EpicNameValidator.class)
 public @interface EpicName {
 
-  String message() default "에픽 등록 시 이름은 앞뒤 공백 없이 40자 이내여야 합니다.";
+  String message() default "에픽 이름은 앞뒤 공백 없이 40byte 이내여야 합니다.";
 
   Class<?>[] groups() default {};
 
