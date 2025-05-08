@@ -9,6 +9,7 @@ public class ComponentContentValidator implements ConstraintValidator<ComponentC
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
     if (value == null) return true; // null은 별도 처리
-    return value.getBytes(StandardCharsets.UTF_8).length <= 100;
+    String stripValue = value.strip();
+    return stripValue.getBytes(StandardCharsets.UTF_8).length <= 100;
   }
 }

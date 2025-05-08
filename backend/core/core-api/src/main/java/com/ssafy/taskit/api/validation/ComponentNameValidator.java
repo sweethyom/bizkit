@@ -8,7 +8,8 @@ public class ComponentNameValidator implements ConstraintValidator<ComponentName
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
-    if (value == null) return true; // null은 별도 처리
-    return value.getBytes(StandardCharsets.UTF_8).length <= 20;
+    if (value == null) return true;
+    String stripValue = value.strip(); // null은 별도 처리
+    return stripValue.getBytes(StandardCharsets.UTF_8).length <= 20;
   }
 }
