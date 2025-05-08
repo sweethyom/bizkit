@@ -1,7 +1,9 @@
 package com.ssafy.taskit.domain.error;
 
 public enum CoreErrorType {
-  ;
+  DATA_NOT_FOUND(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.A000, "데이터를 찾을 수 없습니다.", CoreErrorLevel.INFO);
+
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
   private final String message;
