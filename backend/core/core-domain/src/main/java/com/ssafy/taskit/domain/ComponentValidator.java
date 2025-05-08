@@ -10,6 +10,10 @@ public class ComponentValidator {
 
   private final ComponentRepository componentRepository;
 
+  public ComponentValidator(ComponentRepository componentRepository) {
+    this.componentRepository = componentRepository;
+  }
+
   public void isUniqueComponentName(Long projectId, String name) {
     boolean check = componentRepository.existsByProjectIdAndName(projectId, name);
     if (check) {

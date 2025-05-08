@@ -39,7 +39,7 @@ class ComponentControllerTest extends RestDocsTest {
   @Test
   void appendComponent() {
     when(componentService.append(any(User.class), anyLong(), any(NewComponent.class)))
-        .thenReturn(new Component(1L, 1L, "컴포넌트 이름", "컴포넌트 설명"));
+        .thenReturn(new Component(1L, 1L, 1L, "컴포넌트 이름", "컴포넌트 설명"));
 
     given()
         .contentType(ContentType.JSON)

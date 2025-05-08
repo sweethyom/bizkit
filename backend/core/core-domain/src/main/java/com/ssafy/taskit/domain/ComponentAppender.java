@@ -31,6 +31,6 @@ public class ComponentAppender {
     componentValidator.isComponentContentLimitOver(newComponent.content());
     memberValidator.isProjectLeader(user, projectId);
 
-    return componentRepository.save(projectId, newComponent);
+    return componentRepository.save(user, projectId, newComponent);
   }
 }
