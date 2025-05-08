@@ -3,6 +3,7 @@ package com.ssafy.taskit.storage.db.core;
 import com.ssafy.taskit.domain.Epic;
 import com.ssafy.taskit.domain.EpicRepository;
 import com.ssafy.taskit.domain.NewEpic;
+import java.util.List;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -19,5 +20,12 @@ public class EpicCoreRepository implements EpicRepository {
     return epicJpaRepository
         .save(new EpicEntity(newEpic.name(), key, projectId))
         .toEpic();
+  }
+
+  @Override
+  public List<Epic> findEpics(Long projectId) {
+    List<EpicEntity> epicEntities =
+        epicJpaRepository.findByProjectIdAndEntityStatus(projectId, EntityStatus.ACTIVE);
+    return epicEntities.stream().map(EpicEntity::toEpic).toList();
   }
 }

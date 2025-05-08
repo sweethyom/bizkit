@@ -4,8 +4,10 @@ import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
 import com.ssafy.taskit.domain.Epic;
 import com.ssafy.taskit.domain.EpicService;
+import com.ssafy.taskit.domain.IssueService;
 import com.ssafy.taskit.domain.NewEpic;
 import java.util.List;
+import java.util.Map;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class EpicController {
 
   private final EpicService epicService;
+  private final IssueService issueService;
 
-  public EpicController(EpicService epicService) {
+  public EpicController(EpicService epicService, IssueService issueService) {
     this.epicService = epicService;
+    this.issueService = issueService;
   }
 
   @PostMapping("projects/{projectId}/epics")
@@ -36,9 +40,12 @@ public class EpicController {
 
   @GetMapping("projects/{projectId}/epics")
   public ApiResponse<List<EpicResponse>> findEpics(ApiUser apiUser, @PathVariable Long projectId) {
-    List<EpicResponse> response = List.of(
-        new EpicResponse(1L, "S12P31D207-1", "에픽1", 10L, 3L),
-        new EpicResponse(2L, "S12P31D207-2", "에픽2", 20L, 17L));
+    List<Epic> epics = epicService.findEpics(apiUser.toUser(), projectId);
+    List<Long> epicIds = epics.stream().map(Epic::id).toList();
+    Map<Long, Integer> totalIssueCountMap = issueService.countTotalIssues(epicIds);
+    Map<Long, Integer> backlogIssueCountMap = issueService.countBacklogIssues(epicIds);
+    List<EpicResponse> response =
+        EpicResponse.from(epics, totalIssueCountMap, backlogIssueCountMap);
     return ApiResponse.success(response);
   }
 
