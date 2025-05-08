@@ -38,15 +38,26 @@ class ProjectControllerTest extends RestDocsTest {
     given()
         .contentType("multipart/form-data")
         .multiPart("request", new AppendProjectRequest("프로젝트 이름1", "프로젝트 키"), "application/json")
+        //            .multiPart("image", new File("src/test/resources/test-image.jpg"),
+        // "image/jpeg")
         .post("/projects")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "append-project",
-            requestFields(fieldWithPath("name")
-                .type(JsonFieldType.STRING)
-                .attributes(RestDocsUtils.constraints("최대 40byte (앞뒤 공백 불가)"))
-                .description("생성할 프로젝트 이름")),
+            requestParts(
+                partWithName("request").description("프로젝트의 이름과 키가 담긴 정보"),
+                partWithName("image").description("프로젝트 이미지 파일").optional()),
+            requestPartFields(
+                "request",
+                fieldWithPath("name")
+                    .type(JsonFieldType.STRING)
+                    .attributes(RestDocsUtils.constraints("최대 40byte (앞뒤 공백 불가)"))
+                    .description("생성할 프로젝트 이름"),
+                fieldWithPath("key")
+                    .type(JsonFieldType.STRING)
+                    .attributes(RestDocsUtils.constraints("최대 10byte (대문자 및 숫자만 가능, 앞뒤 공백 불가)"))
+                    .description("생성할 프로젝트의 키")),
             responseFields(
                 fieldWithPath("result")
                     .type(JsonFieldType.STRING)
