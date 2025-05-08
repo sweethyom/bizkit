@@ -9,11 +9,17 @@ public class EpicService {
   private final EpicAppender epicAppender;
   private final EpicReader epicReader;
   private final EpicModifier epicModifier;
+  private final EpicDeleter epicDeleter;
 
-  public EpicService(EpicAppender epicAppender, EpicReader epicReader, EpicModifier epicModifier) {
+  public EpicService(
+      EpicAppender epicAppender,
+      EpicReader epicReader,
+      EpicModifier epicModifier,
+      EpicDeleter epicDeleter) {
     this.epicAppender = epicAppender;
     this.epicReader = epicReader;
     this.epicModifier = epicModifier;
+    this.epicDeleter = epicDeleter;
   }
 
   public Epic append(User user, Long projectId, NewEpic newEpic) {
@@ -26,5 +32,9 @@ public class EpicService {
 
   public void modifyEpic(User user, Long epicId, ModifyEpic modifyEpic) {
     epicModifier.modifyEpic(user, epicId, modifyEpic);
+  }
+
+  public void deleteEpic(User user, Long epicId) {
+    epicDeleter.deleteEpic(user, epicId);
   }
 }
