@@ -1,8 +1,6 @@
 package com.ssafy.taskit.domain;
 
-import org.springframework.stereotype.Component;
-
-@Component
+@org.springframework.stereotype.Component
 public class ComponentAppender {
   private final ComponentRepository componentRepository;
 
@@ -23,12 +21,9 @@ public class ComponentAppender {
     this.memberValidator = memberValidator;
   }
 
-  public com.ssafy.taskit.domain.Component append(
-      User user, Long projectId, NewComponent newComponent) {
+  public Component append(User user, Long projectId, NewComponent newComponent) {
     projectValidator.isProjectExists(projectId);
-    componentValidator.isComponentNameLimitOver(newComponent.name());
     componentValidator.isUniqueComponent(projectId, newComponent.name());
-    componentValidator.isComponentContentLimitOver(newComponent.content());
     memberValidator.isProjectLeader(user, projectId);
 
     return componentRepository.save(user, projectId, newComponent);
