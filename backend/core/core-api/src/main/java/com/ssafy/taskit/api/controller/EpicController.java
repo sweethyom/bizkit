@@ -60,6 +60,7 @@ public class EpicController {
 
   @DeleteMapping("epics/{epicId}")
   public ApiResponse<Void> deleteEpic(ApiUser apiUser, @PathVariable Long epicId) {
+    epicService.deleteEpic(apiUser.toUser(), epicId);
     return ApiResponse.success();
   }
 }

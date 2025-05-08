@@ -2,6 +2,7 @@ package com.ssafy.taskit.api.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import java.nio.charset.StandardCharsets;
 
 public class EpicNameValidator implements ConstraintValidator<EpicName, String> {
 
@@ -11,6 +12,6 @@ public class EpicNameValidator implements ConstraintValidator<EpicName, String> 
     if (stripedValue.length() != value.length()) {
       return false;
     }
-    return !stripedValue.isEmpty() && stripedValue.length() <= 40;
+    return !stripedValue.isEmpty() && stripedValue.getBytes(StandardCharsets.UTF_8).length <= 40;
   }
 }
