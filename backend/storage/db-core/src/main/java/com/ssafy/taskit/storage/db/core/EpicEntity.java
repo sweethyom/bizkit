@@ -29,4 +29,8 @@ public class EpicEntity extends BaseEntity {
         this.projectId,
         new DefaultDateTime(getCreatedAt(), getUpdatedAt()));
   }
+
+  public void updateEpicName(String name) {
+    this.name = name;
+  }
 }
