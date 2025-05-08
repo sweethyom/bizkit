@@ -2,15 +2,19 @@ package com.ssafy.taskit.api.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import java.nio.charset.StandardCharsets;
 
 public class ProjectNameValidator implements ConstraintValidator<ProjectName, String> {
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
-    String stripedValue = value.strip();
-    if (stripedValue.length() != value.length()) {
+    if (value == null) {
       return false;
     }
-    return !stripedValue.isEmpty() && stripedValue.length() <= 40;
+    String stripedValue = value.strip();
+    if (!stripedValue.equals(value)) {
+      return false;
+    }
+    return !stripedValue.isEmpty() && stripedValue.getBytes(StandardCharsets.UTF_8).length <= 40;
   }
 }

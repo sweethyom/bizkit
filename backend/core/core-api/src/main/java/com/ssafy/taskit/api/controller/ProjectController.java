@@ -9,16 +9,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class ProjectController {
   private final ProjectService projectService;
-  private final ProjectSequenceService projectSequenceService;
-  private final ProjectImageFacade projectImageFacade;
 
-  public ProjectController(
-      ProjectService projectService,
-      ProjectSequenceService projectSequenceService,
-      ProjectImageFacade projectImageFacade) {
+  public ProjectController(ProjectService projectService) {
     this.projectService = projectService;
-    this.projectSequenceService = projectSequenceService;
-    this.projectImageFacade = projectImageFacade;
   }
 
   @PostMapping("/projects")
@@ -27,8 +20,6 @@ public class ProjectController {
     NewProject newProject = request.toNewProject();
 
     Long id = projectService.append(apiUser.toUser(), newProject);
-    NewProjectSequence newProjectSequence = new NewProjectSequence(0);
-    projectSequenceService.appendProjectSequence(id, newProjectSequence);
     return ApiResponse.success(new DefaultIdResponse(id));
   }
 

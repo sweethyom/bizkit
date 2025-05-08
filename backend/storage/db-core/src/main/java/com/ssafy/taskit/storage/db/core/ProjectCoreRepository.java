@@ -4,7 +4,6 @@ import com.ssafy.taskit.domain.NewProject;
 import com.ssafy.taskit.domain.Project;
 import com.ssafy.taskit.domain.ProjectRepository;
 import com.ssafy.taskit.domain.User;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
@@ -18,9 +17,10 @@ public class ProjectCoreRepository implements ProjectRepository {
   }
 
   @Override
-  public Project save(User user, NewProject newProject, String imageUrl, LocalDateTime viewedAt) {
+  public Project save(User user, NewProject newProject, String imageUrl, int currentSequence) {
     return projectJpaRepository
-        .save(new ProjectEntity(user.id(), newProject.name(), newProject.key(), imageUrl, viewedAt))
+        .save(new ProjectEntity(
+            user.id(), newProject.name(), newProject.key(), imageUrl, currentSequence))
         .toProject();
   }
 

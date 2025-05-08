@@ -1,6 +1,5 @@
 package com.ssafy.taskit.domain;
 
-import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,6 +13,6 @@ public class ProjectAppender {
   }
 
   public Project append(User user, NewProject newProject) {
-    return projectRepository.save(user, newProject, null, LocalDateTime.now());
+    return projectRepository.save(user, newProject, null, 0);
   }
 }

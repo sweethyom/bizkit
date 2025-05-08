@@ -13,19 +13,19 @@ public class ProjectEntity extends BaseEntity {
   private Long userId;
   private String name;
   private String key;
+  private int currentSequence;
   private String imageUrl;
 
   private LocalDateTime viewedAt;
 
   protected ProjectEntity() {}
 
-  public ProjectEntity(
-      Long userId, String name, String key, String imageUrl, LocalDateTime viewedAt) {
+  public ProjectEntity(Long userId, String name, String key, String imageUrl, int currentSequence) {
     this.userId = userId;
     this.name = name;
     this.key = key;
     this.imageUrl = imageUrl;
-    this.viewedAt = viewedAt;
+    this.currentSequence = currentSequence;
   }
 
   public Project toProject() {
@@ -34,8 +34,8 @@ public class ProjectEntity extends BaseEntity {
         this.userId,
         this.name,
         this.key,
+        this.currentSequence,
         this.imageUrl,
-        this.viewedAt,
         new DefaultDateTime(this.getCreatedAt(), this.getUpdatedAt()));
   }
 }

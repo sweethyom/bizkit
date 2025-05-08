@@ -3,7 +3,6 @@ package com.ssafy.taskit.domain.error;
 public enum CoreErrorCode {
   A000,
   P000,
-  P001,
   M000,
   C000,
 

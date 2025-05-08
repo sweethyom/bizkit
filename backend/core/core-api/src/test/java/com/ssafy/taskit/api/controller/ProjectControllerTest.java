@@ -19,16 +19,11 @@ import org.springframework.restdocs.payload.JsonFieldType;
 class ProjectControllerTest extends RestDocsTest {
   ProjectController controller;
   ProjectService projectService;
-  ProjectImageFacade projectImageFacade;
-
-  ProjectSequenceService projectSequenceService;
 
   @BeforeEach
   public void setup() {
     projectService = mock(ProjectService.class);
-    projectImageFacade = mock(ProjectImageFacade.class);
-    projectSequenceService = mock(ProjectSequenceService.class);
-    controller = new ProjectController(projectService, projectSequenceService, projectImageFacade);
+    controller = new ProjectController(projectService);
     mockMvc = mockController(controller);
   }
 
