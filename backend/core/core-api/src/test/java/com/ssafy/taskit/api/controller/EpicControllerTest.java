@@ -39,7 +39,7 @@ class EpicControllerTest extends RestDocsTest {
 
   @Test
   public void appendEpic() {
-    when(epicService.append(any(User.class), anyLong(), any(NewEpic.class), any()))
+    when(epicService.append(any(User.class), anyLong(), any(NewEpic.class)))
         .thenReturn(new Epic(
             1L,
             "에픽 이름",
