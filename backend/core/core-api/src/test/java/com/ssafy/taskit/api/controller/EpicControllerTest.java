@@ -15,11 +15,13 @@ import static org.springframework.restdocs.request.RequestDocumentation.pathPara
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
 import com.ssafy.taskit.domain.Epic;
 import com.ssafy.taskit.domain.EpicService;
+import com.ssafy.taskit.domain.IssueService;
 import com.ssafy.taskit.domain.NewEpic;
 import com.ssafy.taskit.domain.User;
 import com.ssafy.taskit.domain.support.DefaultDateTime;
 import io.restassured.http.ContentType;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -29,11 +31,13 @@ class EpicControllerTest extends RestDocsTest {
 
   private EpicController controller;
   private EpicService epicService;
+  private IssueService issueService;
 
   @BeforeEach
   public void setUp() {
     epicService = mock(EpicService.class);
-    controller = new EpicController(epicService);
+    issueService = mock(IssueService.class);
+    controller = new EpicController(epicService, issueService);
     mockMvc = mockController(controller);
   }
 
@@ -43,7 +47,7 @@ class EpicControllerTest extends RestDocsTest {
         .thenReturn(new Epic(
             1L,
             "에픽 이름",
-            "프로젝트-1",
+            "PROJECT-1",
             1L,
             new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())));
     given()
@@ -68,6 +72,20 @@ class EpicControllerTest extends RestDocsTest {
 
   @Test
   public void findEpics() {
+    when(epicService.findEpics(any(User.class), anyLong()))
+        .thenReturn(List.of(
+            new Epic(
+                1L,
+                "에픽1",
+                "PROJECT-1",
+                1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
+            new Epic(
+                2L,
+                "에픽2",
+                "PROJECT-2",
+                1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
     given()
         .contentType(ContentType.JSON)
         .get("projects/{projectId}/epics", 1L)
