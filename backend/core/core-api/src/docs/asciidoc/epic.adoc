@@ -8,7 +8,7 @@ operation::append-epic[snippets='http-request,path-parameters,request-fields,htt
 
 operation::find-epics[snippets='http-request,path-parameters,http-response,response-fields']
 
-=== [미구현] 에픽 이름 수정
+=== 에픽 이름 수정
 
 operation::modify-epic-name[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
