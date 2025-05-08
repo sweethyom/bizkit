@@ -7,19 +7,6 @@ import java.util.Map;
 public record EpicResponse(
     Long id, String key, String name, Integer cntTotalIssues, Integer cntRemainIssues) {
 
-  //  public static List<EpicResponse> of(
-  //      List<Epic> epicList,
-  //      List<CountEpicTotalIssues> countEpicTotalIssuesList,
-  //      List<CountEpicRemainIssues> countEpicRemainIssuesList) {
-  //
-  //    Map<Long, CountEpicTotalIssues> totalIssuesMap = countEpicTotalIssuesList.stream()
-  //        .collect(Collectors.toMap(CountEpicTotalIssues::epicId, Function.identity()));
-  //    Map<Long, CountEpicRemainIssues> remainIssuesMap = countEpicRemainIssuesList.stream()
-  //        .collect(Collectors.toMap(CountEpicRemainIssues::epicId, Function.identity()));
-  //
-
-  //  }
-
   public static List<EpicResponse> from(
       List<Epic> epics,
       Map<Long, Integer> totalIssueCountMap,
