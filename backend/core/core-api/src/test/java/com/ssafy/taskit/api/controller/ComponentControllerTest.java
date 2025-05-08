@@ -43,7 +43,7 @@ class ComponentControllerTest extends RestDocsTest {
 
     given()
         .contentType(ContentType.JSON)
-        .body(new AppendComponentRequest("컴포넌트 아이디", "컴포넌트 설명"))
+        .body(new AppendComponentRequest("컴포넌트", "컴포넌트 설명"))
         .post("/projects/{projectId}/components", 1L)
         .then()
         .status(HttpStatus.OK)
