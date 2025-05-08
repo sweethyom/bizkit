@@ -27,7 +27,7 @@ public class ComponentAppender {
       User user, Long projectId, NewComponent newComponent) {
     projectValidator.isProjectExists(projectId);
     componentValidator.isComponentNameLimitOver(newComponent.name());
-    componentValidator.isUniqueComponentName(projectId, newComponent.name());
+    componentValidator.isUniqueComponent(projectId, newComponent.name());
     componentValidator.isComponentContentLimitOver(newComponent.content());
     memberValidator.isProjectLeader(user, projectId);
 

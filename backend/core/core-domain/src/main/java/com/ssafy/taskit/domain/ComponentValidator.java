@@ -14,7 +14,7 @@ public class ComponentValidator {
     this.componentRepository = componentRepository;
   }
 
-  public void isUniqueComponentName(Long projectId, String name) {
+  public void isUniqueComponent(Long projectId, String name) {
     boolean check = componentRepository.existsByProjectIdAndName(projectId, name);
     if (check) {
       throw new CoreException(CoreErrorType.DUPLICATED_COMPONENT_NAME);
