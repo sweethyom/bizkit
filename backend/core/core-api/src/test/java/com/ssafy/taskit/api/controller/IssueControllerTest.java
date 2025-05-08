@@ -2,6 +2,10 @@ package com.ssafy.taskit.api.controller;
 
 import static com.ssafy.s12p21d206.achu.test.api.RestDocsUtils.constraints;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -12,8 +16,14 @@ import static org.springframework.restdocs.request.RequestDocumentation.queryPar
 
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
 import com.ssafy.taskit.domain.Importance;
+import com.ssafy.taskit.domain.Issue;
+import com.ssafy.taskit.domain.IssueService;
 import com.ssafy.taskit.domain.IssueStatus;
+import com.ssafy.taskit.domain.NewIssue;
+import com.ssafy.taskit.domain.User;
+import com.ssafy.taskit.domain.support.DefaultDateTime;
 import io.restassured.http.ContentType;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -22,15 +32,31 @@ import org.springframework.restdocs.payload.JsonFieldType;
 class IssueControllerTest extends RestDocsTest {
 
   private IssueController controller;
+  private IssueService issueService;
 
   @BeforeEach
   public void setUp() {
-    controller = new IssueController();
+    issueService = mock(IssueService.class);
+    controller = new IssueController(issueService);
     mockMvc = mockController(controller);
   }
 
   @Test
   public void appendIssue() {
+    when(issueService.append(any(User.class), anyLong(), any(NewIssue.class)))
+        .thenReturn(new Issue(
+            1L,
+            "이슈 1",
+            null,
+            "PROJECT-2",
+            null,
+            null,
+            null,
+            null,
+            null,
+            1L,
+            null,
+            new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())));
     given()
         .contentType(ContentType.JSON)
         .body(new AppendIssueRequest("이슈 1"))
