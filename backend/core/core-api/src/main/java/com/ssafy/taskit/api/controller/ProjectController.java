@@ -25,12 +25,11 @@ public class ProjectController {
 
   @GetMapping("/projects")
   public ApiResponse<List<ProjectResponse>> findProjects(
-      @RequestParam(required = false) Long cursor) {
-    List<ProjectResponse> response = List.of(
-        new ProjectResponse(1L, "프로젝트 이름1", "default1.jpg", 4),
-        new ProjectResponse(2L, "프로젝트 이름2", "default2.jpg", 3),
-        new ProjectResponse(3L, "프로젝트 이름3", "default3.jpg", 2));
-    return ApiResponse.success(response);
+      ApiUser apiUser, @RequestParam(required = false) Long cursor) {
+    List<Project> projects = projectService.findProjects(apiUser.toUser());
+    //    Map<Long, Integer> todoCountMap = todoCountProvider.getTodoCountsByProjectIds(
+    //            projectIds, apiUser.toUser().id());
+    return ApiResponse.success(ProjectResponse.of(projects));
   }
 
   @GetMapping("/projects/{projectId}")
