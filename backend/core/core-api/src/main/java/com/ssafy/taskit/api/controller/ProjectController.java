@@ -27,8 +27,6 @@ public class ProjectController {
   public ApiResponse<List<ProjectResponse>> findProjects(
       ApiUser apiUser, @RequestParam(required = false) Long cursor) {
     List<Project> projects = projectService.findProjects(apiUser.toUser());
-    //    Map<Long, Integer> todoCountMap = todoCountProvider.getTodoCountsByProjectIds(
-    //            projectIds, apiUser.toUser().id());
     return ApiResponse.success(ProjectResponse.of(projects));
   }
 
