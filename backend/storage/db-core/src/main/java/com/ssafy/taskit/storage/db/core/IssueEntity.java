@@ -1,7 +1,9 @@
 package com.ssafy.taskit.storage.db.core;
 
 import com.ssafy.taskit.domain.Importance;
+import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueStatus;
+import com.ssafy.taskit.domain.support.DefaultDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -35,26 +37,32 @@ public class IssueEntity extends BaseEntity {
 
   protected IssueEntity() {}
 
-  public IssueEntity(
-      String name,
-      String content,
-      String key,
-      Long bizPoint,
-      Importance issueImportance,
-      IssueStatus issueStatus,
-      Long componentId,
-      Long assigneeId,
-      Long epicId,
-      Long sprintId) {
+  public IssueEntity(String name, String key, Long epicId) {
     this.name = name;
-    this.content = content;
+    this.content = null;
     this.key = key;
-    this.bizPoint = bizPoint;
-    this.issueImportance = issueImportance;
-    this.issueStatus = issueStatus;
-    this.componentId = componentId;
-    this.assigneeId = assigneeId;
+    this.bizPoint = null;
+    this.issueImportance = null;
+    this.issueStatus = IssueStatus.UNASSIGNED;
+    this.componentId = null;
+    this.assigneeId = null;
     this.epicId = epicId;
-    this.sprintId = sprintId;
+    this.sprintId = null;
+  }
+
+  public Issue toIssue() {
+    return new Issue(
+        getId(),
+        this.name,
+        this.content,
+        this.key,
+        this.bizPoint,
+        this.issueImportance,
+        this.issueStatus,
+        this.componentId,
+        this.assigneeId,
+        this.epicId,
+        this.sprintId,
+        new DefaultDateTime(getCreatedAt(), getUpdatedAt()));
   }
 }

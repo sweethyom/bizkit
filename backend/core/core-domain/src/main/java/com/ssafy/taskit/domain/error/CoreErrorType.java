@@ -18,6 +18,8 @@ public enum CoreErrorType {
   DUPLICATED_COMPONENT_NAME(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.C002, "컴포넌트 이름은 중복 될 수 없습니다.", CoreErrorLevel.INFO),
 
+  EPIC_NOT_FOUND(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.E000, "해당 에픽을 찾을 수 없습니다.", CoreErrorLevel.INFO),
   DUPLICATED_PROJECT_KEY(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P001, "프로젝트 키는 중복될 수 없습니다.", CoreErrorLevel.INFO);
   private final CoreErrorKind kind;
