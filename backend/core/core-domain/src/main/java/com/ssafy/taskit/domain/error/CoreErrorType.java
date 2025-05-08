@@ -16,8 +16,10 @@ public enum CoreErrorType {
       CoreErrorLevel.INFO),
 
   DUPLICATED_COMPONENT_NAME(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.C002, "컴포넌트 이름은 중복 될 수 없습니다.", CoreErrorLevel.INFO);
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.C002, "컴포넌트 이름은 중복 될 수 없습니다.", CoreErrorLevel.INFO),
 
+  DUPLICATED_PROJECT_KEY(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P001, "프로젝트 키는 중복될 수 없습니다.", CoreErrorLevel.INFO);
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
   private final String message;

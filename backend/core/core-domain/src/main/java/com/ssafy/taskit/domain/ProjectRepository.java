@@ -9,5 +9,4 @@ public interface ProjectRepository {
   Optional<Project> findByKey(String key);
 
   //    List<Project> findProjects();
-
 }

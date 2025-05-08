@@ -13,6 +13,7 @@ public class ProjectService {
 
   public Long append(User user, NewProject newProject) {
     Project project = projectAppender.append(user, newProject);
+
     return project.getId();
   }
 }

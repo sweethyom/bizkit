@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ProjectNameValidator.class)
 public @interface ProjectName {
-  String message() default "프로젝트 이름 생성 시 앞뒤 공백 없이 최대 40자이내여야 합니다.";
+  String message() default "프로젝트 이름 생성 시 앞뒤 공백 없이 40bytes 이내여야 합니다.";
 
   Class<?>[] groups() default {};
 
