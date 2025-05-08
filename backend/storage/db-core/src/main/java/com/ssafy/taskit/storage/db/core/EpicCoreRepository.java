@@ -45,7 +45,7 @@ public class EpicCoreRepository implements EpicRepository {
   public Epic findById(Long epicId) {
     return epicJpaRepository
         .findByEpicIdAndEntityStatus(epicId, EntityStatus.ACTIVE)
-        .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND))
+        .orElseThrow(() -> new CoreException(CoreErrorType.EPIC_NOT_FOUND))
         .toEpic();
   }
 
@@ -53,7 +53,7 @@ public class EpicCoreRepository implements EpicRepository {
   public void modifyEpic(Long epicId, ModifyEpic modifyEpic) {
     EpicEntity epicEntity = epicJpaRepository
         .findByEpicIdAndEntityStatus(epicId, EntityStatus.ACTIVE)
-        .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
+        .orElseThrow(() -> new CoreException(CoreErrorType.EPIC_NOT_FOUND));
     epicEntity.updateEpicName(modifyEpic.name());
     epicJpaRepository.save(epicEntity);
   }
@@ -66,7 +66,7 @@ public class EpicCoreRepository implements EpicRepository {
     issueEntities.forEach(issueEntity -> issueEntity.delete());
     EpicEntity epicEntity = epicJpaRepository
         .findByEpicIdAndEntityStatus(epicId, EntityStatus.ACTIVE)
-        .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
+        .orElseThrow(() -> new CoreException(CoreErrorType.EPIC_NOT_FOUND));
     epicEntity.delete();
   }
 }
