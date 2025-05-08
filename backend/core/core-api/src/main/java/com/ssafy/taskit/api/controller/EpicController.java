@@ -30,8 +30,7 @@ public class EpicController {
       @PathVariable Long projectId,
       @RequestBody @Validated AppendEpicRequest request) {
     NewEpic newEpic = request.toNewEpic();
-    String key = "project-1";
-    Epic epic = epicService.append(apiUser.toUser(), projectId, newEpic, key);
+    Epic epic = epicService.append(apiUser.toUser(), projectId, newEpic);
     return ApiResponse.success(new DefaultIdResponse(epic.id()));
   }
 

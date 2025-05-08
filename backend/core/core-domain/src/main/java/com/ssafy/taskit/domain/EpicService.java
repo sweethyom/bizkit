@@ -11,7 +11,7 @@ public class EpicService {
     this.epicAppender = epicAppender;
   }
 
-  public Epic append(User user, Long projectId, NewEpic newEpic, String key) {
-    return epicAppender.append(user, projectId, newEpic, key);
+  public Epic append(User user, Long projectId, NewEpic newEpic) {
+    return epicAppender.append(user, projectId, newEpic);
   }
 }
