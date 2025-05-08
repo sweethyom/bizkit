@@ -1,22 +1,17 @@
 // signin/model/types.ts
 export interface SignInCredentials {
-  email: string;
+  username: string; // 이메일 형식
   password: string;
 }
 
 export interface SignInResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
+  result: string;
+  data: {
+    tokenType: string;
+    accessToken: string;
+    accessTokenExpiresIn: number;
+    refreshToken: string;
+    refreshTokenExpiresIn: number;
+    refreshTokenRenewAvailableSeconds: number;
   }
-}
-
-export interface SignInFormState {
-  email: string;
-  password: string;
-  isLoading: boolean;
-  error: string | null;
 }
