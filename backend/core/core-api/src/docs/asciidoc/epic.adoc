@@ -12,6 +12,6 @@ operation::find-epics[snippets='http-request,path-parameters,http-response,respo
 
 operation::modify-epic-name[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
-=== [미구현] 에픽 삭제
+=== 에픽 삭제
 
 operation::delete-epic[snippets='http-request,path-parameters,http-response,response-fields']
