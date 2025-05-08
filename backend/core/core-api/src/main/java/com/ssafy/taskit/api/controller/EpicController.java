@@ -51,7 +51,10 @@ public class EpicController {
 
   @PatchMapping("epics/{epicId}/name")
   public ApiResponse<Void> modifyEpicName(
-      ApiUser apiUser, @PathVariable Long epicId, @RequestBody ModifyEpicNameRequest request) {
+      ApiUser apiUser,
+      @PathVariable Long epicId,
+      @RequestBody @Validated ModifyEpicNameRequest request) {
+    epicService.modifyEpic(apiUser.toUser(), epicId, request.toModifyEpic());
     return ApiResponse.success();
   }
 
