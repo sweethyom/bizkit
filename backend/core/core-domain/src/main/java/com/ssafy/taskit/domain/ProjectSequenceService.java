@@ -1,5 +1,8 @@
 package com.ssafy.taskit.domain;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class ProjectSequenceService {
   private final ProjectSequenceAppender projectSequenceAppender;
 
