@@ -86,14 +86,10 @@ const SignInForm: FC<SignInFormProps> = ({
           <input
             id='remember-me'
             name='remember-me'
-            type='checkbox'
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
             className='h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'
           />
-          <label htmlFor='remember-me' className='ml-2 block text-sm text-gray-900'>
-            로그인 상태 유지
-          </label>
         </div>
 
         <div className='text-sm'>

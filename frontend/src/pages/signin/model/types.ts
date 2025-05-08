@@ -13,5 +13,5 @@ export interface SignInResponse {
     refreshToken: string;
     refreshTokenExpiresIn: number;
     refreshTokenRenewAvailableSeconds: number;
-  }
+  };
 }
