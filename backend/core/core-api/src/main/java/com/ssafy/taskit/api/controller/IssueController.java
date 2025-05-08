@@ -3,9 +3,12 @@ package com.ssafy.taskit.api.controller;
 import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
 import com.ssafy.taskit.domain.Importance;
+import com.ssafy.taskit.domain.Issue;
+import com.ssafy.taskit.domain.IssueService;
 import com.ssafy.taskit.domain.IssueStatus;
 import com.ssafy.taskit.domain.SprintStatus;
 import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,11 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class IssueController {
 
+  private final IssueService issueService;
+
+  public IssueController(IssueService issueService) {
+    this.issueService = issueService;
+  }
+
   @PostMapping("epics/{epicId}/issues")
   public ApiResponse<DefaultIdResponse> appendIssue(
-      ApiUser apiUser, @PathVariable Long epicId, @RequestBody AppendIssueRequest request) {
-    DefaultIdResponse response = new DefaultIdResponse(1L);
-    return ApiResponse.success(response);
+      ApiUser apiUser,
+      @PathVariable Long epicId,
+      @RequestBody @Validated AppendIssueRequest request) {
+    Issue issue = issueService.append(apiUser.toUser(), epicId, request.toNewIssue());
+    return ApiResponse.success(new DefaultIdResponse(issue.id()));
   }
 
   @GetMapping("issues/{issueId}")
