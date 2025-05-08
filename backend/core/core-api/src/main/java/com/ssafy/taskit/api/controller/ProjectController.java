@@ -1,14 +1,10 @@
 package com.ssafy.taskit.api.controller;
 
-import com.ssafy.taskit.api.controller.support.FileConverter;
 import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
 import com.ssafy.taskit.domain.*;
-import com.ssafy.taskit.domain.image.File;
 import java.util.List;
-import java.util.Objects;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 public class ProjectController {
@@ -27,20 +23,10 @@ public class ProjectController {
 
   @PostMapping("/projects")
   public ApiResponse<DefaultIdResponse> appendProject(
-      ApiUser apiUser,
-      @RequestPart(name = "image", required = false) MultipartFile image,
-      @RequestPart AppendProjectRequest request) {
+      ApiUser apiUser, @RequestPart AppendProjectRequest request) {
     NewProject newProject = request.toNewProject();
 
-    if (Objects.isNull(image)) {
-      Long id = projectImageFacade.append(apiUser.toUser(), newProject);
-      NewProjectSequence newProjectSequence = new NewProjectSequence(0);
-      projectSequenceService.appendProjectSequence(id, newProjectSequence);
-      return ApiResponse.success(new DefaultIdResponse(id));
-    }
-
-    File imageFile = FileConverter.convert(image);
-    Long id = projectImageFacade.append(apiUser.toUser(), imageFile, newProject);
+    Long id = projectService.append(apiUser.toUser(), newProject);
     NewProjectSequence newProjectSequence = new NewProjectSequence(0);
     projectSequenceService.appendProjectSequence(id, newProjectSequence);
     return ApiResponse.success(new DefaultIdResponse(id));

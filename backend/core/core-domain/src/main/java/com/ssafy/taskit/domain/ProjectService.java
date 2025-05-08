@@ -7,13 +7,12 @@ public class ProjectService {
 
   private final ProjectAppender projectAppender;
 
-  public ProjectService(
-      ProjectAppender projectAppender, ProjectSequenceAppender projectSequenceAppender) {
+  public ProjectService(ProjectAppender projectAppender) {
     this.projectAppender = projectAppender;
   }
 
-  public Long append(User user, NewProject newProject, String image) {
-    Project project = projectAppender.append(user, newProject, image);
+  public Long append(User user, NewProject newProject) {
+    Project project = projectAppender.append(user, newProject);
     return project.getId();
   }
 }

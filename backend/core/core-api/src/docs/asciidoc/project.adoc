@@ -2,7 +2,7 @@
 
 === 프로젝트 생성
 
-operation::append-project[snippets='http-request,request-parts,request-part-request-fields,http-response,response-fields']
+operation::append-project[snippets='http-request,request-part-request-fields,http-response,response-fields']
 
 === [미구현] 나의 프로젝트 목록 조회
 

@@ -34,20 +34,15 @@ class ProjectControllerTest extends RestDocsTest {
 
   @Test
   public void appendProject() {
-    when(projectImageFacade.append(any(User.class), any(NewProject.class))).thenReturn(1L);
+    when(projectService.append(any(User.class), any(NewProject.class))).thenReturn(1L);
     given()
-        .contentType("multipart/form-data")
+        .contentType(ContentType.JSON)
         .multiPart("request", new AppendProjectRequest("프로젝트 이름1", "프로젝트 키"), "application/json")
-        //            .multiPart("image", new File("src/test/resources/test-image.jpg"),
-        // "image/jpeg")
         .post("/projects")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "append-project",
-            requestParts(
-                partWithName("request").description("프로젝트의 이름과 키가 담긴 정보"),
-                partWithName("image").description("프로젝트 이미지 파일").optional()),
             requestPartFields(
                 "request",
                 fieldWithPath("name")
