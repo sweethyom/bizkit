@@ -43,7 +43,7 @@ public class IssueEntity extends BaseEntity {
     this.key = key;
     this.bizPoint = null;
     this.issueImportance = null;
-    this.issueStatus = null;
+    this.issueStatus = IssueStatus.UNASSIGNED;
     this.componentId = null;
     this.assigneeId = null;
     this.epicId = epicId;
