@@ -9,21 +9,26 @@ import jakarta.persistence.Table;
 @Entity
 public class ProjectEntity extends BaseEntity {
 
+  private Long userId;
   private String name;
-
+  private String key;
   private String imageUrl;
 
   protected ProjectEntity() {}
 
-  public ProjectEntity(String name, String imageUrl) {
+  public ProjectEntity(Long userId, String name, String key, String imageUrl) {
+    this.userId = userId;
     this.name = name;
+    this.key = key;
     this.imageUrl = imageUrl;
   }
 
   public Project toProject() {
     return new Project(
         this.getId(),
+        this.userId,
         this.name,
+        this.key,
         this.imageUrl,
         new DefaultDateTime(this.getCreatedAt(), this.getUpdatedAt()));
   }

@@ -2,7 +2,7 @@ package com.ssafy.taskit.domain;
 
 public interface ProjectRepository {
 
-  Project save(NewProject newProject, String image);
+  Project save(User user, NewProject newProject, String image);
 
   //    List<Project> findProjects();
 

@@ -3,9 +3,7 @@ package com.ssafy.taskit.api.controller;
 import com.ssafy.taskit.api.controller.support.FileConverter;
 import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
-import com.ssafy.taskit.domain.NewProject;
-import com.ssafy.taskit.domain.ProjectImageFacade;
-import com.ssafy.taskit.domain.ProjectService;
+import com.ssafy.taskit.domain.*;
 import com.ssafy.taskit.domain.image.File;
 import java.util.List;
 import java.util.Objects;
@@ -15,10 +13,15 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class ProjectController {
   private final ProjectService projectService;
+  private final ProjectSequenceService projectSequenceService;
   private final ProjectImageFacade projectImageFacade;
 
-  public ProjectController(ProjectService projectService, ProjectImageFacade projectImageFacade) {
+  public ProjectController(
+      ProjectService projectService,
+      ProjectSequenceService projectSequenceService,
+      ProjectImageFacade projectImageFacade) {
     this.projectService = projectService;
+    this.projectSequenceService = projectSequenceService;
     this.projectImageFacade = projectImageFacade;
   }
 
@@ -31,11 +34,15 @@ public class ProjectController {
 
     if (Objects.isNull(image)) {
       Long id = projectImageFacade.append(apiUser.toUser(), newProject);
+      NewProjectSequence newProjectSequence = new NewProjectSequence(0);
+      projectSequenceService.appendProjectSequence(id, newProjectSequence);
       return ApiResponse.success(new DefaultIdResponse(id));
     }
 
     File imageFile = FileConverter.convert(image);
     Long id = projectImageFacade.append(apiUser.toUser(), imageFile, newProject);
+    NewProjectSequence newProjectSequence = new NewProjectSequence(0);
+    projectSequenceService.appendProjectSequence(id, newProjectSequence);
     return ApiResponse.success(new DefaultIdResponse(id));
   }
 

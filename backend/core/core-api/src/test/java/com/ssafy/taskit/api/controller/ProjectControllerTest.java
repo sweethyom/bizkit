@@ -21,11 +21,14 @@ class ProjectControllerTest extends RestDocsTest {
   ProjectService projectService;
   ProjectImageFacade projectImageFacade;
 
+  ProjectSequenceService projectSequenceService;
+
   @BeforeEach
   public void setup() {
     projectService = mock(ProjectService.class);
     projectImageFacade = mock(ProjectImageFacade.class);
-    controller = new ProjectController(projectService, projectImageFacade);
+    projectSequenceService = mock(ProjectSequenceService.class);
+    controller = new ProjectController(projectService, projectSequenceService, projectImageFacade);
     mockMvc = mockController(controller);
   }
 
@@ -34,7 +37,7 @@ class ProjectControllerTest extends RestDocsTest {
     when(projectImageFacade.append(any(User.class), any(NewProject.class))).thenReturn(1L);
     given()
         .contentType("multipart/form-data")
-        .multiPart("request", new AppendProjectRequest("프로젝트 이름1"), "application/json")
+        .multiPart("request", new AppendProjectRequest("프로젝트 이름1", "프로젝트 키"), "application/json")
         .post("/projects")
         .then()
         .status(HttpStatus.OK)

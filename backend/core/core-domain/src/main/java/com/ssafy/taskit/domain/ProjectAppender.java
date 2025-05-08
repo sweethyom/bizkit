@@ -13,6 +13,6 @@ public class ProjectAppender {
   }
 
   public Project append(User user, NewProject newProject, String image) {
-    return projectRepository.save(newProject, image);
+    return projectRepository.save(user, newProject, image);
   }
 }

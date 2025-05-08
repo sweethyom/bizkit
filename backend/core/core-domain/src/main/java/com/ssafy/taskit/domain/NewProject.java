@@ -1,3 +1,3 @@
 package com.ssafy.taskit.domain;
 
-public record NewProject(String name) {}
+public record NewProject(String name, String key) {}

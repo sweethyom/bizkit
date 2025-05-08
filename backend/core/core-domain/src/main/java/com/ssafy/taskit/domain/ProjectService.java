@@ -7,7 +7,8 @@ public class ProjectService {
 
   private final ProjectAppender projectAppender;
 
-  public ProjectService(ProjectAppender projectAppender) {
+  public ProjectService(
+      ProjectAppender projectAppender, ProjectSequenceAppender projectSequenceAppender) {
     this.projectAppender = projectAppender;
   }
 
