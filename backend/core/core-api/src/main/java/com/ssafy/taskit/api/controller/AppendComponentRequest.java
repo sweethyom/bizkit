@@ -6,6 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 public record AppendComponentRequest(@NotBlank String name, String content) {
 
   public NewComponent toNewComponent() {
-    return new NewComponent(this.name(), this.content());
+    return NewComponent.of(this.name(), this.content());
   }
 }
