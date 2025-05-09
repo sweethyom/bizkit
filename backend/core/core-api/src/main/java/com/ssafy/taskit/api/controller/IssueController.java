@@ -86,7 +86,8 @@ public class IssueController {
   public ApiResponse<Void> modifyIssueBizpoint(
       ApiUser apiUser,
       @PathVariable Long issueId,
-      @RequestBody ModifyIssueBizpointRequest request) {
+      @RequestBody @Validated ModifyIssueBizpointRequest request) {
+    issueService.modifyIssueBizpoint(apiUser.toUser(), issueId, request.toModifyIssueBizpoint());
     return ApiResponse.success();
   }
 
