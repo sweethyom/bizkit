@@ -32,10 +32,8 @@ public class ComponentController {
   @GetMapping("/projects/{projectId}/components")
   public ApiResponse<List<ComponentDetailResponse>> findComponents(
       ApiUser apiUser, @PathVariable Long projectId) {
-    List<ComponentDetailResponse> responses = List.of(
-        new ComponentDetailResponse(1L, "프로젝트 이름1", "프로젝트 설명1"),
-        new ComponentDetailResponse(2L, "프로젝트 이름2", "프로젝트 설명2"),
-        new ComponentDetailResponse(3L, "프로젝트 이름3", "프로젝트 설명3"));
+    List<Component> components = componentService.findComponents(apiUser.toUser(), projectId);
+    List<ComponentDetailResponse> responses = ComponentDetailResponse.of(components);
     return ApiResponse.success(responses);
   }
 
