@@ -81,4 +81,8 @@ public class IssueEntity extends BaseEntity {
   public void updateIssueComponent(Long componentId) {
     this.componentId = componentId;
   }
+
+  public void updateIssueBizpoint(Long bizPoint) {
+    this.bizPoint = bizPoint;
+  }
 }
