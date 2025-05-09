@@ -1,12 +1,12 @@
 package com.ssafy.taskit.domain;
 
 import com.ssafy.taskit.domain.support.DefaultDateTime;
+import java.time.LocalDateTime;
 
-public record Project(
+public record Member(
     Long id,
     Long userId,
-    String name,
-    String key,
-    int currentSequence,
-    String image,
+    Long projectId,
+    Role memberRole,
+    LocalDateTime lastAccessedAt,
     DefaultDateTime defaultDateTime) {}

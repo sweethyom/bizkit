@@ -1,6 +1,7 @@
 package com.ssafy.taskit.api.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -10,7 +11,10 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
 import com.ssafy.s12p21d206.achu.test.api.RestDocsUtils;
 import com.ssafy.taskit.domain.*;
+import com.ssafy.taskit.domain.support.DefaultDateTime;
 import io.restassured.http.ContentType;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -57,16 +61,33 @@ class ProjectControllerTest extends RestDocsTest {
 
   @Test
   public void findProjects() {
+    DefaultDateTime now = new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now());
+    DefaultDateTime older = new DefaultDateTime(
+        LocalDateTime.now().minusDays(1), LocalDateTime.now().minusDays(1));
+    DefaultDateTime oldest = new DefaultDateTime(
+        LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(2));
+    Project project1 = new Project(1L, 1L, "프로젝트1", "SFE213FE", 0, null, now);
+    Project project2 = new Project(2L, 1L, "프로젝트1", "SFE213FE", 0, null, oldest);
+    Project project3 = new Project(3L, 1L, "프로젝트2", "SFE213FEFE", 0, null, older);
+    when(projectService.findProjects(any(User.class), eq(ProjectSort.RECENT_VIEW)))
+        .thenReturn(List.of(project1, project3, project2));
     given()
         .contentType(ContentType.JSON)
+        .queryParam("cursor", "2")
+        .queryParam("sort", "RECENT_VIEW")
         .get("/projects")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "find-projects",
-            queryParameters(parameterWithName("cursor")
-                .optional()
-                .description("페이지네이션 커서, 이전 페이지의 마지막 프로젝트 ID를 입력.첫 페이지 요청 시 생략하거나 빈값으로 요청)")),
+            queryParameters(
+                parameterWithName("cursor")
+                    .optional()
+                    .description("페이지네이션 커서, 이전 페이지의 마지막 프로젝트 ID를 입력.첫 페이지 요청 시 생략하거나 빈값으로 요청)"),
+                parameterWithName("sort") // sort 파라미터 문서화 추가
+                    .optional()
+                    .description(
+                        "정렬 기준 (RECENT_VIEW: 최근 조회순, OLD_VIEW: 오래된 조회순, NAME_DESC: 이름 내림차순, 기본값: RECENT_VIEW)")),
             responseFields(
                 fieldWithPath("result")
                     .type(JsonFieldType.STRING)
@@ -77,8 +98,9 @@ class ProjectControllerTest extends RestDocsTest {
                     .description("내가 속한 프로젝트 이름"),
                 fieldWithPath("data.[].image")
                     .type(JsonFieldType.STRING)
-                    .description("내가 속한 프로젝트 이미지 경로"),
-                fieldWithPath("data.[].count")
+                    .description("내가 속한 프로젝트 이미지 경로")
+                    .optional(),
+                fieldWithPath("data.[].todoCount")
                     .type(JsonFieldType.NUMBER)
                     .description("프로젝트 내 나의 할 일 개수"))));
   }

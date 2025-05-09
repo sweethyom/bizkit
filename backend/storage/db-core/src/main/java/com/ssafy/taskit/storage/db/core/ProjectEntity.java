@@ -4,7 +4,6 @@ import com.ssafy.taskit.domain.Project;
 import com.ssafy.taskit.domain.support.DefaultDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 
 @Table(name = "project")
 @Entity
@@ -15,8 +14,6 @@ public class ProjectEntity extends BaseEntity {
   private String key;
   private int currentSequence;
   private String imageUrl;
-
-  private LocalDateTime viewedAt;
 
   protected ProjectEntity() {}
 

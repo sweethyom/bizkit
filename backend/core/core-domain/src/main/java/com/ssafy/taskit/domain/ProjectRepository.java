@@ -1,5 +1,6 @@
 package com.ssafy.taskit.domain;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ProjectRepository {
@@ -8,5 +9,7 @@ public interface ProjectRepository {
 
   Optional<Project> findByKey(String key);
 
-  //    List<Project> findProjects();
+  List<Project> findAllByIds(List<Long> projectIds);
+
+  List<Long> findUserProjectIds(User user, ProjectSort sortType);
 }
