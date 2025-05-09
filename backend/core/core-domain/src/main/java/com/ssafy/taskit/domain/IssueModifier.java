@@ -9,16 +9,19 @@ public class IssueModifier {
   private final MemberValidator memberValidator;
   private final IssueRepository issueRepository;
   private final EpicRepository epicRepository;
+  private final ComponentValidator componentValidator;
 
   public IssueModifier(
       IssueValidator issueValidator,
       MemberValidator memberValidator,
       IssueRepository issueRepository,
-      EpicRepository epicRepository) {
+      EpicRepository epicRepository,
+      ComponentValidator componentValidator) {
     this.issueValidator = issueValidator;
     this.memberValidator = memberValidator;
     this.issueRepository = issueRepository;
     this.epicRepository = epicRepository;
+    this.componentValidator = componentValidator;
   }
 
   public void modifyIssueName(User user, Long issueId, ModifyIssueName modifyIssueName) {
@@ -45,5 +48,15 @@ public class IssueModifier {
     memberValidator.isProjectMember(user, epic.projectId());
     memberValidator.isProjectMember(modifyIssueAssignee.assigneeId(), epic.projectId());
     issueRepository.modifyIssueAssignee(issueId, modifyIssueAssignee);
+  }
+
+  public void modifyIssueComponent(
+      User user, Long issueId, ModifyIssueComponent modifyIssueComponent) {
+    issueValidator.isIssueExists(issueId);
+    Issue issue = issueRepository.findById(issueId);
+    Epic epic = epicRepository.findById(issue.epicId());
+    memberValidator.isProjectMember(user, epic.projectId());
+    componentValidator.isComponentInProject(modifyIssueComponent.componentId(), epic.projectId());
+    issueRepository.modifyIssueComponent(issueId, modifyIssueComponent);
   }
 }
