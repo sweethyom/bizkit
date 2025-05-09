@@ -18,15 +18,15 @@ public class MemberEntity extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private Role memberRole;
 
-  private LocalDateTime viewedAt;
+  private LocalDateTime lastAccessedAt;
 
   protected MemberEntity() {}
 
-  public MemberEntity(Long userId, Long projectId, Role memberRole, LocalDateTime viewedAt) {
+  public MemberEntity(Long userId, Long projectId, Role memberRole, LocalDateTime lastAccessedAt) {
     this.userId = userId;
     this.projectId = projectId;
     this.memberRole = memberRole;
-    this.viewedAt = viewedAt;
+    this.lastAccessedAt = lastAccessedAt;
   }
 
   public Member toMember() {
@@ -35,7 +35,7 @@ public class MemberEntity extends BaseEntity {
         this.userId,
         this.projectId,
         this.memberRole,
-        this.viewedAt,
+        this.lastAccessedAt,
         new DefaultDateTime(this.getCreatedAt(), this.getUpdatedAt()));
   }
 
@@ -43,11 +43,11 @@ public class MemberEntity extends BaseEntity {
     return projectId;
   }
 
-  public LocalDateTime getViewedAt() {
-    return viewedAt;
+  public LocalDateTime getLastAccessedAt() {
+    return lastAccessedAt;
   }
 
-  public void updateViewedAt() {
-    this.viewedAt = LocalDateTime.now();
+  public void updateLastAccessedAt() {
+    this.lastAccessedAt = LocalDateTime.now();
   }
 }

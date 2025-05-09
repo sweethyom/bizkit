@@ -9,5 +9,7 @@ public interface ProjectRepository {
 
   Optional<Project> findByKey(String key);
 
-  List<Project> findAllById(List<Long> ids);
+  List<Project> findAllByIds(List<Long> projectIds);
+
+  List<Long> findUserProjectIds(User user, ProjectSort sortType);
 }

@@ -8,5 +8,5 @@ public record Member(
     Long userId,
     Long projectId,
     Role memberRole,
-    LocalDateTime viewedAt,
+    LocalDateTime lastAccessedAt,
     DefaultDateTime defaultDateTime) {}

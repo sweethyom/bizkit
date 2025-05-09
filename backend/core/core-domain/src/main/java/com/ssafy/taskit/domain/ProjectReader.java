@@ -6,15 +6,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProjectReader {
   private final ProjectRepository projectRepository;
-  private final MemberRepository memberRepository;
 
-  public ProjectReader(ProjectRepository projectRepository, MemberRepository memberRepository) {
+  public ProjectReader(ProjectRepository projectRepository) {
     this.projectRepository = projectRepository;
-    this.memberRepository = memberRepository;
   }
 
-  public List<Project> readProjectsByRecentView(User user) {
-    List<Long> projectIds = memberRepository.findProjectIdsByUserIdOrderByViewedAtDesc(user.id());
-    return projectRepository.findAllById(projectIds);
+  public List<Project> readProjectsByRecentView(User user, ProjectSort sortType) {
+    List<Long> projectIds = projectRepository.findUserProjectIds(user, sortType);
+    return projectRepository.findAllByIds(projectIds);
   }
 }

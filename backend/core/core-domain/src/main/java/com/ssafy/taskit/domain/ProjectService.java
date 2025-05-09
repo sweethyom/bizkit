@@ -20,7 +20,7 @@ public class ProjectService {
     return project.id();
   }
 
-  public List<Project> findProjects(User user) {
-    return projectReader.readProjectsByRecentView(user);
+  public List<Project> findProjects(User user, ProjectSort sortType) {
+    return projectReader.readProjectsByRecentView(user, sortType);
   }
 }

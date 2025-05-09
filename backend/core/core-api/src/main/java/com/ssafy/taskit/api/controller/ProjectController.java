@@ -25,8 +25,10 @@ public class ProjectController {
 
   @GetMapping("/projects")
   public ApiResponse<List<ProjectResponse>> findProjects(
-      ApiUser apiUser, @RequestParam(required = false) Long cursor) {
-    List<Project> projects = projectService.findProjects(apiUser.toUser());
+      ApiUser apiUser,
+      @RequestParam(required = false) Long cursor,
+      @RequestParam(required = false, defaultValue = "RECENT_VIEW") ProjectSort sort) {
+    List<Project> projects = projectService.findProjects(apiUser.toUser(), sort);
     return ApiResponse.success(ProjectResponse.of(projects));
   }
 

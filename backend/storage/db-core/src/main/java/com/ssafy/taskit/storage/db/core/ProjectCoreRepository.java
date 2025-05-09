@@ -1,11 +1,9 @@
 package com.ssafy.taskit.storage.db.core;
 
-import com.ssafy.taskit.domain.NewProject;
-import com.ssafy.taskit.domain.Project;
-import com.ssafy.taskit.domain.ProjectRepository;
-import com.ssafy.taskit.domain.User;
+import com.ssafy.taskit.domain.*;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -31,9 +29,19 @@ public class ProjectCoreRepository implements ProjectRepository {
   }
 
   @Override
-  public List<Project> findAllById(List<Long> ids) {
+  public List<Project> findAllByIds(List<Long> ids) {
     return projectJpaRepository.findAllById(ids).stream()
         .map(ProjectEntity::toProject)
         .toList();
+  }
+
+  @Override
+  public List<Long> findUserProjectIds(User user, ProjectSort sortType) {
+    Sort sort =
+        switch (sortType) {
+          case RECENT_VIEW -> Sort.by(Sort.Direction.DESC, "member.lastViewedAt");
+        };
+
+    return projectJpaRepository.findProjectIdsByUserId(user, sort);
   }
 }
