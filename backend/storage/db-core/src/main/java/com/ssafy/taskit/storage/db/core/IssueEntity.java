@@ -77,4 +77,8 @@ public class IssueEntity extends BaseEntity {
   public void updateIssueAssignee(Long assigneeId) {
     this.assigneeId = assigneeId;
   }
+
+  public void updateIssueComponent(Long componentId) {
+    this.componentId = componentId;
+  }
 }
