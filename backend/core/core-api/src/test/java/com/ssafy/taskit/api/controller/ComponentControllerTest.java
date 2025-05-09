@@ -18,6 +18,7 @@ import com.ssafy.taskit.domain.ComponentService;
 import com.ssafy.taskit.domain.NewComponent;
 import com.ssafy.taskit.domain.User;
 import io.restassured.http.ContentType;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -69,6 +70,11 @@ class ComponentControllerTest extends RestDocsTest {
 
   @Test
   void findComponents() {
+    when(componentService.findComponents(any(User.class), anyLong()))
+        .thenReturn(List.of(
+            new Component(1L, 1L, 1L, "컴포넌트 이름", "컴포넌트 설명"),
+            new Component(2L, 1L, 1L, "컴포넌트 이름2", "컴포넌트 설명2"),
+            new Component(3L, 1L, 1L, "컴포넌트 이름3", "컴포넌트 설명3")));
     given()
         .contentType(ContentType.JSON)
         .get("/projects/{projectId}/components", 1L)
