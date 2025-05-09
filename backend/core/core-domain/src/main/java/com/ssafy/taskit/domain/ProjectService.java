@@ -23,4 +23,9 @@ public class ProjectService {
   public List<Project> findProjects(User user, ProjectSort sortType) {
     return projectReader.readProjectsByRecentView(user, sortType);
   }
+
+  public ProjectDetail findProject(Long projectId) {
+    ProjectDetail projectDetail = projectReader.readProject(projectId);
+    return projectDetail;
+  }
 }

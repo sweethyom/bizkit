@@ -13,6 +13,8 @@ public interface ProjectRepository {
 
   List<Long> findUserProjectIds(User user, ProjectSort sortType);
 
+  ProjectDetail findProject(Long projectId);
+
   Project findById(Long projectId);
 
   void update(Project project);

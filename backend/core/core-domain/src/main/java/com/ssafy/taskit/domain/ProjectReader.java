@@ -15,4 +15,8 @@ public class ProjectReader {
     List<Long> projectIds = projectRepository.findUserProjectIds(user, sortType);
     return projectRepository.findAllByIds(projectIds);
   }
+
+  public ProjectDetail readProject(Long projectId) {
+    return projectRepository.findProject(projectId);
+  }
 }

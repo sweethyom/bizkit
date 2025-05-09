@@ -49,6 +49,12 @@ public class ProjectCoreRepository implements ProjectRepository {
   }
 
   @Override
+  public ProjectDetail findProject(Project project) {
+    Optional<ProjectEntity> projectEntity = projectJpaRepository.findById(project.id());
+    return projectEntity.toProject();
+  }
+
+  @Override
   public Project findById(Long projectId) {
     return projectJpaRepository
         .findByIdAndEntityStatus(projectId, EntityStatus.ACTIVE)
