@@ -17,10 +17,10 @@ public class ProjectService {
   public Long append(User user, NewProject newProject) {
     Project project = projectAppender.append(user, newProject);
 
-    return project.getId();
+    return project.id();
   }
 
   public List<Project> findProjects(User user) {
-    return projectReader.readProjects(user);
+    return projectReader.readProjectsByRecentView(user);
   }
 }

@@ -31,8 +31,8 @@ public class ProjectCoreRepository implements ProjectRepository {
   }
 
   @Override
-  public List<Project> findByUser(User user) {
-    return projectJpaRepository.findByUserId(user.id()).stream()
+  public List<Project> findAllById(List<Long> ids) {
+    return projectJpaRepository.findAllById(ids).stream()
         .map(ProjectEntity::toProject)
         .toList();
   }

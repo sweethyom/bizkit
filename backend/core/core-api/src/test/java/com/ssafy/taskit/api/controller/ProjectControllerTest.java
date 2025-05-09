@@ -10,7 +10,10 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
 import com.ssafy.s12p21d206.achu.test.api.RestDocsUtils;
 import com.ssafy.taskit.domain.*;
+import com.ssafy.taskit.domain.support.DefaultDateTime;
 import io.restassured.http.ContentType;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -57,8 +60,15 @@ class ProjectControllerTest extends RestDocsTest {
 
   @Test
   public void findProjects() {
+    DefaultDateTime now = new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now());
+    Project project1 = new Project(1L, 1L, "프로젝트1", "SFE213FE", 0, null, now);
+    Project project2 = new Project(1L, 2L, "프로젝트1", "SFE213FE", 0, null, now);
+    Project project3 = new Project(2L, 3L, "프로젝트2", "SFE213FEFE", 0, null, now);
+    when(projectService.findProjects(any(User.class)))
+        .thenReturn(List.of(project1, project2, project3));
     given()
         .contentType(ContentType.JSON)
+        .queryParam("cursor", "2")
         .get("/projects")
         .then()
         .status(HttpStatus.OK)
@@ -77,8 +87,9 @@ class ProjectControllerTest extends RestDocsTest {
                     .description("내가 속한 프로젝트 이름"),
                 fieldWithPath("data.[].image")
                     .type(JsonFieldType.STRING)
-                    .description("내가 속한 프로젝트 이미지 경로"),
-                fieldWithPath("data.[].count")
+                    .description("내가 속한 프로젝트 이미지 경로")
+                    .optional(),
+                fieldWithPath("data.[].todoCount")
                     .type(JsonFieldType.NUMBER)
                     .description("프로젝트 내 나의 할 일 개수"))));
   }
