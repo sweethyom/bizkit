@@ -104,4 +104,16 @@ public class IssueModifier {
     epicValidator.isEpicInProject(modifyIssueEpic.epicId(), epic.projectId());
     issueRepository.modifyIssueEpic(issueId, modifyIssueEpic);
   }
+
+  public void modifyIssueSprint(User user, Long issueId, ModifyIssueSprint modifyIssueSprint) {
+    issueValidator.isIssueExists(issueId);
+    Issue issue = issueRepository.findById(issueId);
+    Epic epic = epicRepository.findById(issue.epicId());
+    memberValidator.isProjectMember(user, epic.projectId());
+    sprintValidator.isCompletedSprint(issue.sprintId());
+    sprintValidator.isSprintExists(modifyIssueSprint.targetId());
+    sprintValidator.isSprintsEquals(issue.sprintId(), modifyIssueSprint.targetId());
+    sprintValidator.isSprintsInSameProject(issue.sprintId(), modifyIssueSprint.targetId());
+    issueRepository.modifyIssueSprint(issueId, modifyIssueSprint);
+  }
 }
