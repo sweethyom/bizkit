@@ -57,7 +57,10 @@ public class IssueController {
 
   @PatchMapping("issues/{issueId}/name")
   public ApiResponse<Void> modifyIssueName(
-      ApiUser apiUser, @PathVariable Long issueId, @RequestBody ModifyIssueNameRequest request) {
+      ApiUser apiUser,
+      @PathVariable Long issueId,
+      @RequestBody @Validated ModifyIssueNameRequest request) {
+    issueService.modifyIssueName(apiUser.toUser(), issueId, request.toModifyIssueName());
     return ApiResponse.success();
   }
 
