@@ -98,7 +98,10 @@ public class IssueController {
 
   @PatchMapping("issues/{issueId}/content")
   public ApiResponse<Void> modifyIssueContent(
-      ApiUser apiUser, @PathVariable Long issueId, @RequestBody ModifyIssueContentRequest request) {
+      ApiUser apiUser,
+      @PathVariable Long issueId,
+      @RequestBody @Validated ModifyIssueContentRequest request) {
+    issueService.modifyIssueContent(apiUser.toUser(), issueId, request.toModifyIssueContent());
     return ApiResponse.success();
   }
 
