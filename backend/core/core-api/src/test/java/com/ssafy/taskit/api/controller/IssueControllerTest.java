@@ -24,6 +24,7 @@ import com.ssafy.taskit.domain.User;
 import com.ssafy.taskit.domain.support.DefaultDateTime;
 import io.restassured.http.ContentType;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -299,6 +300,34 @@ class IssueControllerTest extends RestDocsTest {
 
   @Test
   public void findEpicIssues() {
+    when(issueService.findEpicIssues(any(User.class), anyLong()))
+        .thenReturn(List.of(
+            new Issue(
+                1L,
+                "이슈1",
+                "내용1",
+                "PROJECT-1",
+                3L,
+                Importance.LOW,
+                IssueStatus.UNASSIGNED,
+                1L,
+                1L,
+                1L,
+                1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
+            new Issue(
+                2L,
+                "이슈2",
+                "내용2",
+                "PROJECT-1",
+                5L,
+                Importance.HIGH,
+                IssueStatus.UNASSIGNED,
+                1L,
+                1L,
+                1L,
+                1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
     given()
         .contentType(ContentType.JSON)
         .get("epics/{epicId}/issues", 1L)
