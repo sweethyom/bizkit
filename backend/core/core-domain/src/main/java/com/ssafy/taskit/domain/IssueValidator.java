@@ -18,4 +18,10 @@ public class IssueValidator {
       throw new CoreException(CoreErrorType.ISSUE_NOT_FOUND);
     }
   }
+
+  public void isBizpointPositive(Long bizPoint) {
+    if (bizPoint <= 0) {
+      throw new CoreException(CoreErrorType.BIZPOINT_NOT_POSITIVE);
+    }
+  }
 }
