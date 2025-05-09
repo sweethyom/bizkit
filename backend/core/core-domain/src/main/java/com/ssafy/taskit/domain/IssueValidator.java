@@ -1,10 +1,21 @@
 package com.ssafy.taskit.domain;
 
+import com.ssafy.taskit.domain.error.CoreErrorType;
+import com.ssafy.taskit.domain.error.CoreException;
 import org.springframework.stereotype.Component;
 
 @Component
 public class IssueValidator {
-  public boolean isIssueExists(Long issueId) {
-    return true;
+
+  private final IssueRepository issueRepository;
+
+  public IssueValidator(IssueRepository issueRepository) {
+    this.issueRepository = issueRepository;
+  }
+
+  public void isIssueExists(Long issueId) {
+    if (!issueRepository.existsByIdAndEntityStatus(issueId)) {
+      throw new CoreException(CoreErrorType.ISSUE_NOT_FOUND);
+    }
   }
 }

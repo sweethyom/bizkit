@@ -9,10 +9,13 @@ public class IssueService {
 
   private final IssueAppender issueAppender;
   private final IssueReader issueReader;
+  private final IssueModifier issueModifier;
 
-  public IssueService(IssueAppender issueAppender, IssueReader issueReader) {
+  public IssueService(
+      IssueAppender issueAppender, IssueReader issueReader, IssueModifier issueModifier) {
     this.issueAppender = issueAppender;
     this.issueReader = issueReader;
+    this.issueModifier = issueModifier;
   }
 
   public Issue append(User user, Long epicId, NewIssue newIssue) {
@@ -37,5 +40,9 @@ public class IssueService {
 
   public Map<Long, Assignee> generateAssigneeMap(List<Long> assigneeIds) {
     return Map.of();
+  }
+
+  public void modifyIssueName(User user, Long issueId, ModifyIssueName modifyIssueName) {
+    issueModifier.modifyIssueName(user, issueId, modifyIssueName);
   }
 }

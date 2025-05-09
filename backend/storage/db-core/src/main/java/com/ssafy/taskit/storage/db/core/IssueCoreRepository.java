@@ -3,7 +3,10 @@ package com.ssafy.taskit.storage.db.core;
 import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueRepository;
 import com.ssafy.taskit.domain.IssueStatus;
+import com.ssafy.taskit.domain.ModifyIssueName;
 import com.ssafy.taskit.domain.NewIssue;
+import com.ssafy.taskit.domain.error.CoreErrorType;
+import com.ssafy.taskit.domain.error.CoreException;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
@@ -28,5 +31,27 @@ public class IssueCoreRepository implements IssueRepository {
     List<IssueEntity> issueEntities = issueJpaRepository.findAllByEpicIdAndEntityStatus(
         epicId, EntityStatus.ACTIVE, IssueStatus.UNASSIGNED);
     return issueEntities.stream().map(IssueEntity::toIssue).toList();
+  }
+
+  @Override
+  public boolean existsByIdAndEntityStatus(Long issueId) {
+    return issueJpaRepository.existsByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE);
+  }
+
+  @Override
+  public Issue findById(Long issueId) {
+    return issueJpaRepository
+        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND))
+        .toIssue();
+  }
+
+  @Override
+  public void modifyIssueName(Long issueId, ModifyIssueName modifyIssueName) {
+    IssueEntity issueEntity = issueJpaRepository
+        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
+    issueEntity.updateIssueName(modifyIssueName.name());
+    issueJpaRepository.save(issueEntity);
   }
 }
