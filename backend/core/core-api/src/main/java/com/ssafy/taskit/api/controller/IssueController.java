@@ -68,7 +68,8 @@ public class IssueController {
   public ApiResponse<Void> modifyIssueAssignee(
       ApiUser apiUser,
       @PathVariable Long issueId,
-      @RequestBody ModifyIssueAssigneeRequest request) {
+      @RequestBody @Validated ModifyIssueAssigneeRequest request) {
+    issueService.modifyIssueAssignee(apiUser.toUser(), issueId, request.toModifyIssueAssignee());
     return ApiResponse.success();
   }
 
