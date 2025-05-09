@@ -28,4 +28,12 @@ public class IssueModifier {
     memberValidator.isProjectMember(user, epic.projectId());
     issueRepository.modifyIssueName(issueId, modifyIssueName);
   }
+
+  public void modifyIssueContent(User user, Long issueId, ModifyIssueContent modifyIssueContent) {
+    issueValidator.isIssueExists(issueId);
+    Issue issue = issueRepository.findById(issueId);
+    Epic epic = epicRepository.findById(issue.epicId());
+    memberValidator.isProjectMember(user, epic.projectId());
+    issueRepository.modifyIssueContent(issueId, modifyIssueContent);
+  }
 }

@@ -69,4 +69,8 @@ public class IssueEntity extends BaseEntity {
   public void updateIssueName(String name) {
     this.name = name;
   }
+
+  public void updateIssueContent(String content) {
+    this.content = content;
+  }
 }
