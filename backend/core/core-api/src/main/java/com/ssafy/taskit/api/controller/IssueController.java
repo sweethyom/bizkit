@@ -212,7 +212,10 @@ public class IssueController {
 
   @PatchMapping("issues/{issueId}/move-sprint")
   public ApiResponse<Void> modifyIssueSprint(
-      ApiUser apiUser, @PathVariable Long issueId, @RequestBody ModifyIssueSprintRequest request) {
+      ApiUser apiUser,
+      @PathVariable Long issueId,
+      @RequestBody @Validated ModifyIssueSprintRequest request) {
+    issueService.modifyIssueSprint(apiUser.toUser(), issueId, request.toModifyIssueSprint());
     return ApiResponse.success();
   }
 
