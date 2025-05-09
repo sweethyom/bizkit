@@ -44,4 +44,10 @@ public class ProjectCoreRepository implements ProjectRepository {
 
     return projectJpaRepository.findProjectIdsByUserId(user, sort);
   }
+
+  @Override
+  public ProjectDetail findProject(Project project) {
+    Optional<ProjectEntity> projectEntity = projectJpaRepository.findById(project.id());
+    return projectEntity.toProject();
+  }
 }

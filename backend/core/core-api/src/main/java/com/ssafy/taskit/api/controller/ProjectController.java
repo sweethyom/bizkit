@@ -34,8 +34,7 @@ public class ProjectController {
 
   @GetMapping("/projects/{projectId}")
   public ApiResponse<ProjectDetailResponse> findProject(@PathVariable Long projectId) {
-    ProjectDetailResponse response =
-        new ProjectDetailResponse(1L, "프로젝트 이름1", "default1.jpg", true);
+    ProjectDetail projectDetail = projectService.findProject(projectId);
     return ApiResponse.success(response);
   }
 

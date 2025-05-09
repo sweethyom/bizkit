@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ProjectJpaRepository extends JpaRepository<ProjectEntity, Long> {
-  Optional<ProjectEntity> findById(Long userId);
+  Optional<ProjectEntity> findById(Long projectId);
 
   Optional<ProjectEntity> findByKey(String key);
 
