@@ -2,12 +2,15 @@ package com.ssafy.taskit.api.controller;
 
 import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
+import com.ssafy.taskit.domain.Assignee;
+import com.ssafy.taskit.domain.Component;
 import com.ssafy.taskit.domain.Importance;
 import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueService;
 import com.ssafy.taskit.domain.IssueStatus;
 import com.ssafy.taskit.domain.SprintStatus;
 import java.util.List;
+import java.util.Map;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -111,25 +114,13 @@ public class IssueController {
   @GetMapping("epics/{epicId}/issues")
   public ApiResponse<List<EpicIssuesResponse>> findEpicIssues(
       ApiUser apiUser, @PathVariable Long epicId) {
-    List<EpicIssuesResponse> response = List.of(
-        new EpicIssuesResponse(
-            1L,
-            "이슈1",
-            "S12P31D207-2",
-            5L,
-            Importance.HIGH,
-            IssueStatus.IN_PROGRESS,
-            new ComponentResponse(1L, "BackEnd"),
-            new AssigneeResponse(1L, "채용수", "https://prfile-image-test.jpg")),
-        new EpicIssuesResponse(
-            2L,
-            "이슈2",
-            "S12P31D207-3",
-            3L,
-            Importance.LOW,
-            IssueStatus.TODO,
-            new ComponentResponse(1L, "BackEnd"),
-            new AssigneeResponse(1L, "채용수", "https://prfile-image-test.jpg")));
+    List<Issue> epicIssues = issueService.findEpicIssues(apiUser.toUser(), epicId);
+    List<Long> componentIds = epicIssues.stream().map(Issue::componentId).toList();
+    List<Long> assigneeIds = epicIssues.stream().map(Issue::assigneeId).toList();
+    Map<Long, Component> componentMap = issueService.generateComponentMap(componentIds);
+    Map<Long, Assignee> assigneeMap = issueService.generateAssigneeMap(assigneeIds);
+    List<EpicIssuesResponse> response =
+        EpicIssuesResponse.of(epicIssues, componentMap, assigneeMap);
     return ApiResponse.success(response);
   }
 
