@@ -8,7 +8,7 @@ operation::append-issue[snippets='http-request,path-parameters,request-fields,ht
 
 operation::find-issue[snippets='http-request,path-parameters,http-response,response-fields']
 
-=== [미구현] 이슈 이름 수정
+=== 이슈 이름 수정
 
 operation::modify-issue-name[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
