@@ -5,7 +5,6 @@ import com.ssafy.taskit.domain.ComponentRepository;
 import com.ssafy.taskit.domain.NewComponent;
 import com.ssafy.taskit.domain.User;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -32,9 +31,8 @@ public class ComponentCoreRepository implements ComponentRepository {
 
   @Override
   public List<Component> findComponents(Long projectId) {
-    List<ComponentEntity> componentEntities = componentJpaRepository.findAllByProjectId(projectId);
-    return componentEntities.stream()
-        .map(ComponentEntity::toComponent)
-        .collect(Collectors.toList());
+    List<ComponentEntity> componentEntities =
+        componentJpaRepository.findAllByProjectIdAndEntityStatus(projectId, EntityStatus.ACTIVE);
+    return componentEntities.stream().map(ComponentEntity::toComponent).toList();
   }
 }

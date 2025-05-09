@@ -74,7 +74,7 @@ class ComponentControllerTest extends RestDocsTest {
         .thenReturn(List.of(
             new Component(1L, 1L, 1L, "컴포넌트 이름", "컴포넌트 설명"),
             new Component(2L, 1L, 1L, "컴포넌트 이름2", "컴포넌트 설명2"),
-            new Component(3L, 1L, 1L, "컴포넌트 이륾3", "컴포넌트 설명3")));
+            new Component(3L, 1L, 1L, "컴포넌트 이름3", "컴포넌트 설명3")));
     given()
         .contentType(ContentType.JSON)
         .get("/projects/{projectId}/components", 1L)
