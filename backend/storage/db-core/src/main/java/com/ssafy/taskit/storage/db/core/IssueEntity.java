@@ -93,4 +93,8 @@ public class IssueEntity extends BaseEntity {
   public void updateIssueStatus(IssueStatus issueStatus) {
     this.issueStatus = issueStatus;
   }
+
+  public void updateIssueEpic(Long epicId) {
+    this.epicId = epicId;
+  }
 }
