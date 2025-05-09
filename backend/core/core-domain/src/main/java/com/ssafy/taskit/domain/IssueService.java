@@ -73,4 +73,8 @@ public class IssueService {
   public void modifyIssueStatus(User user, Long issueId, ModifyIssueStatus modifyIssueStatus) {
     issueModifier.modifyIssueStatus(user, issueId, modifyIssueStatus);
   }
+
+  public void modifyIssueEpic(User user, Long issueId, ModifyIssueEpic modifyIssueEpic) {
+    issueModifier.modifyIssueEpic(user, issueId, modifyIssueEpic);
+  }
 }

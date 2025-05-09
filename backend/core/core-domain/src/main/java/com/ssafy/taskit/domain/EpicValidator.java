@@ -19,7 +19,10 @@ public class EpicValidator {
     }
   }
 
-  public boolean isEpicInProject(Long epicId, Long projectId) {
-    return true;
+  public void isEpicInProject(Long newEpicId, Long projectId) {
+    Epic newEpic = epicRepository.findById(newEpicId);
+    if (!newEpic.projectId().equals(projectId)) {
+      throw new CoreException(CoreErrorType.EPIC_NOT_IN_PROJECT);
+    }
   }
 }

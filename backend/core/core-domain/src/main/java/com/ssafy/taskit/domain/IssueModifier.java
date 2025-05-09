@@ -11,6 +11,7 @@ public class IssueModifier {
   private final EpicRepository epicRepository;
   private final ComponentValidator componentValidator;
   private final SprintValidator sprintValidator;
+  private final EpicValidator epicValidator;
 
   public IssueModifier(
       IssueValidator issueValidator,
@@ -18,13 +19,15 @@ public class IssueModifier {
       IssueRepository issueRepository,
       EpicRepository epicRepository,
       ComponentValidator componentValidator,
-      SprintValidator sprintValidator) {
+      SprintValidator sprintValidator,
+      EpicValidator epicValidator) {
     this.issueValidator = issueValidator;
     this.memberValidator = memberValidator;
     this.issueRepository = issueRepository;
     this.epicRepository = epicRepository;
     this.componentValidator = componentValidator;
     this.sprintValidator = sprintValidator;
+    this.epicValidator = epicValidator;
   }
 
   public void modifyIssueName(User user, Long issueId, ModifyIssueName modifyIssueName) {
@@ -91,5 +94,14 @@ public class IssueModifier {
     issueValidator.isValidStatus(modifyIssueStatus.issueStatus());
     sprintValidator.isOngoingSprint(issue.sprintId());
     issueRepository.modifyIssueStatus(issueId, modifyIssueStatus);
+  }
+
+  public void modifyIssueEpic(User user, Long issueId, ModifyIssueEpic modifyIssueEpic) {
+    issueValidator.isIssueExists(issueId);
+    Issue issue = issueRepository.findById(issueId);
+    Epic epic = epicRepository.findById(issue.epicId());
+    memberValidator.isProjectMember(user, epic.projectId());
+    epicValidator.isEpicInProject(modifyIssueEpic.epicId(), epic.projectId());
+    issueRepository.modifyIssueEpic(issueId, modifyIssueEpic);
   }
 }

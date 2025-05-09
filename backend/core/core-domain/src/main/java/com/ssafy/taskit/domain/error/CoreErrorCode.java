@@ -14,5 +14,6 @@ public enum CoreErrorCode {
   I000,
   I001,
   I002,
-  I003
+  I003,
+  I004
 }
