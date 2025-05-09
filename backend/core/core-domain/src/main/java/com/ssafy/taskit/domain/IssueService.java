@@ -45,4 +45,8 @@ public class IssueService {
   public void modifyIssueName(User user, Long issueId, ModifyIssueName modifyIssueName) {
     issueModifier.modifyIssueName(user, issueId, modifyIssueName);
   }
+
+  public void modifyIssueContent(User user, Long issueId, ModifyIssueContent modifyIssueContent) {
+    issueModifier.modifyIssueContent(user, issueId, modifyIssueContent);
+  }
 }

@@ -13,4 +13,6 @@ public interface IssueRepository {
   Issue findById(Long issueId);
 
   void modifyIssueName(Long issueId, ModifyIssueName modifyIssueName);
+
+  void modifyIssueContent(Long issueId, ModifyIssueContent modifyIssueContent);
 }
