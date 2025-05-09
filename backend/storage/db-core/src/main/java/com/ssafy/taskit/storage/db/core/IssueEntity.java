@@ -65,4 +65,8 @@ public class IssueEntity extends BaseEntity {
         this.sprintId,
         new DefaultDateTime(getCreatedAt(), getUpdatedAt()));
   }
+
+  public void updateIssueName(String name) {
+    this.name = name;
+  }
 }
