@@ -16,7 +16,7 @@ operation::modify-issue-name[snippets='http-request,path-parameters,request-fiel
 
 operation::modify-issue-content[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
-=== [미구현] 이슈 담당자 수정
+=== 이슈 담당자 수정
 
 operation::modify-issue-assignee[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
