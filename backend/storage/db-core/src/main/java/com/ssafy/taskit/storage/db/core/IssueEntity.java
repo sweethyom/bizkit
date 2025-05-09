@@ -97,4 +97,8 @@ public class IssueEntity extends BaseEntity {
   public void updateIssueEpic(Long epicId) {
     this.epicId = epicId;
   }
+
+  public void updateIssueSprint(Long targetId) {
+    this.sprintId = targetId;
+  }
 }
