@@ -30,6 +30,11 @@ public enum CoreErrorType {
       CoreErrorKind.CLIENT_ERROR,
       CoreErrorCode.I002,
       "중요도는 HIGH, LOW 중 하나여야 합니다.",
+      CoreErrorLevel.INFO),
+  STATUS_NOT_VALID(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.I003,
+      "진행 상태는 TODO, IN_PROGRESS, DONE 중 하나여야 합니다.",
       CoreErrorLevel.INFO);
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
