@@ -95,7 +95,9 @@ public class IssueController {
   public ApiResponse<Void> modifyIssueImportance(
       ApiUser apiUser,
       @PathVariable Long issueId,
-      @RequestBody ModifyIssueImportanceRequest request) {
+      @RequestBody @Validated ModifyIssueImportanceRequest request) {
+    issueService.modifyIssueImportance(
+        apiUser.toUser(), issueId, request.toModifyIssueImportance());
     return ApiResponse.success();
   }
 
