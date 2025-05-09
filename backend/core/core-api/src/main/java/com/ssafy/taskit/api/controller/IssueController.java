@@ -118,7 +118,10 @@ public class IssueController {
 
   @PatchMapping("issues/{issueId}/status")
   public ApiResponse<Void> modifyIssueStatus(
-      ApiUser apiUser, @PathVariable Long issueId, @RequestBody ModifyIssueStatusRequest request) {
+      ApiUser apiUser,
+      @PathVariable Long issueId,
+      @RequestBody @Validated ModifyIssueStatusRequest request) {
+    issueService.modifyIssueStatus(apiUser.toUser(), issueId, request.toModifyIssueStatus());
     return ApiResponse.success();
   }
 
