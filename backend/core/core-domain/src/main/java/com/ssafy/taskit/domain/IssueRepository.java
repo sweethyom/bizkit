@@ -21,4 +21,6 @@ public interface IssueRepository {
   void modifyIssueComponent(Long issueId, ModifyIssueComponent modifyIssueComponent);
 
   void modifyIssueBizpoint(Long issueId, ModifyIssueBizpoint modifyIssueBizpoint);
+
+  void modifyIssueImportance(Long issueId, ModifyIssueImportance modifyIssueImportance);
 }

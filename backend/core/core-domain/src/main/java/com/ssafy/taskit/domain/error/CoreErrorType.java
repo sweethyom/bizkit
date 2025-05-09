@@ -25,7 +25,12 @@ public enum CoreErrorType {
   ISSUE_NOT_FOUND(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I000, "해당 이슈를 찾을 수 없습니다.", CoreErrorLevel.INFO),
   BIZPOINT_NOT_POSITIVE(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I001, "비즈포인트는 양수여야 합니다.", CoreErrorLevel.INFO);
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I001, "비즈포인트는 양수여야 합니다.", CoreErrorLevel.INFO),
+  IMPORTANCE_NOT_VALID(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.I002,
+      "중요도는 HIGH, LOW 중 하나여야 합니다.",
+      CoreErrorLevel.INFO);
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
   private final String message;
