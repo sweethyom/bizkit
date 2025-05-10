@@ -15,12 +15,16 @@ import static org.springframework.restdocs.request.RequestDocumentation.pathPara
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
+import com.ssafy.taskit.domain.Epic;
+import com.ssafy.taskit.domain.EpicService;
 import com.ssafy.taskit.domain.Importance;
 import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueService;
 import com.ssafy.taskit.domain.IssueStatus;
 import com.ssafy.taskit.domain.NewIssue;
 import com.ssafy.taskit.domain.User;
+import com.ssafy.taskit.domain.UserDetail;
+import com.ssafy.taskit.domain.UserService;
 import com.ssafy.taskit.domain.support.DefaultDateTime;
 import io.restassured.http.ContentType;
 import java.time.LocalDateTime;
@@ -34,11 +38,15 @@ class IssueControllerTest extends RestDocsTest {
 
   private IssueController controller;
   private IssueService issueService;
+  private UserService userService;
+  private EpicService epicService;
 
   @BeforeEach
   public void setUp() {
     issueService = mock(IssueService.class);
-    controller = new IssueController(issueService);
+    userService = mock(UserService.class);
+    epicService = mock(EpicService.class);
+    controller = new IssueController(issueService, userService, epicService);
     mockMvc = mockController(controller);
   }
 
@@ -80,6 +88,29 @@ class IssueControllerTest extends RestDocsTest {
 
   @Test
   public void findIssue() {
+    when(issueService.findIssue(any(User.class), anyLong()))
+        .thenReturn(new Issue(
+            1L,
+            "이슈1",
+            "내용1",
+            "PROJECT-2",
+            3L,
+            Importance.LOW,
+            IssueStatus.UNASSIGNED,
+            1L,
+            1L,
+            1L,
+            1L,
+            new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())));
+    when(userService.findUserDetail(anyLong()))
+        .thenReturn(new UserDetail(1L, "채용수", "http://profile1.jpg"));
+    when(epicService.findEpic(any(User.class), anyLong()))
+        .thenReturn(new Epic(
+            1L,
+            "에픽1",
+            "PROJECT-1",
+            1L,
+            new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())));
     given()
         .contentType(ContentType.JSON)
         .get("issues/{issueId}", 1L)
