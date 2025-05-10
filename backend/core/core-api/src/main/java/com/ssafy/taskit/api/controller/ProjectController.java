@@ -1,19 +1,24 @@
 package com.ssafy.taskit.api.controller;
 
+import com.ssafy.taskit.api.controller.support.FileConverter;
 import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
 import com.ssafy.taskit.domain.*;
+import com.ssafy.taskit.domain.image.File;
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 public class ProjectController {
   private final ProjectService projectService;
+  private final ProjectImageFacade projectImageFacade;
   private final UserService userService;
 
-  public ProjectController(ProjectService projectService, UserService userService) {
+  public ProjectController(ProjectService projectService, ProjectImageFacade projectImageFacade,  UserService userService) {
     this.projectService = projectService;
     this.userService = userService;
+    this.projectImageFacade = projectImageFacade;
   }
 
   @PostMapping("/projects")
@@ -53,7 +58,9 @@ public class ProjectController {
 
   @PatchMapping("/projects/{projectId}/image")
   public ApiResponse<Void> modifyProjectImage(
-      @PathVariable Long projectId, @RequestBody ModifyProjectImageRequest request) {
+      ApiUser apiUser, @PathVariable Long projectId, @RequestParam MultipartFile projectImage) {
+    File imagefile = FileConverter.convert(projectImage);
+    projectImageFacade.modifyProjectImage(apiUser.toUser(), projectId, imagefile);
     return ApiResponse.success();
   }
 

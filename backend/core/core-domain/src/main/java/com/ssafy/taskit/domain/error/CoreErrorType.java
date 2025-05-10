@@ -112,8 +112,14 @@ public enum CoreErrorType {
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M007, "이미 처리 완료된 초대입니다.", CoreErrorLevel.INFO),
 
   USER_NOT_INVITED(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M008, "초대된 사용자가 아닙니다.", CoreErrorLevel.INFO);
-
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M008, "초대된 사용자가 아닙니다.", CoreErrorLevel.INFO),
+  INCORRECT_MIME_TYPE(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.P002,
+      "MIME 타입과 파일이 일치하지 않습니다.",
+      CoreErrorLevel.WARN),
+  INVALID_IMAGE(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P003, "파일이 이미지가 아닙니다.", CoreErrorLevel.WARN);
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
   private final String message;

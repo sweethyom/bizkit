@@ -56,4 +56,8 @@ public class ProjectEntity extends BaseEntity {
   public void changeName(String name) {
     this.name = name;
   }
+
+  public void changeImageUrl(String imageUrl) {
+    this.imageUrl = imageUrl;
+  }
 }

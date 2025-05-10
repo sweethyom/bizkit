@@ -16,9 +16,9 @@ operation::find-project[snippets='http-request,path-parameters,http-response,res
 
 operation::modify-project[snippets='http-request,path-parameters,http-request,http-response,response-fields']
 
-=== [미구현] 프로젝트 이미지 수정
+=== 프로젝트 이미지 수정
 
-operation::modify-project-image[snippets='http-request,path-parameters,http-request,http-response,response-fields']
+operation::modify-project-image[snippets='http-request,path-parameters,request-parts,http-request,http-response,response-fields']
 
 === 프로젝트 삭제
 
