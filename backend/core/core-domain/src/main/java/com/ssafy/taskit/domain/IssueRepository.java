@@ -25,4 +25,8 @@ public interface IssueRepository {
   void modifyIssueImportance(Long issueId, ModifyIssueImportance modifyIssueImportance);
 
   void modifyIssueStatus(Long issueId, ModifyIssueStatus modifyIssueStatus);
+
+  void modifyIssueEpic(Long issueId, ModifyIssueEpic modifyIssueEpic);
+
+  void modifyIssueSprint(Long issueId, ModifyIssueSprint modifyIssueSprint);
 }

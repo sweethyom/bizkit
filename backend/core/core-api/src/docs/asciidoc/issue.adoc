@@ -32,7 +32,7 @@ operation::modify-issue-bizpoint[snippets='http-request,path-parameters,request-
 
 operation::modify-issue-importance[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
-=== [미구현] 이슈 에픽 수정
+=== 이슈 에픽 수정
 
 operation::modify-issue-epic[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 

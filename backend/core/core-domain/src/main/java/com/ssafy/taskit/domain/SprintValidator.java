@@ -16,6 +16,10 @@ public class SprintValidator {
     return true;
   }
 
+  public boolean isCompletedSprint(Long sprintId) {
+    return true;
+  }
+
   public boolean isSprintsInSameProject(Long fromSprintId, Long toSprintId) {
     return true;
   }

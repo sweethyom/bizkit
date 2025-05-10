@@ -112,7 +112,10 @@ public class IssueController {
 
   @PatchMapping("issues/{issueId}/epic")
   public ApiResponse<Void> modifyIssueEpic(
-      ApiUser apiUser, @PathVariable Long issueId, @RequestBody ModifyIssueEpicRequest request) {
+      ApiUser apiUser,
+      @PathVariable Long issueId,
+      @RequestBody @Validated ModifyIssueEpicRequest request) {
+    issueService.modifyIssueEpic(apiUser.toUser(), issueId, request.toModifyIssueEpic());
     return ApiResponse.success();
   }
 
@@ -209,7 +212,10 @@ public class IssueController {
 
   @PatchMapping("issues/{issueId}/move-sprint")
   public ApiResponse<Void> modifyIssueSprint(
-      ApiUser apiUser, @PathVariable Long issueId, @RequestBody ModifyIssueSprintRequest request) {
+      ApiUser apiUser,
+      @PathVariable Long issueId,
+      @RequestBody @Validated ModifyIssueSprintRequest request) {
+    issueService.modifyIssueSprint(apiUser.toUser(), issueId, request.toModifyIssueSprint());
     return ApiResponse.success();
   }
 
