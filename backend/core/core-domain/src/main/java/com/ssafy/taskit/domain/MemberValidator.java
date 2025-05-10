@@ -27,4 +27,8 @@ public class MemberValidator {
   public boolean isProjectFull(String invitationId) {
     return true;
   }
+
+  public boolean isProjectMember(Long userId, Long projectId) {
+    return true;
+  }
 }

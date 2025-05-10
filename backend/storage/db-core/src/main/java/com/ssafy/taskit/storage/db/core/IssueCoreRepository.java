@@ -3,6 +3,7 @@ package com.ssafy.taskit.storage.db.core;
 import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueRepository;
 import com.ssafy.taskit.domain.IssueStatus;
+import com.ssafy.taskit.domain.ModifyIssueAssignee;
 import com.ssafy.taskit.domain.ModifyIssueContent;
 import com.ssafy.taskit.domain.ModifyIssueName;
 import com.ssafy.taskit.domain.NewIssue;
@@ -62,6 +63,15 @@ public class IssueCoreRepository implements IssueRepository {
         .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueContent(modifyIssueContent.content());
+    issueJpaRepository.save(issueEntity);
+  }
+
+  @Override
+  public void modifyIssueAssignee(Long issueId, ModifyIssueAssignee modifyIssueAssignee) {
+    IssueEntity issueEntity = issueJpaRepository
+        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
+    issueEntity.updateIssueAssignee(modifyIssueAssignee.assigneeId());
     issueJpaRepository.save(issueEntity);
   }
 }

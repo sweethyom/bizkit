@@ -49,4 +49,9 @@ public class IssueService {
   public void modifyIssueContent(User user, Long issueId, ModifyIssueContent modifyIssueContent) {
     issueModifier.modifyIssueContent(user, issueId, modifyIssueContent);
   }
+
+  public void modifyIssueAssignee(
+      User user, Long issueId, ModifyIssueAssignee modifyIssueAssignee) {
+    issueModifier.modifyIssueAssignee(user, issueId, modifyIssueAssignee);
+  }
 }
