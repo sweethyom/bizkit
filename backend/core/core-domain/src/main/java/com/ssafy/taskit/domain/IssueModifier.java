@@ -69,4 +69,14 @@ public class IssueModifier {
     issueValidator.isBizpointPositive(modifyIssueBizpoint.bizPoint());
     issueRepository.modifyIssueBizpoint(issueId, modifyIssueBizpoint);
   }
+
+  public void modifyIssueImportance(
+      User user, Long issueId, ModifyIssueImportance modifyIssueImportance) {
+    issueValidator.isIssueExists(issueId);
+    Issue issue = issueRepository.findById(issueId);
+    Epic epic = epicRepository.findById(issue.epicId());
+    memberValidator.isProjectMember(user, epic.projectId());
+    issueValidator.isValidImportance(modifyIssueImportance.issueImportance());
+    issueRepository.modifyIssueImportance(issueId, modifyIssueImportance);
+  }
 }

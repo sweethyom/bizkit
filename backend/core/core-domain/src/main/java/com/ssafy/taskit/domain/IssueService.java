@@ -64,4 +64,9 @@ public class IssueService {
       User user, Long issueId, ModifyIssueBizpoint modifyIssueBizpoint) {
     issueModifier.modifyIssueBizpoint(user, issueId, modifyIssueBizpoint);
   }
+
+  public void modifyIssueImportance(
+      User user, Long issueId, ModifyIssueImportance modifyIssueImportance) {
+    issueModifier.modifyIssueImportance(user, issueId, modifyIssueImportance);
+  }
 }

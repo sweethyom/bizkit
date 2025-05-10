@@ -85,4 +85,8 @@ public class IssueEntity extends BaseEntity {
   public void updateIssueBizpoint(Long bizPoint) {
     this.bizPoint = bizPoint;
   }
+
+  public void updateIssueImportance(Importance issueImportance) {
+    this.issueImportance = issueImportance;
+  }
 }
