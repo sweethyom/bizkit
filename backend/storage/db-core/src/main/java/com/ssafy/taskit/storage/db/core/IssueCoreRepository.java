@@ -134,4 +134,11 @@ public class IssueCoreRepository implements IssueRepository {
     issueEntity.updateIssueSprint(modifyIssueSprint.targetId());
     issueJpaRepository.save(issueEntity);
   }
+
+  @Override
+  public List<Issue> findSprintIssues(Long sprintId) {
+    List<IssueEntity> issueEntities =
+        issueJpaRepository.findBySprintIdAndEntityStatus(sprintId, EntityStatus.ACTIVE);
+    return issueEntities.stream().map(IssueEntity::toIssue).toList();
+  }
 }
