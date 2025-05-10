@@ -33,8 +33,10 @@ public class ProjectController {
   }
 
   @GetMapping("/projects/{projectId}")
-  public ApiResponse<ProjectDetailResponse> findProject(@PathVariable Long projectId) {
-    ProjectDetail projectDetail = projectService.findProject(projectId);
+  public ApiResponse<ProjectDetailResponse> findProject(
+      ApiUser apiUser, @PathVariable Long projectId) {
+    ProjectDetail projectDetail = projectService.findProject(apiUser.toUser(), projectId);
+    ProjectDetailResponse response = ProjectDetailResponse.of(projectDetail);
     return ApiResponse.success(response);
   }
 

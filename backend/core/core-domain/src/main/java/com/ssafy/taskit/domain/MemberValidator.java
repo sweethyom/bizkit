@@ -1,11 +1,22 @@
 package com.ssafy.taskit.domain;
 
+import com.ssafy.taskit.domain.error.CoreErrorType;
+import com.ssafy.taskit.domain.error.CoreException;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MemberValidator {
-  public boolean isProjectLeader(User user, Long projectId) {
-    return true;
+
+  private final MemberRepository memberRepository;
+
+  public MemberValidator(MemberRepository memberRepository) {
+    this.memberRepository = memberRepository;
+  }
+
+  public void isProjectLeader(User user, Long projectId) {
+    if (!memberRepository.isLeader(user.id(), projectId)) {
+      throw new CoreException(CoreErrorType.DATA_NOT_FOUND);
+    }
   }
 
   public boolean isProjectMember(User user, Long projectId) {
@@ -26,6 +37,10 @@ public class MemberValidator {
 
   public boolean isProjectFull(String invitationId) {
     return true;
+  }
+
+  public boolean checkProjectLeader(User user, Long projectId) {
+    return memberRepository.isLeader(user.id(), projectId);
   }
 
   public boolean isProjectMember(Long userId, Long projectId) {

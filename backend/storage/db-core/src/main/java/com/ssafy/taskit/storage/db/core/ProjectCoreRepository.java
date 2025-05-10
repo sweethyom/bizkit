@@ -1,6 +1,8 @@
 package com.ssafy.taskit.storage.db.core;
 
 import com.ssafy.taskit.domain.*;
+import com.ssafy.taskit.domain.error.CoreErrorType;
+import com.ssafy.taskit.domain.error.CoreException;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Sort;
@@ -46,8 +48,10 @@ public class ProjectCoreRepository implements ProjectRepository {
   }
 
   @Override
-  public ProjectDetail findProject(Project project) {
-    Optional<ProjectEntity> projectEntity = projectJpaRepository.findById(project.id());
-    return projectEntity.toProject();
+  public ProjectDetail findProject(User user, Long id, boolean isLeader) {
+    ProjectEntity projectEntity = projectJpaRepository
+        .findById(id)
+        .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
+    return projectEntity.toProjectDetail(isLeader);
   }
 }

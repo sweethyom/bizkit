@@ -8,10 +8,15 @@ public class ProjectService {
 
   private final ProjectAppender projectAppender;
   private final ProjectReader projectReader;
+  private final MemberValidator memberValidator;
 
-  public ProjectService(ProjectAppender projectAppender, ProjectReader projectReader) {
+  public ProjectService(
+      ProjectAppender projectAppender,
+      ProjectReader projectReader,
+      MemberValidator memberValidator) {
     this.projectAppender = projectAppender;
     this.projectReader = projectReader;
+    this.memberValidator = memberValidator;
   }
 
   public Long append(User user, NewProject newProject) {
@@ -24,8 +29,8 @@ public class ProjectService {
     return projectReader.readProjectsByRecentView(user, sortType);
   }
 
-  public ProjectDetail findProject(Long projectId) {
-    ProjectDetail projectDetail = projectReader.readProject(projectId);
-    return projectDetail;
+  public ProjectDetail findProject(User user, Long projectId) {
+    boolean isLeader = memberValidator.checkProjectLeader(user, projectId);
+    return projectReader.readProject(user, projectId, isLeader);
   }
 }
