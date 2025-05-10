@@ -23,4 +23,6 @@ public interface IssueJpaRepository extends JpaRepository<IssueEntity, Long> {
   boolean existsByIssueIdAndEntityStatus(Long issueId, EntityStatus entityStatus);
 
   Optional<IssueEntity> findByIssueIdAndEntityStatus(Long issueId, EntityStatus entityStatus);
+
+  List<IssueEntity> findBySprintIdAndEntityStatus(Long sprintId, EntityStatus entityStatus);
 }
