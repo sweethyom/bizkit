@@ -93,4 +93,8 @@ public class IssueService {
   public Issue findIssue(User user, Long issueId) {
     return issueReader.readIssue(user, issueId);
   }
+
+  public List<Issue> findComponentIssues(User user, Long componentId) {
+    return issueReader.readComponentIssues(user, componentId);
+  }
 }

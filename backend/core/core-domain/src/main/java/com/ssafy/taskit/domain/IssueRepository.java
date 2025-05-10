@@ -31,4 +31,6 @@ public interface IssueRepository {
   void modifyIssueSprint(Long issueId, ModifyIssueSprint modifyIssueSprint);
 
   List<Issue> findSprintIssues(Long sprintId);
+
+  List<Issue> findComponentIssues(Long componentId);
 }

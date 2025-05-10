@@ -1,9 +1,8 @@
 package com.ssafy.taskit.domain;
 
 import java.util.List;
-import org.springframework.stereotype.Component;
 
-@Component
+@org.springframework.stereotype.Component
 public class IssueReader {
 
   private final EpicValidator epicValidator;
@@ -12,6 +11,8 @@ public class IssueReader {
   private final EpicRepository epicRepository;
   private final SprintValidator sprintValidator;
   private final IssueValidator issueValidator;
+  private final ComponentValidator componentValidator;
+  private final ComponentRepository componentRepository;
 
   public IssueReader(
       EpicValidator epicValidator,
@@ -19,13 +20,17 @@ public class IssueReader {
       IssueRepository issueRepository,
       EpicRepository epicRepository,
       SprintValidator sprintValidator,
-      IssueValidator issueValidator) {
+      IssueValidator issueValidator,
+      ComponentValidator componentValidator,
+      ComponentRepository componentRepository) {
     this.epicValidator = epicValidator;
     this.memberValidator = memberValidator;
     this.issueRepository = issueRepository;
     this.epicRepository = epicRepository;
     this.sprintValidator = sprintValidator;
     this.issueValidator = issueValidator;
+    this.componentValidator = componentValidator;
+    this.componentRepository = componentRepository;
   }
 
   public List<Issue> readEpicIssues(User user, Long epicId) {
@@ -51,5 +56,16 @@ public class IssueReader {
     Epic epic = epicRepository.findById(issue.epicId());
     memberValidator.isProjectMember(user, epic.projectId());
     return issueRepository.findById(issueId);
+  }
+
+  public List<Issue> readComponentIssues(User user, Long componentId) {
+    if (componentId != null) {
+      componentValidator.isComponentExists(componentId);
+      //      TODO : component 완료되면 바꿔야 함
+      //      Component component = componentRepository.findById(componentId);
+      Component component = new Component(1L, 1L, 1L, "컴포넌트1", "컴포넌트 내용");
+      memberValidator.isProjectMember(user, component.projectId());
+    }
+    return issueRepository.findComponentIssues(componentId);
   }
 }
