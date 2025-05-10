@@ -54,4 +54,15 @@ public class ProjectCoreRepository implements ProjectRepository {
         .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
     return projectEntity.toProjectDetail(isLeader);
   }
+
+  @Override
+  public ProjectDetail modifyProjectName(Long projectId, String name, boolean isLeader) {
+    ProjectEntity projectEntity = projectJpaRepository
+        .findById(projectId)
+        .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
+    projectEntity.changeName(name);
+    projectJpaRepository.save(projectEntity);
+    return projectEntity.toProjectDetail(isLeader);
+  }
+  ;
 }

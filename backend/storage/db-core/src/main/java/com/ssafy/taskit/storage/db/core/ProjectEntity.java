@@ -48,4 +48,8 @@ public class ProjectEntity extends BaseEntity {
         new DefaultDateTime(this.getCreatedAt(), this.getUpdatedAt()));
     return new ProjectDetail(project, isLeader);
   }
+
+  public void changeName(String name) {
+    this.name = name;
+  }
 }

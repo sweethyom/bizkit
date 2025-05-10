@@ -1,3 +1,6 @@
 package com.ssafy.taskit.api.controller;
 
-public record ModifyProjectNameRequest(String name) {}
+import com.ssafy.taskit.api.validation.ProjectName;
+import jakarta.validation.constraints.NotNull;
+
+public record ModifyProjectNameRequest(@NotNull @ProjectName String name) {}

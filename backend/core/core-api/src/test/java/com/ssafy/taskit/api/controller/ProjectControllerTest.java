@@ -136,6 +136,10 @@ class ProjectControllerTest extends RestDocsTest {
 
   @Test
   public void modifyProjectName() {
+    DefaultDateTime now = new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now());
+    Project project = new Project(1L, 1L, "프로젝트1", "SFE213FE", 0, null, now);
+    ProjectDetail projectDetail = new ProjectDetail(project, true);
+    when(projectService.modifyProjectName(any(), anyLong(), anyString())).thenReturn(projectDetail);
     given()
         .contentType(ContentType.JSON)
         .body(new ModifyProjectNameRequest("프로젝트 제목1"))
