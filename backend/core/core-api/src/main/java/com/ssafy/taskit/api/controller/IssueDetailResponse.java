@@ -1,7 +1,11 @@
 package com.ssafy.taskit.api.controller;
 
+import com.ssafy.taskit.domain.Component;
+import com.ssafy.taskit.domain.Epic;
 import com.ssafy.taskit.domain.Importance;
+import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueStatus;
+import com.ssafy.taskit.domain.UserDetail;
 
 public record IssueDetailResponse(
     Long id,
@@ -14,4 +18,24 @@ public record IssueDetailResponse(
     ComponentResponse component,
     AssigneeResponse assignee,
     IssueDetailEpicResponse epic,
-    SprintResponse sprint) {}
+    SprintResponse sprint) {
+  public static IssueDetailResponse of(
+      Issue issue,
+      Component component,
+      UserDetail userDetail,
+      Epic epic,
+      SprintResponse sprintResponse) {
+    return new IssueDetailResponse(
+        issue.id(),
+        issue.name(),
+        issue.content(),
+        issue.key(),
+        issue.bizPoint(),
+        issue.issueImportance(),
+        issue.issueStatus(),
+        new ComponentResponse(component.id(), component.name()),
+        new AssigneeResponse(userDetail.id(), userDetail.nickname(), userDetail.profileImgUrl()),
+        new IssueDetailEpicResponse(epic.id(), epic.name(), epic.key()),
+        sprintResponse);
+  }
+}
