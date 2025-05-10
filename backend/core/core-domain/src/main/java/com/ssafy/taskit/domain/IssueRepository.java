@@ -29,4 +29,6 @@ public interface IssueRepository {
   void modifyIssueEpic(Long issueId, ModifyIssueEpic modifyIssueEpic);
 
   void modifyIssueSprint(Long issueId, ModifyIssueSprint modifyIssueSprint);
+
+  List<Issue> findSprintIssues(Long sprintId);
 }

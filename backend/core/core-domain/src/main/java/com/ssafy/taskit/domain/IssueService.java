@@ -81,4 +81,12 @@ public class IssueService {
   public void modifyIssueSprint(User user, Long issueId, ModifyIssueSprint modifyIssueSprint) {
     issueModifier.modifyIssueSprint(user, issueId, modifyIssueSprint);
   }
+
+  public List<Issue> findSprintIssues(User user, Long sprintId) {
+    return issueReader.readSprintIssues(user, sprintId);
+  }
+
+  public Map<Long, Epic> generateEpicMap(List<Long> epicIds) {
+    return Map.of();
+  }
 }
