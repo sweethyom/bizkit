@@ -12,6 +12,8 @@ public class IssueValidator {
   private final IssueRepository issueRepository;
   private static final Set<Importance> VALID_IMPORTANCES =
       EnumSet.of(Importance.HIGH, Importance.LOW);
+  private static final Set<IssueStatus> VALID_STATUS =
+      EnumSet.of(IssueStatus.TODO, IssueStatus.IN_PROGRESS, IssueStatus.DONE);
 
   public IssueValidator(IssueRepository issueRepository) {
     this.issueRepository = issueRepository;
@@ -32,6 +34,12 @@ public class IssueValidator {
   public void isValidImportance(Importance issueImportance) {
     if (!VALID_IMPORTANCES.contains(issueImportance)) {
       throw new CoreException(CoreErrorType.IMPORTANCE_NOT_VALID);
+    }
+  }
+
+  public void isValidStatus(IssueStatus issueStatus) {
+    if (!VALID_STATUS.contains(issueStatus)) {
+      throw new CoreException(CoreErrorType.STATUS_NOT_VALID);
     }
   }
 }

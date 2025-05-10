@@ -36,7 +36,7 @@ operation::modify-issue-importance[snippets='http-request,path-parameters,reques
 
 operation::modify-issue-epic[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
-=== [미구현] 이슈 진행 상태 수정
+=== 이슈 진행 상태 수정
 
 operation::modify-issue-status[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 

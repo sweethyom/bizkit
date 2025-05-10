@@ -9,6 +9,7 @@ import com.ssafy.taskit.domain.ModifyIssueComponent;
 import com.ssafy.taskit.domain.ModifyIssueContent;
 import com.ssafy.taskit.domain.ModifyIssueImportance;
 import com.ssafy.taskit.domain.ModifyIssueName;
+import com.ssafy.taskit.domain.ModifyIssueStatus;
 import com.ssafy.taskit.domain.NewIssue;
 import com.ssafy.taskit.domain.error.CoreErrorType;
 import com.ssafy.taskit.domain.error.CoreException;
@@ -102,6 +103,15 @@ public class IssueCoreRepository implements IssueRepository {
         .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueImportance(modifyIssueImportance.issueImportance());
+    issueJpaRepository.save(issueEntity);
+  }
+
+  @Override
+  public void modifyIssueStatus(Long issueId, ModifyIssueStatus modifyIssueStatus) {
+    IssueEntity issueEntity = issueJpaRepository
+        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
+    issueEntity.updateIssueStatus(modifyIssueStatus.issueStatus());
     issueJpaRepository.save(issueEntity);
   }
 }
