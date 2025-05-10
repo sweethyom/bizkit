@@ -23,7 +23,9 @@ public enum CoreErrorType {
   DUPLICATED_PROJECT_KEY(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P001, "프로젝트 키는 중복될 수 없습니다.", CoreErrorLevel.INFO),
   ISSUE_NOT_FOUND(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I000, "해당 이슈를 찾을 수 없습니다.", CoreErrorLevel.INFO);
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I000, "해당 이슈를 찾을 수 없습니다.", CoreErrorLevel.INFO),
+  BIZPOINT_NOT_POSITIVE(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I001, "비즈포인트는 양수여야 합니다.", CoreErrorLevel.INFO);
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
   private final String message;
