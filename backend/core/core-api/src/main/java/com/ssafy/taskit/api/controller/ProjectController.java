@@ -42,7 +42,10 @@ public class ProjectController {
 
   @PatchMapping("/projects/{projectId}")
   public ApiResponse<Void> modifyProjectName(
-      @PathVariable Long projectId, @RequestBody ModifyProjectNameRequest request) {
+      ApiUser apiUser,
+      @PathVariable Long projectId,
+      @RequestBody ModifyProjectNameRequest request) {
+    projectService.modifyProjectName(apiUser.toUser(), projectId, request.name());
     return ApiResponse.success();
   }
 

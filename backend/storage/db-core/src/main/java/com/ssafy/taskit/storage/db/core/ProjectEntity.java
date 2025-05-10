@@ -52,4 +52,8 @@ public class ProjectEntity extends BaseEntity {
   public void updateSequence(int currentSequence) {
     this.currentSequence = currentSequence;
   }
+
+  public void changeName(String name) {
+    this.name = name;
+  }
 }

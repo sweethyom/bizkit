@@ -19,4 +19,6 @@ public interface ProjectRepository {
   Project findById(Long projectId);
 
   void update(Project project);
+
+  ProjectDetail modifyProjectName(Long projectId, String name, boolean isLeader);
 }
