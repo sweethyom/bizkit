@@ -1,7 +1,6 @@
 package com.ssafy.taskit.api.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -107,6 +106,10 @@ class ProjectControllerTest extends RestDocsTest {
 
   @Test
   public void findProject() {
+    DefaultDateTime now = new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now());
+    Project project = new Project(1L, 1L, "프로젝트1", "SFE213FE", 0, null, now);
+    ProjectDetail projectDetail = new ProjectDetail(project, true);
+    when(projectService.findProject(any(), anyLong())).thenReturn(projectDetail);
     given()
         .contentType(ContentType.JSON)
         .get("/projects/{projectId}", 1L)
@@ -121,9 +124,11 @@ class ProjectControllerTest extends RestDocsTest {
                     .description("성공 여부 (예: SUCCESS 혹은 ERROR)"),
                 fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("내가 속한 프로젝트 id"),
                 fieldWithPath("data.name").type(JsonFieldType.STRING).description("내가 속한 프로젝트 이름"),
+                fieldWithPath("data.key").type(JsonFieldType.STRING).description("내가 속한 프로젝트의 키"),
                 fieldWithPath("data.image")
                     .type(JsonFieldType.STRING)
-                    .description("내가 속한 프로젝트 이미지 경로"),
+                    .description("내가 속한 프로젝트 이미지 경로")
+                    .optional(),
                 fieldWithPath("data.leader")
                     .type(JsonFieldType.BOOLEAN)
                     .description("프로젝트 팀장 여부"))));

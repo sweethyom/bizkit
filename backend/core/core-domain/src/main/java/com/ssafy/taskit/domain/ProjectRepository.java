@@ -13,6 +13,7 @@ public interface ProjectRepository {
 
   List<Long> findUserProjectIds(User user, ProjectSort sortType);
 
+  ProjectDetail findProject(User user, Long id, boolean isLeader);
   ProjectDetail findProject(Long projectId);
 
   Project findById(Long projectId);
