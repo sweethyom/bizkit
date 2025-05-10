@@ -4,6 +4,7 @@ import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
 import com.ssafy.taskit.domain.Assignee;
 import com.ssafy.taskit.domain.Component;
+import com.ssafy.taskit.domain.Epic;
 import com.ssafy.taskit.domain.Importance;
 import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueService;
@@ -144,28 +145,17 @@ public class IssueController {
   @GetMapping("sprints/{sprintId}/issues")
   public ApiResponse<List<SprintIssuesResponse>> findSprintIssues(
       ApiUser apiUser, @PathVariable Long sprintId) {
-    List<SprintIssuesResponse> responses = List.of(
-        new SprintIssuesResponse(
-            1L,
-            "이슈1",
-            "S12P31D207-2",
-            5L,
-            Importance.HIGH,
-            IssueStatus.IN_PROGRESS,
-            new ComponentResponse(1L, "BackEnd"),
-            new AssigneeResponse(1L, "채용수", "https://prfile-image-test.jpg"),
-            new IssueDetailEpicResponse(1L, "에픽1", "S12P31D207-1")),
-        new SprintIssuesResponse(
-            2L,
-            "이슈2",
-            "S12P31D207-3",
-            5L,
-            Importance.HIGH,
-            IssueStatus.IN_PROGRESS,
-            new ComponentResponse(1L, "BackEnd"),
-            new AssigneeResponse(1L, "채용수", "https://prfile-image-test.jpg"),
-            new IssueDetailEpicResponse(1L, "에픽1", "S12P31D207-1")));
-    return ApiResponse.success(responses);
+
+    List<Issue> issues = issueService.findSprintIssues(apiUser.toUser(), sprintId);
+    List<Long> componentIds = issues.stream().map(Issue::componentId).toList();
+    List<Long> assigneeIds = issues.stream().map(Issue::assigneeId).toList();
+    List<Long> epicIds = issues.stream().map(Issue::epicId).toList();
+    Map<Long, Component> componentMap = issueService.generateComponentMap(componentIds);
+    Map<Long, Assignee> assigneeMap = issueService.generateAssigneeMap(assigneeIds);
+    Map<Long, Epic> epicMap = issueService.generateEpicMap(epicIds);
+    List<SprintIssuesResponse> response =
+        SprintIssuesResponse.of(issues, componentMap, assigneeMap, epicMap);
+    return ApiResponse.success(response);
   }
 
   @GetMapping("components/{componentId}/issues")
