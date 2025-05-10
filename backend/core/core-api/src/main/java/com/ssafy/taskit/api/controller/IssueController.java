@@ -77,7 +77,8 @@ public class IssueController {
   public ApiResponse<Void> modifyIssueComponent(
       ApiUser apiUser,
       @PathVariable Long issueId,
-      @RequestBody ModifyIssueComponentRequest request) {
+      @RequestBody @Validated ModifyIssueComponentRequest request) {
+    issueService.modifyIssueComponent(apiUser.toUser(), issueId, request.toModifyIssueComponent());
     return ApiResponse.success();
   }
 

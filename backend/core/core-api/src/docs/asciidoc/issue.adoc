@@ -20,7 +20,7 @@ operation::modify-issue-content[snippets='http-request,path-parameters,request-f
 
 operation::modify-issue-assignee[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
-=== [미구현] 이슈 컴포넌트 수정
+=== 이슈 컴포넌트 수정
 
 operation::modify-issue-component[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
