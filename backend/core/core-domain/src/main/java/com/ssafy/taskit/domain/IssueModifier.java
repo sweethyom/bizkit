@@ -72,7 +72,6 @@ public class IssueModifier {
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
     memberValidator.isProjectMember(user, epic.projectId());
-    issueValidator.isBizpointPositive(modifyIssueBizpoint.bizPoint());
     issueRepository.modifyIssueBizpoint(issueId, modifyIssueBizpoint);
   }
 

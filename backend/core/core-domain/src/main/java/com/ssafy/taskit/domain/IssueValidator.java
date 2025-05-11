@@ -25,12 +25,6 @@ public class IssueValidator {
     }
   }
 
-  public void isBizpointPositive(Long bizPoint) {
-    if (bizPoint <= 0) {
-      throw new CoreException(CoreErrorType.BIZPOINT_NOT_POSITIVE);
-    }
-  }
-
   public void isValidImportance(Importance issueImportance) {
     if (!VALID_IMPORTANCES.contains(issueImportance)) {
       throw new CoreException(CoreErrorType.IMPORTANCE_NOT_VALID);
