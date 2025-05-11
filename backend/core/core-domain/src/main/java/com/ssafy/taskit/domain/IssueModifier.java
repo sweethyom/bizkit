@@ -72,7 +72,6 @@ public class IssueModifier {
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
     memberValidator.isProjectMember(user, epic.projectId());
-    issueValidator.isBizpointPositive(modifyIssueBizpoint.bizPoint());
     issueRepository.modifyIssueBizpoint(issueId, modifyIssueBizpoint);
   }
 
@@ -82,7 +81,6 @@ public class IssueModifier {
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
     memberValidator.isProjectMember(user, epic.projectId());
-    issueValidator.isValidImportance(modifyIssueImportance.issueImportance());
     issueRepository.modifyIssueImportance(issueId, modifyIssueImportance);
   }
 
@@ -91,7 +89,6 @@ public class IssueModifier {
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
     memberValidator.isProjectMember(user, epic.projectId());
-    issueValidator.isValidStatus(modifyIssueStatus.issueStatus());
     sprintValidator.isOngoingSprint(issue.sprintId());
     issueRepository.modifyIssueStatus(issueId, modifyIssueStatus);
   }

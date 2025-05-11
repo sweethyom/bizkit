@@ -233,11 +233,11 @@ class IssueControllerTest extends RestDocsTest {
   }
 
   @Test
-  public void modifyIssueBizpoint() {
+  public void modifyIssueBizPoint() {
     given()
         .contentType(ContentType.JSON)
         .body(new ModifyIssueBizpointRequest(5L))
-        .patch("issues/{issueId}/bizpoint", 1L)
+        .patch("issues/{issueId}/bizPoint", 1L)
         .then()
         .status(HttpStatus.OK)
         .apply(document(
