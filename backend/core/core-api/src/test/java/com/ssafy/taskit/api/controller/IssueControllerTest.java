@@ -3,6 +3,7 @@ package com.ssafy.taskit.api.controller;
 import static com.ssafy.s12p21d206.achu.test.api.RestDocsUtils.constraints;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -640,20 +641,79 @@ class IssueControllerTest extends RestDocsTest {
 
   @Test
   public void findMyIssues() {
+    when(issueService.findMyIssues(any(User.class), any(), anyLong(), anyInt()))
+        .thenReturn(List.of(
+            new Issue(
+                4L,
+                "이슈4",
+                "내용4",
+                "PROJECT-5",
+                5L,
+                Importance.HIGH,
+                IssueStatus.TODO,
+                1L,
+                1L,
+                1L,
+                1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
+            new Issue(
+                1L,
+                "이슈1",
+                "내용1",
+                "PROJECT-2",
+                3L,
+                Importance.HIGH,
+                IssueStatus.TODO,
+                1L,
+                1L,
+                1L,
+                1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
+            new Issue(
+                2L,
+                "이슈2",
+                "내용2",
+                "PROJECT-3",
+                3L,
+                Importance.LOW,
+                IssueStatus.TODO,
+                1L,
+                1L,
+                1L,
+                1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
+            new Issue(
+                3L,
+                "이슈3",
+                "내용3",
+                "PROJECT-4",
+                3L,
+                Importance.LOW,
+                IssueStatus.TODO,
+                1L,
+                1L,
+                1L,
+                1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
     given()
         .contentType(ContentType.JSON)
-        .queryParam("status", "TODO")
-        .queryParam("cursor", 10)
+        .queryParam("issueStatus", "TODO")
+        .queryParam("cursorId", 10L)
+        .queryParam("pageSize", 5)
         .get("issues/me")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "find-my-issues",
             queryParameters(
-                parameterWithName("status")
+                parameterWithName("issueStatus")
                     .description("조회 할 이슈들의 진행 상태")
-                    .attributes(constraints("TODO, IN_PROGRESS 중 하나여야 함")),
-                parameterWithName("cursor").description("커서값")),
+                    .attributes(constraints("TODO, IN_PROGRESS 중 하나")),
+                parameterWithName("cursorId")
+                    .description("이전 페이지에서 마지막으로 조회된 이슈의 ID. null이면 첫 페이지를 조회"),
+                parameterWithName("pageSize")
+                    .description("한 페이지에서 조회할 이슈의 갯수")
+                    .attributes(constraints("양의 정수"))),
             responseFields(
                 fieldWithPath("result")
                     .type(JsonFieldType.STRING)
