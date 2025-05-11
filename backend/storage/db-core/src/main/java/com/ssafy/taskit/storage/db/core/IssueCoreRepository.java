@@ -16,7 +16,10 @@ import com.ssafy.taskit.domain.NewIssue;
 import com.ssafy.taskit.domain.SprintStatus;
 import com.ssafy.taskit.domain.error.CoreErrorType;
 import com.ssafy.taskit.domain.error.CoreException;
+import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -147,6 +150,28 @@ public class IssueCoreRepository implements IssueRepository {
   public List<Issue> findComponentIssues(Long componentId) {
     List<IssueEntity> issueEntities = issueJpaRepository.findAllByComponentIdAndEntityStatus(
         componentId, EntityStatus.ACTIVE, SprintStatus.ONGOING);
+    return issueEntities.stream().map(IssueEntity::toIssue).toList();
+  }
+
+  @Override
+  public List<Issue> findMyIssuesFirstPage(Long userId, IssueStatus issueStatus, Integer pageSize) {
+    Pageable pageable = PageRequest.of(0, pageSize);
+    List<IssueEntity> issueEntities = issueJpaRepository.findMyIssuesFirstPage(
+        userId, EntityStatus.ACTIVE, issueStatus, pageable);
+    return issueEntities.stream().map(IssueEntity::toIssue).toList();
+  }
+
+  @Override
+  public List<Issue> findMyIssues(
+      Long userId, IssueStatus issueStatus, Long cursorId, Integer pageSize) {
+    IssueEntity lastIssue = issueJpaRepository
+        .findById(cursorId)
+        .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
+    LocalDateTime updatedAt = lastIssue.getUpdatedAt();
+
+    Pageable pageable = PageRequest.of(0, pageSize);
+    List<IssueEntity> issueEntities = issueJpaRepository.findMyIssuesAfterCursor(
+        userId, EntityStatus.ACTIVE, issueStatus, updatedAt, cursorId, pageable);
     return issueEntities.stream().map(IssueEntity::toIssue).toList();
   }
 }

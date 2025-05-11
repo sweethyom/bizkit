@@ -63,7 +63,7 @@ public class EpicCoreRepository implements EpicRepository {
   public void deleteEpic(Long epicId) {
     List<IssueEntity> issueEntities =
         issueJpaRepository.findByEpicIdAndEntityStatus(epicId, EntityStatus.ACTIVE);
-    issueEntities.forEach(issueEntity -> issueEntity.delete());
+    issueEntities.forEach(BaseEntity::delete);
     EpicEntity epicEntity = epicJpaRepository
         .findByEpicIdAndEntityStatus(epicId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.EPIC_NOT_FOUND));

@@ -68,4 +68,13 @@ public class IssueReader {
     }
     return issueRepository.findComponentIssues(componentId);
   }
+
+  public List<Issue> readMyIssuesFirstPage(User user, IssueStatus issueStatus, Integer pageSize) {
+    return issueRepository.findMyIssuesFirstPage(user.id(), issueStatus, pageSize);
+  }
+
+  public List<Issue> readMyIssues(
+      User user, IssueStatus issueStatus, Long cursorId, Integer pageSize) {
+    return issueRepository.findMyIssues(user.id(), issueStatus, cursorId, pageSize);
+  }
 }

@@ -97,4 +97,16 @@ public class IssueService {
   public List<Issue> findComponentIssues(User user, Long componentId) {
     return issueReader.readComponentIssues(user, componentId);
   }
+
+  public List<Issue> findMyIssues(
+      User user, IssueStatus issueStatus, Long cursorId, Integer pageSize) {
+    if (cursorId == null) {
+      return issueReader.readMyIssuesFirstPage(user, issueStatus, pageSize);
+    }
+    return issueReader.readMyIssues(user, issueStatus, cursorId, pageSize);
+  }
+
+  public Map<Long, Project> generateProjectMap(List<Long> projectIds) {
+    return Map.of();
+  }
 }
