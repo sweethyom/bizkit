@@ -740,4 +740,19 @@ class IssueControllerTest extends RestDocsTest {
                     .type(JsonFieldType.STRING)
                     .description("해당 이슈의 프로젝트 이름"))));
   }
+
+  @Test
+  public void deleteIssue() {
+    given()
+        .contentType(ContentType.JSON)
+        .delete("issues/{issueId}", 1L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "delete-issue",
+            pathParameters(parameterWithName("issueId").description("삭제할 이슈 id")),
+            responseFields(fieldWithPath("result")
+                .type(JsonFieldType.STRING)
+                .description("성공 여부 : SUCCESS 혹은 ERROR"))));
+  }
 }
