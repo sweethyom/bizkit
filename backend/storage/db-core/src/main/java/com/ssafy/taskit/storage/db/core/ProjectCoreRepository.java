@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class ProjectCoreRepository implements ProjectRepository {
@@ -64,5 +65,17 @@ public class ProjectCoreRepository implements ProjectRepository {
     projectJpaRepository.save(projectEntity);
     return projectEntity.toProjectDetail(isLeader);
   }
-  ;
+
+  @Transactional
+  @Override
+  public Long deleteProject(Long projectId) {
+    Optional<ProjectEntity> optionalEntity = projectJpaRepository.findById(projectId);
+    if (optionalEntity.isEmpty()) {
+      return -1L;
+    }
+
+    ProjectEntity projectEntity = optionalEntity.get();
+    projectEntity.delete();
+    return projectEntity.getId();
+  }
 }

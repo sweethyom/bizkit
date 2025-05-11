@@ -9,6 +9,7 @@ public class ProjectService {
   private final ProjectAppender projectAppender;
   private final ProjectReader projectReader;
   private final ProjectModifier projectModifier;
+  private final ProjectDeleter projectDeleter;
   private final MemberValidator memberValidator;
   private final ProjectValidator projectValidator;
 
@@ -16,11 +17,13 @@ public class ProjectService {
       ProjectAppender projectAppender,
       ProjectReader projectReader,
       ProjectModifier projectModifier,
+      ProjectDeleter projectDeleter,
       MemberValidator memberValidator,
       ProjectValidator projectValidator) {
     this.projectAppender = projectAppender;
     this.projectReader = projectReader;
     this.projectModifier = projectModifier;
+    this.projectDeleter = projectDeleter;
     this.memberValidator = memberValidator;
     this.projectValidator = projectValidator;
   }
@@ -44,5 +47,10 @@ public class ProjectService {
     memberValidator.isProjectLeader(user, projectId);
     boolean isLeader = memberValidator.checkProjectLeader(user, projectId);
     return projectModifier.modifyProjectName(projectId, name, isLeader);
+  }
+
+  public Long deleteProject(User user, Long projectId) {
+    memberValidator.isProjectLeader(user, projectId);
+    return projectDeleter.deleteProject(projectId);
   }
 }

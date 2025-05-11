@@ -16,4 +16,6 @@ public interface ProjectRepository {
   ProjectDetail findProject(User user, Long id, boolean isLeader);
 
   ProjectDetail modifyProjectName(Long projectId, String name, boolean isLeader);
+
+  Long deleteProject(Long projectId);
 }
