@@ -21,4 +21,6 @@ public interface ProjectRepository {
   void update(Project project);
 
   ProjectDetail modifyProjectName(Long projectId, String name, boolean isLeader);
+
+  Long deleteProject(Long projectId);
 }
