@@ -1,12 +1,19 @@
 package com.ssafy.taskit.api.controller;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
+import com.ssafy.taskit.domain.*;
+import com.ssafy.taskit.domain.support.DefaultDateTime;
 import io.restassured.http.ContentType;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -15,15 +22,33 @@ import org.springframework.restdocs.payload.JsonFieldType;
 class MemberControllerTest extends RestDocsTest {
 
   private MemberController controller;
+  private MemberService memberService;
+  private UserService userService;
 
   @BeforeEach
   public void setup() {
-    controller = new MemberController();
+    memberService = mock(MemberService.class);
+    userService = mock(UserService.class);
+    controller = new MemberController(memberService, userService);
     mockMvc = mockController(controller);
   }
 
   @Test
   public void findMembers() {
+    DefaultDateTime time = new DefaultDateTime(
+        LocalDateTime.now().minusDays(1), LocalDateTime.now().minusDays(1));
+    Member member1 = new Member(1L, 1L, 1L, Role.LEADER, LocalDateTime.now().minusDays(1), time);
+    Member member2 = new Member(2L, 2L, 1L, Role.MEMBER, LocalDateTime.now().minusDays(1), time);
+    Member member3 = new Member(3L, 3L, 1L, Role.MEMBER, LocalDateTime.now().minusDays(1), time);
+
+    UserDetail user1 = new UserDetail(1L, "사용자1", "user1@example.com", "https://img.com/a.jpg");
+    UserDetail user2 = new UserDetail(2L, "사용자2", "user2@example.com", "https://img.com/b.jpg");
+    UserDetail user3 = new UserDetail(3L, "사용자3", "user3@example.com", "https://img.com/c.jpg");
+    List<UserDetail> users = List.of(user1, user2, user3);
+
+    when(memberService.findMembers(any(User.class), anyLong()))
+        .thenReturn(List.of(member1, member2, member3));
+    when(userService.findUserDetailsByIds(anyList())).thenReturn(List.of(user1, user2, user3));
     given()
         .contentType(ContentType.JSON)
         .get("projects/{projectId}/members", 1L)
@@ -37,6 +62,9 @@ class MemberControllerTest extends RestDocsTest {
                     .type(JsonFieldType.STRING)
                     .description("성공 여부 : SUCCESS 혹은 ERROR"),
                 fieldWithPath("data.[].id").type(JsonFieldType.NUMBER).description("현재 소속된 팀원 id"),
+                fieldWithPath("data.[].userId")
+                    .type(JsonFieldType.NUMBER)
+                    .description("현재 소속된 팀원의 유저 id"),
                 fieldWithPath("data.[].nickname")
                     .type(JsonFieldType.STRING)
                     .description("현재 소속된 팀원 닉네임"),

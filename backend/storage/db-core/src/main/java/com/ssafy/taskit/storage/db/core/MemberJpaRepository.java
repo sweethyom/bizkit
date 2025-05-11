@@ -2,6 +2,7 @@ package com.ssafy.taskit.storage.db.core;
 
 import com.ssafy.taskit.domain.Role;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,4 +22,8 @@ public interface MemberJpaRepository extends JpaRepository<MemberEntity, Long> {
       @Param("userId") Long userId,
       @Param("projectId") Long projectId,
       @Param("lastAccessedAt") LocalDateTime lastAccessedAt);
+
+  boolean existsByUserIdAndProjectId(Long userId, Long ProjectId);
+
+  List<MemberEntity> findByProjectId(Long projectId);
 }

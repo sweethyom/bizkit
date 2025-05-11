@@ -19,8 +19,10 @@ public class MemberValidator {
     }
   }
 
-  public boolean isProjectMember(User user, Long projectId) {
-    return true;
+  public void isProjectMember(User user, Long projectId) {
+    if (!memberRepository.isMember(user.id(), projectId)) {
+      throw new CoreException(CoreErrorType.MEMBER_NOT_FOUND);
+    }
   }
 
   public boolean isInvitationExists(String invitationId) {
@@ -43,7 +45,9 @@ public class MemberValidator {
     return memberRepository.isLeader(user.id(), projectId);
   }
 
-  public boolean isProjectMember(Long userId, Long projectId) {
-    return true;
+  public void isProjectMember(Long userId, Long projectId) {
+    if (!memberRepository.isMember(userId, projectId)) {
+      throw new CoreException(CoreErrorType.MEMBER_NOT_FOUND);
+    }
   }
 }

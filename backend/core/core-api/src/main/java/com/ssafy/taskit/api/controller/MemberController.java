@@ -1,20 +1,31 @@
 package com.ssafy.taskit.api.controller;
 
 import com.ssafy.taskit.api.response.ApiResponse;
+import com.ssafy.taskit.domain.Member;
+import com.ssafy.taskit.domain.MemberService;
+import com.ssafy.taskit.domain.UserDetail;
+import com.ssafy.taskit.domain.UserService;
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class MemberController {
 
+  private final MemberService memberService;
+  private final UserService userService;
+
+  public MemberController(MemberService memberService, UserService userService) {
+    this.memberService = memberService;
+    this.userService = userService;
+  }
+
   @GetMapping("projects/{projectId}/members")
   public ApiResponse<List<MemberResponse>> findMembers(
       ApiUser apiUser, @PathVariable Long projectId) {
-    List<MemberResponse> responses = List.of(
-        new MemberResponse(1L, "이싸피", "leessafy@ssafy.com", "lee.jpg", true),
-        new MemberResponse(2L, "김싸피", "kimssafy@ssafy.com", "kim.jpg", false),
-        new MemberResponse(3L, "박싸피", "parkssafy@ssafy.com", "park.jpg", false));
-    return ApiResponse.success(responses);
+    List<Member> members = memberService.findMembers(apiUser.toUser(), projectId);
+    List<Long> userIds = members.stream().map(Member::userId).toList();
+    List<UserDetail> users = userService.findUserDetailsByIds(userIds);
+    return ApiResponse.success(MemberResponse.of(members, users));
   }
 
   @GetMapping("projects/{projectId}/members/invitation")

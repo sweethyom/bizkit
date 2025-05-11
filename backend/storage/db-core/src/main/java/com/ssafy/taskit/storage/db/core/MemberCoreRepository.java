@@ -1,8 +1,10 @@
 package com.ssafy.taskit.storage.db.core;
 
+import com.ssafy.taskit.domain.Member;
 import com.ssafy.taskit.domain.MemberRepository;
 import com.ssafy.taskit.domain.Role;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -23,5 +25,16 @@ public class MemberCoreRepository implements MemberRepository {
   @Override
   public void updateLastAccessedAt(Long userId, Long projectId, LocalDateTime lastAccessedAt) {
     memberJpaRepository.updateLastAccessedAt(userId, projectId, lastAccessedAt);
+  }
+
+  @Override
+  public boolean isMember(Long userId, Long projectId) {
+    return memberJpaRepository.existsByUserIdAndProjectId(userId, projectId);
+  }
+
+  @Override
+  public List<Member> findMembers(Long projectId) {
+    List<MemberEntity> memberEntities = memberJpaRepository.findByProjectId(projectId);
+    return memberEntities.stream().map(MemberEntity::toMember).toList();
   }
 }
