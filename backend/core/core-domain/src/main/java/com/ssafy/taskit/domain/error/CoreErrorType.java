@@ -40,7 +40,9 @@ public enum CoreErrorType {
       CoreErrorKind.CLIENT_ERROR,
       CoreErrorCode.I004,
       "현재 프로젝트에 존재하는 에픽으로만 변경할 수 있습니다.",
-      CoreErrorLevel.INFO);
+      CoreErrorLevel.INFO),
+  PROJECT_NOT_FOUND(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P003, "해당 프로젝트를 찾을 수 없습니다.", CoreErrorLevel.INFO);
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
   private final String message;

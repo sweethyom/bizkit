@@ -18,4 +18,6 @@ public interface ProjectRepository {
   ProjectDetail modifyProjectName(Long projectId, String name, boolean isLeader);
 
   Long deleteProject(Long projectId);
+
+  boolean existsById(Long projectId);
 }

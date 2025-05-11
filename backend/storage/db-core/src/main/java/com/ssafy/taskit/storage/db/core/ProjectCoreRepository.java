@@ -78,4 +78,9 @@ public class ProjectCoreRepository implements ProjectRepository {
     projectEntity.delete();
     return projectEntity.getId();
   }
+
+  @Override
+  public boolean existsById(Long projectId) {
+    return projectJpaRepository.existsById(projectId);
+  }
 }
