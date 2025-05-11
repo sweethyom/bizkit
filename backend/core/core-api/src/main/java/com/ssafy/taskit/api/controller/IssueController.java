@@ -6,10 +6,10 @@ import com.ssafy.taskit.domain.Assignee;
 import com.ssafy.taskit.domain.Component;
 import com.ssafy.taskit.domain.Epic;
 import com.ssafy.taskit.domain.EpicService;
-import com.ssafy.taskit.domain.Importance;
 import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueService;
 import com.ssafy.taskit.domain.IssueStatus;
+import com.ssafy.taskit.domain.Project;
 import com.ssafy.taskit.domain.UserDetail;
 import com.ssafy.taskit.domain.UserService;
 import java.util.List;
@@ -193,23 +193,18 @@ public class IssueController {
 
   @GetMapping("issues/me")
   public ApiResponse<List<MyIssuesResponse>> findMyIssues(
-      ApiUser apiUser, @RequestParam IssueStatus status, @RequestParam Long cursor) {
-
-    List<MyIssuesResponse> response = List.of(
-        new MyIssuesResponse(
-            1L,
-            "이슈 1",
-            "S12P31D207-2",
-            Importance.HIGH,
-            new IssueDetailEpicResponse(1L, "에픽1", "S12P31D207-1"),
-            new MyIssuesProjectResponse(1L, "프로젝트 1")),
-        new MyIssuesResponse(
-            2L,
-            "이슈 2",
-            "S12P31D207-3",
-            Importance.LOW,
-            new IssueDetailEpicResponse(1L, "에픽1", "S12P31D207-1"),
-            new MyIssuesProjectResponse(1L, "프로젝트 1")));
+      ApiUser apiUser,
+      @RequestParam IssueStatus issueStatus,
+      @RequestParam Long cursorId,
+      @RequestParam Integer pageSize) {
+    List<Issue> issues =
+        issueService.findMyIssues(apiUser.toUser(), issueStatus, cursorId, pageSize);
+    List<Long> epicIds = issues.stream().map(Issue::epicId).distinct().toList();
+    Map<Long, Epic> epicMap = issueService.generateEpicMap(epicIds);
+    List<Long> projectIds =
+        epicMap.values().stream().map(Epic::projectId).distinct().toList();
+    Map<Long, Project> projectMap = issueService.generateProjectMap(projectIds);
+    List<MyIssuesResponse> response = MyIssuesResponse.of(issues, epicMap, projectMap);
     return ApiResponse.success(response);
   }
 }
