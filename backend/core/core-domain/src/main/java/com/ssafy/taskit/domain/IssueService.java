@@ -89,4 +89,8 @@ public class IssueService {
   public Map<Long, Epic> generateEpicMap(List<Long> epicIds) {
     return Map.of();
   }
+
+  public Issue findIssue(User user, Long issueId) {
+    return issueReader.readIssue(user, issueId);
+  }
 }

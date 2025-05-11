@@ -37,4 +37,8 @@ public class EpicService {
   public void deleteEpic(User user, Long epicId) {
     epicDeleter.deleteEpic(user, epicId);
   }
+
+  public Epic findEpic(User user, Long epicId) {
+    return epicReader.readEpic(user, epicId);
+  }
 }

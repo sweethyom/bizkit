@@ -5,11 +5,13 @@ import com.ssafy.taskit.api.response.DefaultIdResponse;
 import com.ssafy.taskit.domain.Assignee;
 import com.ssafy.taskit.domain.Component;
 import com.ssafy.taskit.domain.Epic;
+import com.ssafy.taskit.domain.EpicService;
 import com.ssafy.taskit.domain.Importance;
 import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueService;
 import com.ssafy.taskit.domain.IssueStatus;
-import com.ssafy.taskit.domain.SprintStatus;
+import com.ssafy.taskit.domain.UserDetail;
+import com.ssafy.taskit.domain.UserService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.validation.annotation.Validated;
@@ -25,9 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class IssueController {
 
   private final IssueService issueService;
+  private final UserService userService;
+  private final EpicService epicService;
 
-  public IssueController(IssueService issueService) {
+  public IssueController(
+      IssueService issueService, UserService userService, EpicService epicService) {
     this.issueService = issueService;
+    this.userService = userService;
+    this.epicService = epicService;
   }
 
   @PostMapping("epics/{epicId}/issues")
@@ -41,18 +48,20 @@ public class IssueController {
 
   @GetMapping("issues/{issueId}")
   public ApiResponse<IssueDetailResponse> findIssue(ApiUser apiUser, @PathVariable Long issueId) {
-    IssueDetailResponse response = new IssueDetailResponse(
-        1L,
-        "이슈1",
-        "내용1",
-        "S12P31D207-2",
-        5L,
-        Importance.HIGH,
-        IssueStatus.TODO,
-        new ComponentResponse(1L, "BackEnd"),
-        new AssigneeResponse(1L, "채용수", "https://prfile-image-test.jpg"),
-        new IssueDetailEpicResponse(1L, "에픽1", "S12P31D207-1"),
-        new SprintResponse(1L, "1주차 스프린트", SprintStatus.ONGOING));
+    Issue issue = issueService.findIssue(apiUser.toUser(), issueId);
+    //    TODO: 컴포넌트 완성 시 구현
+    //    Component component = componentService.findComponent(issue.componentId());
+    Component component = new Component(1L, 1L, 1L, "컴포넌트1", "내용");
+    ComponentResponse componentResponse = ComponentResponse.from(component);
+    UserDetail userDetail = userService.findUserDetail(issue.assigneeId());
+    AssigneeResponse assigneeResponse = AssigneeResponse.from(userDetail);
+    Epic epic = epicService.findEpic(apiUser.toUser(), issue.epicId());
+    IssueDetailEpicResponse epicResponse = IssueDetailEpicResponse.from(epic);
+    //    TODO : 스프린트 완성 시 구현
+    //    Sprint sprint = sprintService.findSprint(apiUser.toUser(), issue.sprintId());
+    SprintResponse sprintResponse = SprintResponse.from();
+    IssueDetailResponse response =
+        IssueDetailResponse.of(issue, component, userDetail, epic, sprintResponse);
     return ApiResponse.success(response);
   }
 
