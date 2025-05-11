@@ -59,3 +59,7 @@ operation::modify-issue-sprint[snippets='http-request,path-parameters,request-fi
 === [미구현] 나의 이슈 목록 조회
 
 operation::find-my-issues[snippets='http-request,query-parameters,http-response,response-fields']
+
+=== 이슈 삭제
+
+operation::delete-issue[snippets='http-request,path-parameters,http-response,response-fields']
