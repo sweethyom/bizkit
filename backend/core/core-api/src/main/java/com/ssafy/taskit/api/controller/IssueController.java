@@ -93,8 +93,8 @@ public class IssueController {
     return ApiResponse.success();
   }
 
-  @PatchMapping("issues/{issueId}/bizpoint")
-  public ApiResponse<Void> modifyIssueBizpoint(
+  @PatchMapping("issues/{issueId}/bizPoint")
+  public ApiResponse<Void> modifyIssueBizPoint(
       ApiUser apiUser,
       @PathVariable Long issueId,
       @RequestBody @Validated ModifyIssueBizpointRequest request) {
