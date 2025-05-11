@@ -37,4 +37,6 @@ public interface IssueRepository {
   List<Issue> findMyIssuesFirstPage(Long userId, IssueStatus issueStatus, Integer pageSize);
 
   List<Issue> findMyIssues(Long userId, IssueStatus issueStatus, Long cursorId, Integer pageSize);
+
+  void delete(Long issueId);
 }

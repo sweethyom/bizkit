@@ -15,6 +15,7 @@ import com.ssafy.taskit.domain.UserService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -206,5 +207,11 @@ public class IssueController {
     Map<Long, Project> projectMap = issueService.generateProjectMap(projectIds);
     List<MyIssuesResponse> response = MyIssuesResponse.of(issues, epicMap, projectMap);
     return ApiResponse.success(response);
+  }
+
+  @DeleteMapping("issues/{issueId}")
+  public ApiResponse<Void> deleteIssue(ApiUser apiUser, @PathVariable Long issueId) {
+    issueService.deleteIssue(apiUser.toUser(), issueId);
+    return ApiResponse.success();
   }
 }

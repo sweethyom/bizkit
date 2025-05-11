@@ -16,6 +16,7 @@ import com.ssafy.taskit.domain.NewIssue;
 import com.ssafy.taskit.domain.SprintStatus;
 import com.ssafy.taskit.domain.error.CoreErrorType;
 import com.ssafy.taskit.domain.error.CoreException;
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.PageRequest;
@@ -173,5 +174,14 @@ public class IssueCoreRepository implements IssueRepository {
     List<IssueEntity> issueEntities = issueJpaRepository.findMyIssuesAfterCursor(
         userId, EntityStatus.ACTIVE, issueStatus, updatedAt, cursorId, pageable);
     return issueEntities.stream().map(IssueEntity::toIssue).toList();
+  }
+
+  @Transactional
+  @Override
+  public void delete(Long issueId) {
+    IssueEntity issueEntity = issueJpaRepository
+        .findById(issueId)
+        .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
+    issueEntity.delete();
   }
 }
