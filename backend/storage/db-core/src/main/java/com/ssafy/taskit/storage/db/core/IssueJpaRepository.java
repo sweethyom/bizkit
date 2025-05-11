@@ -2,8 +2,10 @@ package com.ssafy.taskit.storage.db.core;
 
 import com.ssafy.taskit.domain.IssueStatus;
 import com.ssafy.taskit.domain.SprintStatus;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,4 +43,40 @@ public interface IssueJpaRepository extends JpaRepository<IssueEntity, Long> {
       @Param("componentId") Long componentId,
       @Param("entityStatus") EntityStatus entityStatus,
       @Param("sprintStatus") SprintStatus sprintStatus);
+
+  @Query(
+      """
+  SELECT i
+  FROM IssueEntity i
+  WHERE i.assigneeId = :assigneeId
+    AND i.entityStatus = :entityStatus
+    AND i.issueStatus = :issueStatus
+  ORDER BY i.updatedAt DESC, i.id DESC
+""")
+  List<IssueEntity> findMyIssuesFirstPage(
+      @Param("assigneeId") Long userId,
+      @Param("entityStatus") EntityStatus entityStatus,
+      @Param("issueStatus") IssueStatus issueStatus,
+      Pageable pageable);
+
+  @Query(
+      """
+  SELECT i
+  FROM IssueEntity i
+  WHERE i.assigneeId = :assigneeId
+    AND i.entityStatus = :entityStatus
+    AND i.issueStatus = :issueStatus
+    AND (
+      i.updatedAt < :updatedAt
+      OR (i.updatedAt = :updatedAt AND i.id < :cursorId)
+    )
+  ORDER BY i.updatedAt DESC, i.id DESC
+""")
+  List<IssueEntity> findMyIssuesAfterCursor(
+      @Param("assigneeId") Long userId,
+      @Param("entityStatus") EntityStatus entityStatus,
+      @Param("issueStatus") IssueStatus issueStatus,
+      @Param("updatedAt") LocalDateTime updatedAt,
+      @Param("cursorId") Long cursorId,
+      Pageable pageable);
 }
