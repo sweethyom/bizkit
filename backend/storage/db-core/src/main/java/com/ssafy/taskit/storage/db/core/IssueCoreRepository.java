@@ -13,6 +13,7 @@ import com.ssafy.taskit.domain.ModifyIssueName;
 import com.ssafy.taskit.domain.ModifyIssueSprint;
 import com.ssafy.taskit.domain.ModifyIssueStatus;
 import com.ssafy.taskit.domain.NewIssue;
+import com.ssafy.taskit.domain.SprintStatus;
 import com.ssafy.taskit.domain.error.CoreErrorType;
 import com.ssafy.taskit.domain.error.CoreException;
 import java.util.List;
@@ -139,6 +140,13 @@ public class IssueCoreRepository implements IssueRepository {
   public List<Issue> findSprintIssues(Long sprintId) {
     List<IssueEntity> issueEntities =
         issueJpaRepository.findBySprintIdAndEntityStatus(sprintId, EntityStatus.ACTIVE);
+    return issueEntities.stream().map(IssueEntity::toIssue).toList();
+  }
+
+  @Override
+  public List<Issue> findComponentIssues(Long componentId) {
+    List<IssueEntity> issueEntities = issueJpaRepository.findAllByComponentIdAndEntityStatus(
+        componentId, EntityStatus.ACTIVE, SprintStatus.ONGOING);
     return issueEntities.stream().map(IssueEntity::toIssue).toList();
   }
 }

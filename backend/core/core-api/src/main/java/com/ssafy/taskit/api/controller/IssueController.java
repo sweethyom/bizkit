@@ -170,42 +170,15 @@ public class IssueController {
   @GetMapping("components/{componentId}/issues")
   public ApiResponse<List<ComponentIssuesResponse>> findComponentIssues(
       ApiUser apiUser, @PathVariable Long componentId) {
-
-    List<ComponentIssuesResponse> response = List.of(
-        new ComponentIssuesResponse(
-            IssueStatus.TODO,
-            List.of(new ComponentIssueResponse(
-                1L,
-                "이슈3",
-                "S12P31D207-4",
-                3L,
-                Importance.LOW,
-                new ComponentResponse(1L, "BackEnd"),
-                new AssigneeResponse(1L, "채용수", "https://prfile-image-test.jpg"),
-                new IssueDetailEpicResponse(1L, "에픽1", "S12P31D207-1")))),
-        new ComponentIssuesResponse(
-            IssueStatus.IN_PROGRESS,
-            List.of(new ComponentIssueResponse(
-                2L,
-                "이슈2",
-                "S12P31D207-3",
-                5L,
-                Importance.HIGH,
-                new ComponentResponse(1L, "BackEnd"),
-                new AssigneeResponse(1L, "채용수", "https://prfile-image-test.jpg"),
-                new IssueDetailEpicResponse(1L, "에픽1", "S12P31D207-1")))),
-        new ComponentIssuesResponse(
-            IssueStatus.DONE,
-            List.of(new ComponentIssueResponse(
-                3L,
-                "이슈1",
-                "S12P31D207-2",
-                5L,
-                Importance.HIGH,
-                new ComponentResponse(1L, "BackEnd"),
-                new AssigneeResponse(1L, "채용수", "https://prfile-image-test.jpg"),
-                new IssueDetailEpicResponse(1L, "에픽1", "S12P31D207-1")))));
-
+    List<Issue> issues = issueService.findComponentIssues(apiUser.toUser(), componentId);
+    List<Long> componentIds = issues.stream().map(Issue::componentId).toList();
+    List<Long> assigneeIds = issues.stream().map(Issue::assigneeId).toList();
+    List<Long> epicIds = issues.stream().map(Issue::epicId).toList();
+    Map<Long, Component> componentMap = issueService.generateComponentMap(componentIds);
+    Map<Long, Assignee> assigneeMap = issueService.generateAssigneeMap(assigneeIds);
+    Map<Long, Epic> epicMap = issueService.generateEpicMap(epicIds);
+    List<ComponentIssuesResponse> response =
+        ComponentIssuesResponse.of(issues, componentMap, assigneeMap, epicMap);
     return ApiResponse.success(response);
   }
 
