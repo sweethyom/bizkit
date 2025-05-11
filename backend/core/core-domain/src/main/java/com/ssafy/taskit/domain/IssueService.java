@@ -10,12 +10,17 @@ public class IssueService {
   private final IssueAppender issueAppender;
   private final IssueReader issueReader;
   private final IssueModifier issueModifier;
+  private final IssueDeleter issueDeleter;
 
   public IssueService(
-      IssueAppender issueAppender, IssueReader issueReader, IssueModifier issueModifier) {
+      IssueAppender issueAppender,
+      IssueReader issueReader,
+      IssueModifier issueModifier,
+      IssueDeleter issueDeleter) {
     this.issueAppender = issueAppender;
     this.issueReader = issueReader;
     this.issueModifier = issueModifier;
+    this.issueDeleter = issueDeleter;
   }
 
   public Issue append(User user, Long epicId, NewIssue newIssue) {
@@ -108,5 +113,9 @@ public class IssueService {
 
   public Map<Long, Project> generateProjectMap(List<Long> projectIds) {
     return Map.of();
+  }
+
+  public void deleteIssue(User user, Long issueId) {
+    issueDeleter.deleteIssue(user, issueId);
   }
 }
