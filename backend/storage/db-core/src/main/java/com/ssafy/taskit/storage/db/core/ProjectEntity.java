@@ -35,4 +35,8 @@ public class ProjectEntity extends BaseEntity {
         this.imageUrl,
         new DefaultDateTime(this.getCreatedAt(), this.getUpdatedAt()));
   }
+
+  public void updateSequence(int currentSequence) {
+    this.currentSequence = currentSequence;
+  }
 }

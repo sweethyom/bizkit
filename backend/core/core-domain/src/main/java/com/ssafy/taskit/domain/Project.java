@@ -9,4 +9,14 @@ public record Project(
     String key,
     int currentSequence,
     String image,
-    DefaultDateTime defaultDateTime) {}
+    DefaultDateTime defaultDateTime) {
+
+  public Project nextSequence() {
+    int nextSequence = currentSequence + 1;
+    return new Project(id, userId, name, key, nextSequence, image, defaultDateTime);
+  }
+
+  public String generateKey() {
+    return key + "-" + currentSequence;
+  }
+}
