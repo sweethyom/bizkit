@@ -98,7 +98,7 @@ class ComponentControllerTest extends RestDocsTest {
   void modifyComponent() {
     given()
         .contentType(ContentType.JSON)
-        .body(new ModifyComponentRequest("컴포넌트 이름", "컴포넌트 설명"))
+        .body(new ModifyComponentRequest("컴포넌트", "컴포넌트 설명"))
         .put("/components/{componentId}", 1L)
         .then()
         .status(HttpStatus.OK)

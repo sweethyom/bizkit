@@ -1,6 +1,7 @@
 package com.ssafy.taskit.storage.db.core;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ComponentJpaRepository extends JpaRepository<ComponentEntity, Long> {
@@ -8,4 +9,7 @@ public interface ComponentJpaRepository extends JpaRepository<ComponentEntity, L
 
   List<ComponentEntity> findAllByProjectIdAndEntityStatus(
       Long projectId, EntityStatus entityStatus);
+
+  Optional<ComponentEntity> findByComponentIdAndEntityStatus(
+      Long componentId, EntityStatus entityStatus);
 }

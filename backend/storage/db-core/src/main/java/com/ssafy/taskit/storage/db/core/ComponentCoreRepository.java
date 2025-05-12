@@ -2,9 +2,13 @@ package com.ssafy.taskit.storage.db.core;
 
 import com.ssafy.taskit.domain.Component;
 import com.ssafy.taskit.domain.ComponentRepository;
+import com.ssafy.taskit.domain.ModifyComponent;
 import com.ssafy.taskit.domain.NewComponent;
 import com.ssafy.taskit.domain.User;
+import com.ssafy.taskit.domain.error.CoreErrorType;
+import com.ssafy.taskit.domain.error.CoreException;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -34,5 +38,21 @@ public class ComponentCoreRepository implements ComponentRepository {
     List<ComponentEntity> componentEntities =
         componentJpaRepository.findAllByProjectIdAndEntityStatus(projectId, EntityStatus.ACTIVE);
     return componentEntities.stream().map(ComponentEntity::toComponent).toList();
+  }
+
+  @Override
+  public Optional<Component> findById(Long componentId) {
+    return componentJpaRepository
+        .findByComponentIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
+        .map(ComponentEntity::toComponent);
+  }
+
+  @Override
+  public void modifyComponent(Long componentId, ModifyComponent modifyComponent) {
+    ComponentEntity componentEntity = componentJpaRepository
+        .findByComponentIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.COMPONENT_NOT_FOUND));
+    componentEntity.updateComponentName(modifyComponent.name());
+    componentEntity.updateComponentContent(modifyComponent.content());
   }
 }

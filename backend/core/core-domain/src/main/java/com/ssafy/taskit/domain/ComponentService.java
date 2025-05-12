@@ -9,9 +9,21 @@ public class ComponentService {
 
   private final ComponentReader componentReader;
 
-  public ComponentService(ComponentAppender componentAppender, ComponentReader componentReader) {
+  private final ComponentModifier componentModifier;
+  private final ProjectValidator projectValidator;
+  private final MemberValidator memberValidator;
+
+  public ComponentService(
+      ComponentAppender componentAppender,
+      ComponentReader componentReader,
+      ComponentModifier componentModifier,
+      ProjectValidator projectValidator,
+      MemberValidator memberValidator) {
     this.componentAppender = componentAppender;
     this.componentReader = componentReader;
+    this.componentModifier = componentModifier;
+    this.projectValidator = projectValidator;
+    this.memberValidator = memberValidator;
   }
 
   public Component append(User user, Long projectId, NewComponent newComponent) {
@@ -19,6 +31,12 @@ public class ComponentService {
   }
 
   public List<Component> findComponents(User user, Long projectId) {
-    return componentReader.findComponents(user, projectId);
+    projectValidator.isProjectExists(projectId);
+    memberValidator.isProjectMember(user, projectId);
+    return componentReader.findComponents(projectId);
+  }
+
+  public void modifyComponent(User user, Long componentId, ModifyComponent modifyComponent) {
+    componentModifier.modify(user, componentId, modifyComponent);
   }
 }
