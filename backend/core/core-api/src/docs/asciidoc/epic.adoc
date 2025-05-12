@@ -1,6 +1,6 @@
 == 에픽 관련 API
 
-=== [미구현] 에픽 등록
+=== 에픽 등록
 
 operation::append-epic[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 

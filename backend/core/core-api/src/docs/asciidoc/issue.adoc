@@ -1,6 +1,6 @@
 == 이슈 관련 API
 
-=== [미구현] 이슈 생성
+=== 이슈 생성
 
 operation::append-issue[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
