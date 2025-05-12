@@ -2,6 +2,7 @@ package com.ssafy.taskit.domain;
 
 import java.util.List;
 
+@org.springframework.stereotype.Component
 public class ComponentReader {
 
   private final ProjectValidator projectValidator;
