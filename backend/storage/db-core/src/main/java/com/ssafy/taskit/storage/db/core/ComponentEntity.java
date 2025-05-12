@@ -25,4 +25,12 @@ public class ComponentEntity extends BaseEntity {
   public Component toComponent() {
     return new Component(getId(), this.projectId, this.userId, this.name, this.content);
   }
+
+  public void updateComponentName(String name) {
+    this.name = name;
+  }
+
+  public void updateComponentContent(String content) {
+    this.content = content;
+  }
 }
