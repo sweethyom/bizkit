@@ -9,4 +9,8 @@ public interface ComponentRepository {
   boolean existsByProjectIdAndName(Long projectId, String name);
 
   List<Component> findComponents(Long projectId);
+
+  Component findById(Long componentid);
+
+  void modifyComponent(Long componentId, ModifyComponent modifyComponent);
 }

@@ -2,6 +2,7 @@ package com.ssafy.taskit.api.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -15,6 +16,7 @@ import static org.springframework.restdocs.snippet.Attributes.key;
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
 import com.ssafy.taskit.domain.Component;
 import com.ssafy.taskit.domain.ComponentService;
+import com.ssafy.taskit.domain.ModifyComponent;
 import com.ssafy.taskit.domain.NewComponent;
 import com.ssafy.taskit.domain.User;
 import io.restassured.http.ContentType;
@@ -96,9 +98,12 @@ class ComponentControllerTest extends RestDocsTest {
 
   @Test
   void modifyComponent() {
+    doAnswer(invocation -> null)
+        .when(componentService)
+        .modifyComponent(any(User.class), anyLong(), any(ModifyComponent.class));
     given()
         .contentType(ContentType.JSON)
-        .body(new ModifyComponentRequest("컴포넌트 이름", "컴포넌트 설명"))
+        .body(new ModifyComponentRequest("컴포넌트", "컴포넌트 설명"))
         .put("/components/{componentId}", 1L)
         .then()
         .status(HttpStatus.OK)

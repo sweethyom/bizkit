@@ -41,9 +41,9 @@ public class ComponentController {
   public ApiResponse<DefaultIdResponse> modifyComponent(
       ApiUser apiUser,
       @PathVariable Long componentId,
-      @RequestBody ModifyComponentRequest request) {
-    DefaultIdResponse response = new DefaultIdResponse(1L);
-    return ApiResponse.success(response);
+      @RequestBody @Validated ModifyComponentRequest request) {
+    componentService.modifyComponent(apiUser.toUser(), componentId, request.toModifyComponent());
+    return ApiResponse.success(new DefaultIdResponse(componentId));
   }
 
   @DeleteMapping("/components/{componentId}")
