@@ -8,6 +8,7 @@ import com.ssafy.taskit.domain.User;
 import com.ssafy.taskit.domain.error.CoreErrorType;
 import com.ssafy.taskit.domain.error.CoreException;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -40,11 +41,10 @@ public class ComponentCoreRepository implements ComponentRepository {
   }
 
   @Override
-  public Component findById(Long componentId) {
+  public Optional<Component> findById(Long componentId) {
     return componentJpaRepository
         .findByComponentIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
-        .orElseThrow(() -> new CoreException(CoreErrorType.COMPONENT_NOT_FOUND))
-        .toComponent();
+        .map(ComponentEntity::toComponent);
   }
 
   @Override

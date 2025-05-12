@@ -1,10 +1,11 @@
 package com.ssafy.taskit.storage.db.core;
 
 import com.ssafy.taskit.domain.Component;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Table(name = "component")
-@jakarta.persistence.Entity
+@Entity
 public class ComponentEntity extends BaseEntity {
   private Long projectId;
 
