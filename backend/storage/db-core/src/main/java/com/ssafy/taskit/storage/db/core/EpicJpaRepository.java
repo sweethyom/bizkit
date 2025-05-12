@@ -9,5 +9,5 @@ public interface EpicJpaRepository extends JpaRepository<EpicEntity, Long> {
 
   boolean existsByIdAndEntityStatus(Long epicId, EntityStatus entityStatus);
 
-  Optional<EpicEntity> findByEpicIdAndEntityStatus(Long epicId, EntityStatus entityStatus);
+  Optional<EpicEntity> findByIdAndEntityStatus(Long epicId, EntityStatus entityStatus);
 }

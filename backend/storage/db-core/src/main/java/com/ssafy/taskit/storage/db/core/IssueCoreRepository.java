@@ -48,13 +48,13 @@ public class IssueCoreRepository implements IssueRepository {
 
   @Override
   public boolean existsByIdAndEntityStatus(Long issueId) {
-    return issueJpaRepository.existsByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE);
+    return issueJpaRepository.existsByIdAndEntityStatus(issueId, EntityStatus.ACTIVE);
   }
 
   @Override
   public Issue findById(Long issueId) {
     return issueJpaRepository
-        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND))
         .toIssue();
   }
@@ -62,7 +62,7 @@ public class IssueCoreRepository implements IssueRepository {
   @Override
   public void modifyIssueName(Long issueId, ModifyIssueName modifyIssueName) {
     IssueEntity issueEntity = issueJpaRepository
-        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueName(modifyIssueName.name());
     issueJpaRepository.save(issueEntity);
@@ -71,7 +71,7 @@ public class IssueCoreRepository implements IssueRepository {
   @Override
   public void modifyIssueContent(Long issueId, ModifyIssueContent modifyIssueContent) {
     IssueEntity issueEntity = issueJpaRepository
-        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueContent(modifyIssueContent.content());
     issueJpaRepository.save(issueEntity);
@@ -80,7 +80,7 @@ public class IssueCoreRepository implements IssueRepository {
   @Override
   public void modifyIssueAssignee(Long issueId, ModifyIssueAssignee modifyIssueAssignee) {
     IssueEntity issueEntity = issueJpaRepository
-        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueAssignee(modifyIssueAssignee.assigneeId());
     issueJpaRepository.save(issueEntity);
@@ -89,7 +89,7 @@ public class IssueCoreRepository implements IssueRepository {
   @Override
   public void modifyIssueComponent(Long issueId, ModifyIssueComponent modifyIssueComponent) {
     IssueEntity issueEntity = issueJpaRepository
-        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueComponent(modifyIssueComponent.componentId());
     issueJpaRepository.save(issueEntity);
@@ -98,7 +98,7 @@ public class IssueCoreRepository implements IssueRepository {
   @Override
   public void modifyIssueBizpoint(Long issueId, ModifyIssueBizpoint modifyIssueBizpoint) {
     IssueEntity issueEntity = issueJpaRepository
-        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueBizpoint(modifyIssueBizpoint.bizPoint());
     issueJpaRepository.save(issueEntity);
@@ -107,7 +107,7 @@ public class IssueCoreRepository implements IssueRepository {
   @Override
   public void modifyIssueImportance(Long issueId, ModifyIssueImportance modifyIssueImportance) {
     IssueEntity issueEntity = issueJpaRepository
-        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueImportance(modifyIssueImportance.issueImportance());
     issueJpaRepository.save(issueEntity);
@@ -116,7 +116,7 @@ public class IssueCoreRepository implements IssueRepository {
   @Override
   public void modifyIssueStatus(Long issueId, ModifyIssueStatus modifyIssueStatus) {
     IssueEntity issueEntity = issueJpaRepository
-        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueStatus(modifyIssueStatus.issueStatus());
     issueJpaRepository.save(issueEntity);
@@ -125,7 +125,7 @@ public class IssueCoreRepository implements IssueRepository {
   @Override
   public void modifyIssueEpic(Long issueId, ModifyIssueEpic modifyIssueEpic) {
     IssueEntity issueEntity = issueJpaRepository
-        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueEpic(modifyIssueEpic.epicId());
     issueJpaRepository.save(issueEntity);
@@ -134,7 +134,7 @@ public class IssueCoreRepository implements IssueRepository {
   @Override
   public void modifyIssueSprint(Long issueId, ModifyIssueSprint modifyIssueSprint) {
     IssueEntity issueEntity = issueJpaRepository
-        .findByIssueIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueSprint(modifyIssueSprint.targetId());
     issueJpaRepository.save(issueEntity);
