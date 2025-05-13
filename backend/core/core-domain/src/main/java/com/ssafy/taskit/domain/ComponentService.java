@@ -58,7 +58,7 @@ public class ComponentService {
     memberValidator.isProjectMember(user, component.projectId());
     List<Issue> issues = issueService.findComponentIssues(user, componentId);
     for (Issue issue : issues) {
-      issueService.deleteIssue(user, issue.id());
+      issueService.modifyIssueComponent(user, issue.id(), new ModifyIssueComponent(null));
     }
     componentDeleter.delete(componentId);
   }
