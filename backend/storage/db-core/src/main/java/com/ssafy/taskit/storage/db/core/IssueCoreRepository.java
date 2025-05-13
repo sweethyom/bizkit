@@ -184,4 +184,15 @@ public class IssueCoreRepository implements IssueRepository {
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.delete();
   }
+
+  @Override
+  public List<Object[]> countTotalIssuesByEpicIds(List<Long> epicIds) {
+    return issueJpaRepository.countTotalIssuesGroupedByEpicIds(epicIds, EntityStatus.ACTIVE);
+  }
+
+  @Override
+  public List<Object[]> countBacklogIssuesByEpicIds(List<Long> epicIds) {
+    return issueJpaRepository.countBacklogIssuesGroupedByEpicIds(
+        epicIds, EntityStatus.ACTIVE, IssueStatus.UNASSIGNED);
+  }
 }

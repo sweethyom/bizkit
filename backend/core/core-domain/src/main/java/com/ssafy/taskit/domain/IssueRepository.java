@@ -39,4 +39,8 @@ public interface IssueRepository {
   List<Issue> findMyIssues(Long userId, IssueStatus issueStatus, Long cursorId, Integer pageSize);
 
   void delete(Long issueId);
+
+  List<Object[]> countTotalIssuesByEpicIds(List<Long> epicIds);
+
+  List<Object[]> countBacklogIssuesByEpicIds(List<Long> epicIds);
 }
