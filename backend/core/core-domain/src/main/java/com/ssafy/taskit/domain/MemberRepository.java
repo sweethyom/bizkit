@@ -11,4 +11,8 @@ public interface MemberRepository {
   boolean isMember(Long userId, Long projectId);
 
   List<Member> findMembers(Long projectId);
+
+  Member findById(Long memberId);
+
+  Long deleteMember(Long memberId);
 }

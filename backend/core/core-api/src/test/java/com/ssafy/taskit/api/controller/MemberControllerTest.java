@@ -24,12 +24,14 @@ class MemberControllerTest extends RestDocsTest {
   private MemberController controller;
   private MemberService memberService;
   private UserService userService;
+  private IssueService issueService;
 
   @BeforeEach
   public void setup() {
     memberService = mock(MemberService.class);
     userService = mock(UserService.class);
-    controller = new MemberController(memberService, userService);
+    issueService = mock(IssueService.class);
+    controller = new MemberController(memberService, userService, issueService);
     mockMvc = mockController(controller);
   }
 
@@ -162,9 +164,17 @@ class MemberControllerTest extends RestDocsTest {
 
   @Test
   public void deleteMember() {
+    when(memberService.findMember(1L))
+        .thenReturn(new Member(
+            1L,
+            1L,
+            1L,
+            Role.MEMBER,
+            LocalDateTime.now(),
+            new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())));
     given()
         .contentType(ContentType.JSON)
-        .delete("members/{memberId}", 2L)
+        .delete("members/{memberId}", 1L)
         .then()
         .status(HttpStatus.OK)
         .apply(document(

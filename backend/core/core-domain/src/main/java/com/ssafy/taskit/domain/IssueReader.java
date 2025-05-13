@@ -77,4 +77,8 @@ public class IssueReader {
       User user, IssueStatus issueStatus, Long cursorId, Integer pageSize) {
     return issueRepository.findMyIssues(user.id(), issueStatus, cursorId, pageSize);
   }
+
+  public List<Issue> readIssuesByUserId(Long assigneeId) {
+    return issueRepository.findByUserId(assigneeId);
+  }
 }

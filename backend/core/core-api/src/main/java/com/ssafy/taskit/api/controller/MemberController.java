@@ -1,10 +1,7 @@
 package com.ssafy.taskit.api.controller;
 
 import com.ssafy.taskit.api.response.ApiResponse;
-import com.ssafy.taskit.domain.Member;
-import com.ssafy.taskit.domain.MemberService;
-import com.ssafy.taskit.domain.UserDetail;
-import com.ssafy.taskit.domain.UserService;
+import com.ssafy.taskit.domain.*;
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +11,13 @@ public class MemberController {
   private final MemberService memberService;
   private final UserService userService;
 
-  public MemberController(MemberService memberService, UserService userService) {
+  private final IssueService issueService;
+
+  public MemberController(
+      MemberService memberService, UserService userService, IssueService issueService) {
     this.memberService = memberService;
     this.userService = userService;
+    this.issueService = issueService;
   }
 
   @GetMapping("projects/{projectId}/members")
@@ -58,6 +59,11 @@ public class MemberController {
 
   @DeleteMapping("members/{memberId}")
   public ApiResponse<Void> deleteMember(ApiUser apiUser, @PathVariable Long memberId) {
+    memberService.deleteMember(apiUser.toUser(), memberId);
+    Member member = memberService.findMember(memberId);
+    List<Issue> issues = issueService.findIssuesByUserId(member.userId());
+    issues.forEach(issue -> issueService.modifyIssueAssignee(
+        apiUser.toUser(), issue.id(), new ModifyIssueAssignee(null)));
     return ApiResponse.success();
   }
 

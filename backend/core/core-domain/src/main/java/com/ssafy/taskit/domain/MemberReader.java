@@ -14,4 +14,8 @@ public class MemberReader {
   public List<Member> findMembers(Long projectId) {
     return memberRepository.findMembers(projectId);
   }
+
+  public Member findMember(Long memberId) {
+    return memberRepository.findById(memberId);
+  }
 }

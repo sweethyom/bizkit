@@ -50,4 +50,10 @@ public class MemberValidator {
       throw new CoreException(CoreErrorType.MEMBER_NOT_FOUND);
     }
   }
+
+  public void isLeaderAndMemberSame(Long requestUserId, Long targetUserId) {
+    if (requestUserId.equals(targetUserId)) {
+      throw new CoreException(CoreErrorType.LEADER_MEMBER_SAME_NOT_ALLOWED);
+    }
+  }
 }
