@@ -22,6 +22,7 @@ import com.ssafy.taskit.domain.support.DefaultDateTime;
 import io.restassured.http.ContentType;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -86,6 +87,8 @@ class EpicControllerTest extends RestDocsTest {
                 "PROJECT-2",
                 1L,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
+    when(issueService.countTotalIssues(any())).thenReturn(Map.of(1L, 17L, 2L, 9L));
+    when(issueService.countBacklogIssues(any())).thenReturn(Map.of(1L, 2L, 2L, 8L));
     given()
         .contentType(ContentType.JSON)
         .get("projects/{projectId}/epics", 1L)
