@@ -17,6 +17,8 @@ public class ComponentService {
 
   private final ComponentValidator componentValidator;
 
+  private final IssueService issueService;
+
   public ComponentService(
       ComponentAppender componentAppender,
       ComponentReader componentReader,
@@ -24,7 +26,8 @@ public class ComponentService {
       ComponentDeleter componentDeleter,
       ProjectValidator projectValidator,
       MemberValidator memberValidator,
-      ComponentValidator componentValidator) {
+      ComponentValidator componentValidator,
+      IssueService issueService) {
     this.componentAppender = componentAppender;
     this.componentReader = componentReader;
     this.componentModifier = componentModifier;
@@ -32,6 +35,7 @@ public class ComponentService {
     this.projectValidator = projectValidator;
     this.memberValidator = memberValidator;
     this.componentValidator = componentValidator;
+    this.issueService = issueService;
   }
 
   public Component append(User user, Long projectId, NewComponent newComponent) {
@@ -52,6 +56,10 @@ public class ComponentService {
     componentValidator.isComponentExists(componentId);
     Component component = componentReader.findComponent(componentId);
     memberValidator.isProjectMember(user, component.projectId());
+    List<Issue> issues = issueService.findComponentIssues(user, componentId);
+    for (Issue issue : issues) {
+      issueService.deleteIssue(user, issue.id());
+    }
     componentDeleter.delete(componentId);
   }
 }
