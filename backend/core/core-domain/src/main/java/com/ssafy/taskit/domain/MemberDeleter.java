@@ -1,5 +1,7 @@
 package com.ssafy.taskit.domain;
 
+import com.ssafy.taskit.domain.error.CoreErrorType;
+import com.ssafy.taskit.domain.error.CoreException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,6 +29,17 @@ public class MemberDeleter {
     memberValidator.isProjectMember(memberUserId, projectId);
     memberValidator.isLeaderAndMemberSame(user.id(), memberUserId);
 
+    memberRepository.deleteMember(memberId);
+  }
+
+  public void leaveProject(User user, Long projectId) {
+    projectValidator.isProjectExists(projectId);
+    if (memberValidator.checkProjectLeader(user, projectId)) {
+      throw new CoreException(CoreErrorType.LEADER_IS_NOT_ALLOWED);
+    }
+    memberValidator.isProjectMember(user, projectId);
+
+    Long memberId = memberRepository.findByUserId(user.id());
     memberRepository.deleteMember(memberId);
   }
 }

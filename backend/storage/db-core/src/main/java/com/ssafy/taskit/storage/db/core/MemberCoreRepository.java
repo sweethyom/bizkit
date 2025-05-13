@@ -62,4 +62,9 @@ public class MemberCoreRepository implements MemberRepository {
     memberEntity.delete();
     return memberEntity.getId();
   }
+
+  @Override
+  public Long findByUserId(Long userId) {
+    return memberJpaRepository.findByUserId(userId);
+  }
 }

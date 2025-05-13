@@ -49,7 +49,10 @@ public enum CoreErrorType {
   USER_NOT_FOUND(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I005, "해당 사용자를 찾을 수 없습니다.", CoreErrorLevel.INFO),
   LEADER_MEMBER_SAME_NOT_ALLOWED(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M001, "팀장은 자신을 삭제할 수 없습니다.", CoreErrorLevel.INFO);
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M001, "팀장은 자신을 삭제할 수 없습니다.", CoreErrorLevel.INFO),
+
+  LEADER_IS_NOT_ALLOWED(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M002, "팀장은 프로젝트를 탈퇴할 수 없습니다.", CoreErrorLevel.INFO);
 
   private final CoreErrorKind kind;
   private final CoreErrorCode code;

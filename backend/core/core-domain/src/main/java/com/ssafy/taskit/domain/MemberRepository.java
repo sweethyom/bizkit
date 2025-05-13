@@ -15,4 +15,6 @@ public interface MemberRepository {
   Member findById(Long memberId);
 
   Long deleteMember(Long memberId);
+
+  Long findByUserId(Long userId);
 }

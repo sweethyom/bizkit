@@ -35,4 +35,8 @@ public class MemberService {
   public void deleteMember(User user, Long memberId) {
     memberDeleter.deleteMember(user, memberId);
   }
+
+  public void leaveProject(User user, Long projectId) {
+    memberDeleter.leaveProject(user, projectId);
+  }
 }

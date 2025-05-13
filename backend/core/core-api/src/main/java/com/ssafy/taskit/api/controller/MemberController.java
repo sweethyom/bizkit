@@ -48,6 +48,10 @@ public class MemberController {
 
   @DeleteMapping("projects/{projectId}/members/me")
   public ApiResponse<Void> leaveProject(ApiUser apiUser, @PathVariable Long projectId) {
+    memberService.leaveProject(apiUser.toUser(), projectId);
+    List<Issue> issues = issueService.findIssuesByUserId(apiUser.toUser().id());
+    issues.forEach(issue -> issueService.modifyIssueAssignee(
+        apiUser.toUser(), issue.id(), new ModifyIssueAssignee(null)));
     return ApiResponse.success();
   }
 
