@@ -1,6 +1,10 @@
 package com.ssafy.taskit.api.controller;
 
 import static com.ssafy.s12p21d206.achu.test.api.RestDocsUtils.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -10,6 +14,11 @@ import static org.springframework.restdocs.snippet.Attributes.key;
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
 import com.ssafy.taskit.domain.IssueHandlingOption;
 import com.ssafy.taskit.domain.IssueStatus;
+import com.ssafy.taskit.domain.NewSprint;
+import com.ssafy.taskit.domain.Sprint;
+import com.ssafy.taskit.domain.SprintService;
+import com.ssafy.taskit.domain.SprintStatus;
+import com.ssafy.taskit.domain.User;
 import io.restassured.http.ContentType;
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,14 +30,19 @@ class SprintControllerTest extends RestDocsTest {
 
   private SprintController controller;
 
+  private SprintService sprintService;
+
   @BeforeEach
   void setup() {
-    controller = new SprintController();
+    sprintService = mock(SprintService.class);
+    controller = new SprintController(sprintService);
     mockMvc = mockController(controller);
   }
 
   @Test
   void appendSprint() {
+    when(sprintService.append(any(User.class), anyLong(), any(NewSprint.class)))
+        .thenReturn(new Sprint(1L, "스프린트 이름", SprintStatus.READY, null, null, null, 1L));
     given()
         .contentType(ContentType.JSON)
         .body(new AppendSprintRequest("생성할 스프린트 제목"))
