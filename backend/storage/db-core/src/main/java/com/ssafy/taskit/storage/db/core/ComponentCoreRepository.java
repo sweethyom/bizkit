@@ -55,4 +55,14 @@ public class ComponentCoreRepository implements ComponentRepository {
     componentEntity.updateComponentName(modifyComponent.name());
     componentEntity.updateComponentContent(modifyComponent.content());
   }
+
+  @Override
+  public Optional<Component> deleteComponent(Long componentId) {
+    return componentJpaRepository
+        .findByComponentIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
+        .map(entity -> {
+          entity.delete();
+          return entity.toComponent();
+        });
+  }
 }

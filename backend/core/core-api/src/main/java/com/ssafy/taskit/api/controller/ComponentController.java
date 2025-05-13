@@ -48,6 +48,7 @@ public class ComponentController {
 
   @DeleteMapping("/components/{componentId}")
   public ApiResponse<Void> deleteComponent(ApiUser apiUser, @PathVariable Long componentId) {
+    componentService.deleteComponent(apiUser.toUser(), componentId);
     return ApiResponse.success();
   }
 }
