@@ -17,7 +17,7 @@ public class MemberDeleter {
     this.projectValidator = projectValidator;
   }
 
-  public Long deleteMember(User user, Long memberId) {
+  public void deleteMember(User user, Long memberId) {
     Member member = memberRepository.findById(memberId);
     Long projectId = member.projectId();
     Long memberUserId = member.userId();
@@ -27,6 +27,6 @@ public class MemberDeleter {
     memberValidator.isProjectMember(memberUserId, projectId);
     memberValidator.isLeaderAndMemberSame(user.id(), memberUserId);
 
-    return memberRepository.deleteMember(memberId);
+    memberRepository.deleteMember(memberId);
   }
 }

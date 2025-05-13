@@ -32,7 +32,7 @@ public class MemberService {
     return memberReader.findMember(memberId);
   }
 
-  public Long deleteMember(User user, Long memberId) {
-    return memberDeleter.deleteMember(user, memberId);
+  public void deleteMember(User user, Long memberId) {
+    memberDeleter.deleteMember(user, memberId);
   }
 }
