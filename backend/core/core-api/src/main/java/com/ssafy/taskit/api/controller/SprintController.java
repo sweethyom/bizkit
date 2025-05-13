@@ -5,8 +5,6 @@ import com.ssafy.taskit.api.response.DefaultIdResponse;
 import com.ssafy.taskit.domain.NewSprint;
 import com.ssafy.taskit.domain.Sprint;
 import com.ssafy.taskit.domain.SprintService;
-import com.ssafy.taskit.domain.SprintStatus;
-import java.time.LocalDate;
 import java.util.List;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -33,28 +31,8 @@ public class SprintController {
   @GetMapping("/projects/{projectId}/sprints")
   public ApiResponse<List<SprintDetailResponse>> findSprints(
       ApiUser apiUser, @PathVariable Long projectId) {
-    List<SprintDetailResponse> responses = List.of(
-        new SprintDetailResponse(
-            1L,
-            "활성하기 전 스프린트 이름",
-            SprintStatus.READY,
-            LocalDate.of(2025, 04, 30),
-            LocalDate.of(2025, 05, 01),
-            null),
-        new SprintDetailResponse(
-            2L,
-            "활성화 된 스프린트 이름",
-            SprintStatus.ONGOING,
-            LocalDate.of(2025, 04, 30),
-            LocalDate.of(2025, 05, 01),
-            null),
-        new SprintDetailResponse(
-            3L,
-            "종료된 스프린트 이름",
-            SprintStatus.COMPLETED,
-            LocalDate.of(2025, 04, 29),
-            LocalDate.of(2025, 05, 01),
-            LocalDate.of(2025, 04, 30)));
+    List<Sprint> sprints = sprintService.findSprints(apiUser.toUser(), projectId);
+    List<SprintDetailResponse> responses = SprintDetailResponse.of(sprints);
     return ApiResponse.success(responses);
   }
 
