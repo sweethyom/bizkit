@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ComponentJpaRepository extends JpaRepository<ComponentEntity, Long> {
   boolean existsByProjectIdAndName(Long projectId, String name);
 
+  boolean existsByIdAndProjectId(Long componentId, Long projectId);
+
   List<ComponentEntity> findAllByProjectIdAndEntityStatus(
       Long projectId, EntityStatus entityStatus);
 

@@ -1,5 +1,6 @@
 package com.ssafy.taskit.storage.db.core;
 
+import com.ssafy.taskit.domain.Sprint;
 import com.ssafy.taskit.domain.SprintStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -33,5 +34,24 @@ public class SprintEntity extends BaseEntity {
     this.dueDate = null;
     this.completedDate = null;
     this.projectId = projectId;
+  }
+
+  public Sprint toSprint() {
+    return new Sprint(
+        this.getId(),
+        this.name,
+        this.sprintStatus,
+        this.startDate,
+        this.dueDate,
+        this.completedDate,
+        this.projectId);
+  }
+
+  public void updateSprintName(String name) {
+    this.name = name;
+  }
+
+  public void updateSprintDueDate(LocalDate dueDate) {
+    this.dueDate = dueDate;
   }
 }

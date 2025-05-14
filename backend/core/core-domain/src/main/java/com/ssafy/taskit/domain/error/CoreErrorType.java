@@ -21,6 +21,12 @@ public enum CoreErrorType {
   COMPONENT_NOT_FOUND(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.C003, "컴포넌트를 찾을 수 없습니다.", CoreErrorLevel.INFO),
 
+  COMPONENT_NOT_IN_PROJECT(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.C004,
+      "해당 컴포넌트는 지정한 프로젝트에 속하지 않습니다.",
+      CoreErrorLevel.INFO),
+
   EPIC_NOT_FOUND(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.E000, "해당 에픽을 찾을 수 없습니다.", CoreErrorLevel.INFO),
   DUPLICATED_PROJECT_KEY(
@@ -48,6 +54,46 @@ public enum CoreErrorType {
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M000, "해당 팀원을 찾을 수 없습니다.", CoreErrorLevel.INFO),
   USER_NOT_FOUND(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I005, "해당 사용자를 찾을 수 없습니다.", CoreErrorLevel.INFO),
+  SPRINT_NOT_FOUND(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.S000, "해당 스프린트를 찾을 수 없습니다.", CoreErrorLevel.INFO),
+
+  SPRINT_DUE_DATE_BEFORE_START(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.S001,
+      "예상 종료일은 시작일보다 빠를 수 없습니다.",
+      CoreErrorLevel.INFO),
+
+  SPRINT_STATUS_IS_NOT_ONGOING(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.S002,
+      "해당 스프린트는 활성화 되지 않은 스프린트입니다.",
+      CoreErrorLevel.INFO),
+
+  SPRINT_STATUS_IS_ONGOING(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.S003,
+      "해당 스프린트는 활성화된 스프린트입니다.",
+      CoreErrorLevel.INFO),
+
+  SPRINT_STATUS_IS_NOT_READY(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.S004,
+      "해당 스프린트는 READY 상태가 아닙니다. ",
+      CoreErrorLevel.INFO),
+
+  SPRINT_STATUS_IS_NOT_COMPLETED(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.S005,
+      "해당 스프린트는 COMPLETED 상태가 아닙니다. ",
+      CoreErrorLevel.INFO),
+
+  SPRINT_NOT_IN_SAME_PROJECT(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.S006,
+      "스프린트들이 같은 프로젝트에 속해 있지 않습니다.",
+      CoreErrorLevel.INFO),
+  SPRINT_IS_EQUAL(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.S007, "같은 스프린트입니다.", CoreErrorLevel.INFO),
   LEADER_MEMBER_SAME_NOT_ALLOWED(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M001, "팀장은 자신을 삭제할 수 없습니다.", CoreErrorLevel.INFO),
 

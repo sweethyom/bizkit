@@ -20,4 +20,6 @@ public interface ComponentRepository {
   Optional<Component> findById(Long componentId);
 
   void modifyComponent(Long componentId, ModifyComponent modifyComponent);
+
+  boolean existsByIdAndProjectId(Long componentId, Long projectId);
 }
