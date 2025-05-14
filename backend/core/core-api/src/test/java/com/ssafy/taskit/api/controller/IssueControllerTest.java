@@ -25,6 +25,8 @@ import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueService;
 import com.ssafy.taskit.domain.IssueStatus;
 import com.ssafy.taskit.domain.NewIssue;
+import com.ssafy.taskit.domain.Project;
+import com.ssafy.taskit.domain.ProjectService;
 import com.ssafy.taskit.domain.Sprint;
 import com.ssafy.taskit.domain.SprintService;
 import com.ssafy.taskit.domain.SprintStatus;
@@ -36,6 +38,7 @@ import io.restassured.http.ContentType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -49,6 +52,7 @@ class IssueControllerTest extends RestDocsTest {
   private EpicService epicService;
   private ComponentService componentService;
   private SprintService sprintService;
+  private ProjectService projectService;
 
   @BeforeEach
   public void setUp() {
@@ -57,8 +61,9 @@ class IssueControllerTest extends RestDocsTest {
     epicService = mock(EpicService.class);
     componentService = mock(ComponentService.class);
     sprintService = mock(SprintService.class);
+    projectService = mock(ProjectService.class);
     controller = new IssueController(
-        issueService, userService, epicService, componentService, sprintService);
+        issueService, userService, epicService, componentService, sprintService, projectService);
     mockMvc = mockController(controller);
   }
 
@@ -377,11 +382,23 @@ class IssueControllerTest extends RestDocsTest {
                 5L,
                 Importance.HIGH,
                 IssueStatus.UNASSIGNED,
-                1L,
-                1L,
+                2L,
+                2L,
                 1L,
                 1L,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
+    when(componentService.mapByIds(any()))
+        .thenReturn(Map.of(
+            1L,
+            new Component(1L, 1L, 1L, "컴포넌트1", "컴포넌트1 내용"),
+            2L,
+            new Component(2L, 1L, 2L, "컴포넌트2", "컴포넌트2 내용")));
+    when(userService.mapByIds(any()))
+        .thenReturn(Map.of(
+            1L,
+            new UserDetail(1L, "사용자1", "사용자1.jpg", "user1@ssafy.com"),
+            2L,
+            new UserDetail(2L, "사용자2", "사용자2.jpg", "user2@ssafy.com")));
     given()
         .contentType(ContentType.JSON)
         .get("epics/{epicId}/issues", 1L)
@@ -412,13 +429,13 @@ class IssueControllerTest extends RestDocsTest {
                 fieldWithPath("data.[].component.name")
                     .type(JsonFieldType.STRING)
                     .description("해당 이슈의 컴포넌트 이름"),
-                fieldWithPath("data.[].assignee.id")
+                fieldWithPath("data.[].user.id")
                     .type(JsonFieldType.NUMBER)
                     .description("해당 이슈의 담당자 id"),
-                fieldWithPath("data.[].assignee.nickname")
+                fieldWithPath("data.[].user.nickname")
                     .type(JsonFieldType.STRING)
                     .description("해당 이슈의 담당자 이름"),
-                fieldWithPath("data.[].assignee.profileImageUrl")
+                fieldWithPath("data.[].user.profileImgUrl")
                     .type(JsonFieldType.STRING)
                     .description("해당 이슈의 담당자 프로필 주소"))));
   }
@@ -431,7 +448,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 "이슈1",
                 "내용1",
-                "PROJECT-1",
+                "PROJECT-2",
                 3L,
                 Importance.LOW,
                 IssueStatus.UNASSIGNED,
@@ -444,13 +461,41 @@ class IssueControllerTest extends RestDocsTest {
                 2L,
                 "이슈2",
                 "내용2",
-                "PROJECT-1",
+                "PROJECT-4",
                 5L,
                 Importance.HIGH,
                 IssueStatus.UNASSIGNED,
+                2L,
+                2L,
+                2L,
                 1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
+    when(componentService.mapByIds(any()))
+        .thenReturn(Map.of(
+            1L,
+            new Component(1L, 1L, 1L, "컴포넌트1", "컴포넌트1 내용"),
+            2L,
+            new Component(2L, 1L, 2L, "컴포넌트2", "컴포넌트2 내용")));
+    when(userService.mapByIds(any()))
+        .thenReturn(Map.of(
+            1L,
+            new UserDetail(1L, "사용자1", "사용자1.jpg", "user1@ssafy.com"),
+            2L,
+            new UserDetail(2L, "사용자2", "사용자2.jpg", "user2@ssafy.com")));
+    when(epicService.mapByIds(any()))
+        .thenReturn(Map.of(
+            1L,
+            new Epic(
                 1L,
+                "에픽1",
+                "PROJECT-2",
                 1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
+            2L,
+            new Epic(
+                2L,
+                "에픽2",
+                "PROJECT-3",
                 1L,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
     given()
@@ -483,13 +528,13 @@ class IssueControllerTest extends RestDocsTest {
                 fieldWithPath("data.[].component.name")
                     .type(JsonFieldType.STRING)
                     .description("해당 이슈의 컴포넌트 이름"),
-                fieldWithPath("data.[].assignee.id")
+                fieldWithPath("data.[].user.id")
                     .type(JsonFieldType.NUMBER)
                     .description("해당 이슈의 담당자 id"),
-                fieldWithPath("data.[].assignee.nickname")
+                fieldWithPath("data.[].user.nickname")
                     .type(JsonFieldType.STRING)
                     .description("해당 이슈의 담당자 이름"),
-                fieldWithPath("data.[].assignee.profileImageUrl")
+                fieldWithPath("data.[].user.profileImgUrl")
                     .type(JsonFieldType.STRING)
                     .description("해당 이슈의 담당자 프로필 주소"),
                 fieldWithPath("data.[].epic.id")
@@ -585,6 +630,34 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
+    when(componentService.mapByIds(any()))
+        .thenReturn(Map.of(
+            1L,
+            new Component(1L, 1L, 1L, "컴포넌트1", "컴포넌트1 내용"),
+            2L,
+            new Component(2L, 1L, 2L, "컴포넌트2", "컴포넌트2 내용")));
+    when(userService.mapByIds(any()))
+        .thenReturn(Map.of(
+            1L,
+            new UserDetail(1L, "사용자1", "사용자1.jpg", "user1@ssafy.com"),
+            2L,
+            new UserDetail(2L, "사용자2", "사용자2.jpg", "user2@ssafy.com")));
+    when(epicService.mapByIds(any()))
+        .thenReturn(Map.of(
+            1L,
+            new Epic(
+                1L,
+                "에픽1",
+                "PROJECT-2",
+                1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
+            2L,
+            new Epic(
+                2L,
+                "에픽2",
+                "PROJECT-3",
+                1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
     given()
         .contentType(ContentType.JSON)
         .get("components/{componentId}/issues", 1L)
@@ -621,13 +694,13 @@ class IssueControllerTest extends RestDocsTest {
                 fieldWithPath("data.[].issues.[].component.name")
                     .type(JsonFieldType.STRING)
                     .description("해당 이슈의 컴포넌트 이름"),
-                fieldWithPath("data.[].issues.[].assignee.id")
+                fieldWithPath("data.[].issues.[].user.id")
                     .type(JsonFieldType.NUMBER)
                     .description("해당 이슈의 담당자 id"),
-                fieldWithPath("data.[].issues.[].assignee.nickname")
+                fieldWithPath("data.[].issues.[].user.nickname")
                     .type(JsonFieldType.STRING)
                     .description("해당 이슈의 담당자 이름"),
-                fieldWithPath("data.[].issues.[].assignee.profileImageUrl")
+                fieldWithPath("data.[].issues.[].user.profileImgUrl")
                     .type(JsonFieldType.STRING)
                     .description("해당 이슈의 담당자 프로필 주소"),
                 fieldWithPath("data.[].issues.[].epic.id")
@@ -716,6 +789,42 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
+    when(epicService.mapByIds(any()))
+        .thenReturn(Map.of(
+            1L,
+            new Epic(
+                1L,
+                "에픽1",
+                "PROJECT-2",
+                1L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
+            2L,
+            new Epic(
+                2L,
+                "에픽2",
+                "PROJECT-3",
+                2L,
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
+    when(projectService.mapByIds(any()))
+        .thenReturn(Map.of(
+            1L,
+            new Project(
+                1L,
+                1L,
+                "프로젝트1",
+                "PROJECT1",
+                0,
+                "project1.jpg",
+                new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
+            2L,
+            new Project(
+                2L,
+                2L,
+                "프로젝트2",
+                "PJT2",
+                0,
+                "project2.jpg",
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
     given()
         .contentType(ContentType.JSON)
