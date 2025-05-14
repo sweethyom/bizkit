@@ -13,7 +13,13 @@ public interface ProjectRepository {
 
   List<Long> findUserProjectIds(User user, ProjectSort sortType);
 
+  ProjectDetail findProject(User user, Long id, boolean isLeader);
+
   Project findById(Long projectId);
 
   void update(Project project);
+
+  ProjectDetail modifyProjectName(Long projectId, String name, boolean isLeader);
+
+  Long deleteProject(Long projectId);
 }

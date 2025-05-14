@@ -44,8 +44,30 @@ public enum CoreErrorType {
       CoreErrorCode.I004,
       "현재 프로젝트에 존재하는 에픽으로만 변경할 수 있습니다.",
       CoreErrorLevel.INFO),
+  MEMBER_NOT_FOUND(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M000, "해당 팀원을 찾을 수 없습니다.", CoreErrorLevel.INFO),
   USER_NOT_FOUND(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I005, "해당 사용자를 찾을 수 없습니다.", CoreErrorLevel.INFO);
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I005, "해당 사용자를 찾을 수 없습니다.", CoreErrorLevel.INFO),
+  LEADER_MEMBER_SAME_NOT_ALLOWED(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M001, "팀장은 자신을 삭제할 수 없습니다.", CoreErrorLevel.INFO),
+
+  LEADER_IS_NOT_ALLOWED(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M002, "팀장은 프로젝트를 탈퇴할 수 없습니다.", CoreErrorLevel.INFO),
+  INVITATION_EXISTS(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M003, "이미 초대된 사용자입니다.", CoreErrorLevel.INFO),
+
+  PROJECT_IS_FULL(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M004, "프로젝트의 최대 인원에 도달했습니다.", CoreErrorLevel.INFO),
+  INVITATION_NOT_FOUND(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M005, "해당 초대가 존재하지 않습니다", CoreErrorLevel.INFO),
+  INVITATION_NOT_VALID(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M006, "해당 초대는 유효하지 않습니다.", CoreErrorLevel.INFO),
+  INVITATION_COMPLETED(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M007, "이미 처리 완료된 초대입니다.", CoreErrorLevel.INFO),
+
+  USER_NOT_INVITED(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M008, "초대된 사용자가 아닙니다.", CoreErrorLevel.INFO);
+
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
   private final String message;

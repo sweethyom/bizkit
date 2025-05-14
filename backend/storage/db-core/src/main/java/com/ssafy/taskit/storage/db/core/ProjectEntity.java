@@ -1,6 +1,7 @@
 package com.ssafy.taskit.storage.db.core;
 
 import com.ssafy.taskit.domain.Project;
+import com.ssafy.taskit.domain.ProjectDetail;
 import com.ssafy.taskit.domain.support.DefaultDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -36,7 +37,23 @@ public class ProjectEntity extends BaseEntity {
         new DefaultDateTime(this.getCreatedAt(), this.getUpdatedAt()));
   }
 
+  public ProjectDetail toProjectDetail(boolean isLeader) {
+    Project project = new Project(
+        this.getId(),
+        this.userId,
+        this.name,
+        this.key,
+        this.currentSequence,
+        this.imageUrl,
+        new DefaultDateTime(this.getCreatedAt(), this.getUpdatedAt()));
+    return new ProjectDetail(project, isLeader);
+  }
+
   public void updateSequence(int currentSequence) {
     this.currentSequence = currentSequence;
+  }
+
+  public void changeName(String name) {
+    this.name = name;
   }
 }

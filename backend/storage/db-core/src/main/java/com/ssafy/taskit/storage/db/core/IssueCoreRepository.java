@@ -184,4 +184,10 @@ public class IssueCoreRepository implements IssueRepository {
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.delete();
   }
+
+  @Override
+  public List<Issue> findByUserId(Long userId) {
+    List<IssueEntity> issueEntities = issueJpaRepository.findByAssigneeId(userId);
+    return issueEntities.stream().map(IssueEntity::toIssue).toList();
+  }
 }

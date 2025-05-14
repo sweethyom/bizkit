@@ -104,7 +104,7 @@ class IssueControllerTest extends RestDocsTest {
             1L,
             new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())));
     when(userService.findUserDetail(anyLong()))
-        .thenReturn(new UserDetail(1L, "채용수", "http://profile1.jpg"));
+        .thenReturn(new UserDetail(1L, "채용수", "http://profile1.jpg", "user1@example.com"));
     when(epicService.findEpic(any(User.class), anyLong()))
         .thenReturn(new Epic(
             1L,
