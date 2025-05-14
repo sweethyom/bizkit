@@ -64,4 +64,8 @@ public class MemberService {
     invitationValidator.isValidInvitation(invitationCode);
     memberAppender.appendMember(user, invitationCode);
   }
+
+  public void deleteInvitationMember(User user, String invitationCode) {
+    memberDeleter.deleteInvitationMember(user, invitationCode);
+  }
 }

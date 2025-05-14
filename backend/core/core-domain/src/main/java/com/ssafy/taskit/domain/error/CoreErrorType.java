@@ -61,7 +61,9 @@ public enum CoreErrorType {
   INVITATION_NOT_FOUND(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M005, "해당 초대가 존재하지 않습니다", CoreErrorLevel.INFO),
   INVITATION_NOT_VALID(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M006, "해당 초대는 유효하지 않습니다.", CoreErrorLevel.INFO);
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M006, "해당 초대는 유효하지 않습니다.", CoreErrorLevel.INFO),
+  INVITATION_COMPLETED(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M007, "이미 처리 완료된 초대입니다.", CoreErrorLevel.INFO);
 
   private final CoreErrorKind kind;
   private final CoreErrorCode code;

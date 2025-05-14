@@ -169,12 +169,12 @@ class MemberControllerTest extends RestDocsTest {
   public void deleteInvitationMember() {
     given()
         .contentType(ContentType.JSON)
-        .delete("members/invitation/{invitationId}", "초대아이디1")
+        .delete("members/invitation/{invitationCode}", "초대코드")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "delete-invitation-member",
-            pathParameters(parameterWithName("invitationId").description("삭제할 초대된 사용자의 초대 ID")),
+            pathParameters(parameterWithName("invitationCode").description("삭제할 초대된 사용자의 초대 코드")),
             responseFields(fieldWithPath("result")
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 : SUCCESS 혹은 ERROR"))));

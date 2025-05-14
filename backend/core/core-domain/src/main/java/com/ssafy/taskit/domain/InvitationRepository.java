@@ -14,4 +14,6 @@ public interface InvitationRepository {
   boolean existsByInvitationCodeAndStatus(String invitationCode);
 
   void updateStatus(String invitationCode);
+
+  void deleteInvitationMember(String invitationCode);
 }

@@ -7,16 +7,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class MemberDeleter {
   private final MemberRepository memberRepository;
+  private final InvitationRepository invitationRepository;
   private final MemberValidator memberValidator;
   private final ProjectValidator projectValidator;
+  private final InvitationValidator invitationValidator;
 
   public MemberDeleter(
       MemberRepository memberRepository,
+      InvitationRepository invitationRepository,
       MemberValidator memberValidator,
-      ProjectValidator projectValidator) {
+      ProjectValidator projectValidator,
+      InvitationValidator invitationValidator) {
     this.memberRepository = memberRepository;
+    this.invitationRepository = invitationRepository;
     this.memberValidator = memberValidator;
     this.projectValidator = projectValidator;
+    this.invitationValidator = invitationValidator;
   }
 
   public void deleteMember(User user, Long memberId) {
@@ -41,5 +47,14 @@ public class MemberDeleter {
 
     Long memberId = memberRepository.findByUserId(user.id());
     memberRepository.deleteMember(memberId);
+  }
+
+  public void deleteInvitationMember(User user, String invitationCode) {
+    Invitation invitation = invitationRepository.findByInvitationCode(invitationCode);
+    Long projectId = invitation.projectId();
+    memberValidator.isProjectLeader(user, projectId);
+    invitationValidator.isInvitationExists(user.id());
+    invitationValidator.isCompletedInvitation(invitationCode);
+    invitationRepository.deleteInvitationMember(invitationCode);
   }
 }

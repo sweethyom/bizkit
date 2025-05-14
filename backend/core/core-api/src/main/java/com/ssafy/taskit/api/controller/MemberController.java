@@ -55,9 +55,10 @@ public class MemberController {
     return ApiResponse.success();
   }
 
-  @DeleteMapping("members/invitation/{invitationId}")
+  @DeleteMapping("members/invitation/{invitationCode}")
   public ApiResponse<Void> deleteInvitationMember(
-      ApiUser apiUser, @PathVariable String invitationId) {
+      ApiUser apiUser, @PathVariable String invitationCode) {
+    memberService.deleteInvitationMember(apiUser.toUser(), invitationCode);
     return ApiResponse.success();
   }
 

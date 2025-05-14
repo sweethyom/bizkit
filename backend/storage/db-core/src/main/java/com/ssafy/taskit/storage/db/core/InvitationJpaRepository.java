@@ -12,4 +12,6 @@ public interface InvitationJpaRepository extends JpaRepository<InvitationEntity,
   InvitationEntity findByInvitationCode(String invitationCode);
 
   boolean existsByInvitationCodeAndStatus(String invitationCode, InvitationStatus status);
+
+  void deleteByInvitationCode(String invitationCode);
 }

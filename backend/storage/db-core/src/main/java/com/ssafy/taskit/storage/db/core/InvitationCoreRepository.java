@@ -52,4 +52,9 @@ public class InvitationCoreRepository implements InvitationRepository {
     invitation.accept();
     invitationJpaRepository.save(invitation);
   }
+
+  @Override
+  public void deleteInvitationMember(String invitationCode) {
+    invitationJpaRepository.deleteByInvitationCode(invitationCode);
+  }
 }
