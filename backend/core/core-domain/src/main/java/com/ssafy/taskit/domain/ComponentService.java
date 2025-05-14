@@ -62,4 +62,9 @@ public class ComponentService {
     }
     componentDeleter.delete(componentId);
   }
+
+  public Component findComponent(Long componentId) {
+    componentValidator.isComponentExists(componentId);
+    return componentReader.findComponent(componentId);
+  }
 }
