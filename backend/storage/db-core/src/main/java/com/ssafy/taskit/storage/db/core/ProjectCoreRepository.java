@@ -49,6 +49,14 @@ public class ProjectCoreRepository implements ProjectRepository {
   }
 
   @Override
+  public ProjectDetail findProject(User user, Long id, boolean isLeader) {
+    ProjectEntity projectEntity = projectJpaRepository
+        .findById(id)
+        .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
+    return projectEntity.toProjectDetail(isLeader);
+  }
+
+  @Override
   public Project findById(Long projectId) {
     return projectJpaRepository
         .findByIdAndEntityStatus(projectId, EntityStatus.ACTIVE)
@@ -63,5 +71,28 @@ public class ProjectCoreRepository implements ProjectRepository {
         .findById(project.id())
         .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
     projectEntity.updateSequence(project.currentSequence());
+  }
+
+  @Override
+  public ProjectDetail modifyProjectName(Long projectId, String name, boolean isLeader) {
+    ProjectEntity projectEntity = projectJpaRepository
+        .findById(projectId)
+        .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
+    projectEntity.changeName(name);
+    projectJpaRepository.save(projectEntity);
+    return projectEntity.toProjectDetail(isLeader);
+  }
+
+  @Transactional
+  @Override
+  public Long deleteProject(Long projectId) {
+    Optional<ProjectEntity> optionalEntity = projectJpaRepository.findById(projectId);
+    if (optionalEntity.isEmpty()) {
+      return -1L;
+    }
+
+    ProjectEntity projectEntity = optionalEntity.get();
+    projectEntity.delete();
+    return projectEntity.getId();
   }
 }
