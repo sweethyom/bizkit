@@ -1,6 +1,10 @@
 package com.ssafy.taskit.domain;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,5 +44,13 @@ public class EpicService {
 
   public Epic findEpic(User user, Long epicId) {
     return epicReader.readEpic(user, epicId);
+  }
+
+  public Map<Long, Epic> mapByIds(List<Long> epicIds) {
+    if (epicIds.isEmpty()) {
+      return Collections.emptyMap();
+    }
+    List<Epic> epics = epicReader.readEpics(epicIds);
+    return epics.stream().collect(Collectors.toMap(Epic::id, Function.identity()));
   }
 }

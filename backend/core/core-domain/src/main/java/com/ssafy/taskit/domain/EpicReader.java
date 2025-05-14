@@ -34,4 +34,8 @@ public class EpicReader {
     memberValidator.isProjectMember(user, epic.projectId());
     return epicRepository.findById(epicId);
   }
+
+  public List<Epic> readEpics(List<Long> epicIds) {
+    return epicRepository.findAllByIds(epicIds);
+  }
 }

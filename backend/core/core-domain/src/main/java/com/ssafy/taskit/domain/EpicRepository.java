@@ -15,4 +15,6 @@ public interface EpicRepository {
   void modifyEpic(Long epicId, ModifyEpic modifyEpic);
 
   void deleteEpic(Long epicId);
+
+  List<Epic> findAllByIds(List<Long> epicIds);
 }
