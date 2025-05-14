@@ -16,6 +16,8 @@ import static org.springframework.restdocs.request.RequestDocumentation.pathPara
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
+import com.ssafy.taskit.domain.Component;
+import com.ssafy.taskit.domain.ComponentService;
 import com.ssafy.taskit.domain.Epic;
 import com.ssafy.taskit.domain.EpicService;
 import com.ssafy.taskit.domain.Importance;
@@ -23,11 +25,15 @@ import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueService;
 import com.ssafy.taskit.domain.IssueStatus;
 import com.ssafy.taskit.domain.NewIssue;
+import com.ssafy.taskit.domain.Sprint;
+import com.ssafy.taskit.domain.SprintService;
+import com.ssafy.taskit.domain.SprintStatus;
 import com.ssafy.taskit.domain.User;
 import com.ssafy.taskit.domain.UserDetail;
 import com.ssafy.taskit.domain.UserService;
 import com.ssafy.taskit.domain.support.DefaultDateTime;
 import io.restassured.http.ContentType;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,13 +47,18 @@ class IssueControllerTest extends RestDocsTest {
   private IssueService issueService;
   private UserService userService;
   private EpicService epicService;
+  private ComponentService componentService;
+  private SprintService sprintService;
 
   @BeforeEach
   public void setUp() {
     issueService = mock(IssueService.class);
     userService = mock(UserService.class);
     epicService = mock(EpicService.class);
-    controller = new IssueController(issueService, userService, epicService);
+    componentService = mock(ComponentService.class);
+    sprintService = mock(SprintService.class);
+    controller = new IssueController(
+        issueService, userService, epicService, componentService, sprintService);
     mockMvc = mockController(controller);
   }
 
@@ -112,6 +123,17 @@ class IssueControllerTest extends RestDocsTest {
             "PROJECT-1",
             1L,
             new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())));
+    when(componentService.findComponent(anyLong()))
+        .thenReturn(new Component(1L, 1L, 1L, "컴포넌트1", "컴포넌트1 내용"));
+    when(sprintService.findSprint(anyLong()))
+        .thenReturn(new Sprint(
+            1L,
+            "1주차 스프린트",
+            SprintStatus.ONGOING,
+            LocalDate.now(),
+            LocalDate.now(),
+            LocalDate.now(),
+            1L));
     given()
         .contentType(ContentType.JSON)
         .get("issues/{issueId}", 1L)
