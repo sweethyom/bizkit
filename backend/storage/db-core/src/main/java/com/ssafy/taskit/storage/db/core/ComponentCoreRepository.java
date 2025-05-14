@@ -59,7 +59,17 @@ public class ComponentCoreRepository implements ComponentRepository {
   }
 
   @Override
+  public Optional<Component> deleteComponent(Long componentId) {
+    return componentJpaRepository
+        .findByComponentIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
+        .map(entity -> {
+          entity.delete();
+          return entity.toComponent();
+        });
+
+  @Override
   public boolean existsByIdAndProjectId(Long componentId, Long projectId) {
     return componentJpaRepository.existsByIdAndProjectId(componentId, projectId);
   }
+  
 }
