@@ -22,4 +22,8 @@ public class ComponentReader {
         .findById(componentId)
         .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
   }
+
+  public List<Component> findComponents(List<Long> componentIds) {
+    return componentRepository.findAllByIds(componentIds);
+  }
 }

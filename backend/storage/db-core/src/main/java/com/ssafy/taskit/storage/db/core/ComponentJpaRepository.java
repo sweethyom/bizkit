@@ -13,4 +13,6 @@ public interface ComponentJpaRepository extends JpaRepository<ComponentEntity, L
       Long projectId, EntityStatus entityStatus);
 
   Optional<ComponentEntity> findByIdAndEntityStatus(Long id, EntityStatus entityStatus);
+
+  List<ComponentEntity> findAllByIdInAndEntityStatus(List<Long> ids, EntityStatus entityStatus);
 }

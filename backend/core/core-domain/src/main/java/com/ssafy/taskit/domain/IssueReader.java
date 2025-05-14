@@ -1,5 +1,7 @@
 package com.ssafy.taskit.domain;
 
+import com.ssafy.taskit.domain.error.CoreErrorType;
+import com.ssafy.taskit.domain.error.CoreException;
 import java.util.List;
 
 @org.springframework.stereotype.Component
@@ -13,6 +15,7 @@ public class IssueReader {
   private final IssueValidator issueValidator;
   private final ComponentValidator componentValidator;
   private final ComponentRepository componentRepository;
+  private final SprintRepository sprintRepository;
 
   public IssueReader(
       EpicValidator epicValidator,
@@ -22,7 +25,8 @@ public class IssueReader {
       SprintValidator sprintValidator,
       IssueValidator issueValidator,
       ComponentValidator componentValidator,
-      ComponentRepository componentRepository) {
+      ComponentRepository componentRepository,
+      SprintRepository sprintRepository) {
     this.epicValidator = epicValidator;
     this.memberValidator = memberValidator;
     this.issueRepository = issueRepository;
@@ -31,6 +35,7 @@ public class IssueReader {
     this.issueValidator = issueValidator;
     this.componentValidator = componentValidator;
     this.componentRepository = componentRepository;
+    this.sprintRepository = sprintRepository;
   }
 
   public List<Issue> readEpicIssues(User user, Long epicId) {
@@ -42,11 +47,8 @@ public class IssueReader {
 
   public List<Issue> readSprintIssues(User user, Long sprintId) {
     sprintValidator.isSprintExists(sprintId);
-    //    TODO: sprint 완료되면 구현해야 함
-    //    Sprint sprint = sprintRepository.findById(sprintId);
-    //    memberValidator.isProjectMember(user, sprint.projectId());
-    Long projectId = 1L;
-    memberValidator.isProjectMember(user, projectId);
+    Sprint sprint = sprintRepository.findById(sprintId);
+    memberValidator.isProjectMember(user, sprint.projectId());
     return issueRepository.findSprintIssues(sprintId);
   }
 
@@ -61,9 +63,9 @@ public class IssueReader {
   public List<Issue> readComponentIssues(User user, Long componentId) {
     if (componentId != null) {
       componentValidator.isComponentExists(componentId);
-      //      TODO : component 완료되면 바꿔야 함
-      //      Component component = componentRepository.findById(componentId);
-      Component component = new Component(1L, 1L, 1L, "컴포넌트1", "컴포넌트 내용");
+      Component component = componentRepository
+          .findById(componentId)
+          .orElseThrow(() -> new CoreException(CoreErrorType.COMPONENT_NOT_FOUND));
       memberValidator.isProjectMember(user, component.projectId());
     }
     return issueRepository.findComponentIssues(componentId);

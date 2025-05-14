@@ -69,4 +69,12 @@ public class SprintCoreRepository implements SprintRepository {
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
     sprintEntity.delete();
   }
+
+  @Override
+  public Sprint findById(Long sprintId) {
+    SprintEntity sprintEntity = sprintJpaRepository
+        .findByIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
+    return sprintEntity.toSprint();
+  }
 }

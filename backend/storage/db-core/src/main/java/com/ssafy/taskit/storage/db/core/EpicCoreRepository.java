@@ -69,4 +69,11 @@ public class EpicCoreRepository implements EpicRepository {
         .orElseThrow(() -> new CoreException(CoreErrorType.EPIC_NOT_FOUND));
     epicEntity.delete();
   }
+
+  @Override
+  public List<Epic> findAllByIds(List<Long> epicIds) {
+    return epicJpaRepository.findAllByIdInAndEntityStatus(epicIds, EntityStatus.ACTIVE).stream()
+        .map(EpicEntity::toEpic)
+        .toList();
+  }
 }

@@ -43,4 +43,8 @@ public class SprintService {
   public void deleteSprint(User user, Long sprintId, IssueHandlingOption option) {
     sprintDeleter.deleteSprint(user, sprintId, option);
   }
+
+  public Sprint findSprint(Long sprintId) {
+    return sprintReader.findSprint(sprintId);
+  }
 }
