@@ -12,6 +12,7 @@ public class ProjectService {
   private final ProjectDeleter projectDeleter;
   private final MemberValidator memberValidator;
   private final ProjectValidator projectValidator;
+  private final InvitationValidator invitationValidator;
 
   public ProjectService(
       ProjectAppender projectAppender,
@@ -19,13 +20,15 @@ public class ProjectService {
       ProjectModifier projectModifier,
       ProjectDeleter projectDeleter,
       MemberValidator memberValidator,
-      ProjectValidator projectValidator) {
+      ProjectValidator projectValidator,
+      InvitationValidator invitationValidator) {
     this.projectAppender = projectAppender;
     this.projectReader = projectReader;
     this.projectModifier = projectModifier;
     this.projectDeleter = projectDeleter;
     this.memberValidator = memberValidator;
     this.projectValidator = projectValidator;
+    this.invitationValidator = invitationValidator;
   }
 
   public Long append(User user, NewProject newProject) {
@@ -52,5 +55,10 @@ public class ProjectService {
   public Long deleteProject(User user, Long projectId) {
     memberValidator.isProjectLeader(user, projectId);
     return projectDeleter.deleteProject(projectId);
+  }
+
+  public Project findInvitationProject(User user, String invitationCode) {
+    invitationValidator.isInvitedMember(user, invitationCode);
+    return projectReader.findInvitationProject(user, invitationCode);
   }
 }

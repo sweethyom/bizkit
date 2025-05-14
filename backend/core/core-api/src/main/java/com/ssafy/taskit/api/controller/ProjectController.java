@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class ProjectController {
   private final ProjectService projectService;
+  private final UserService userService;
 
-  public ProjectController(ProjectService projectService) {
+  public ProjectController(ProjectService projectService, UserService userService) {
     this.projectService = projectService;
+    this.userService = userService;
   }
 
   @PostMapping("/projects")
@@ -61,12 +63,12 @@ public class ProjectController {
     return ApiResponse.success();
   }
 
-  @GetMapping("/projects/invitation/{invitationId}")
+  @GetMapping("/projects/invitation/{invitationCode}")
   public ApiResponse<ProjectSummaryResponse> findInvitationProject(
-      @PathVariable Long invitationId) {
-    UserProfileResponse leaderResponse = new UserProfileResponse(1L, "팀장1", "profile1.jpg");
-    ProjectSummaryResponse response =
-        new ProjectSummaryResponse(1L, "프로젝트 이름1", "default1.jpg", leaderResponse);
-    return ApiResponse.success(response);
+      ApiUser apiUser, @PathVariable String invitationCode) {
+    Project project = projectService.findInvitationProject(apiUser.toUser(), invitationCode);
+    UserDetail userDetail = userService.findUserDetail(project.userId());
+    ProjectSummaryResponse projectSummaryResponse = ProjectSummaryResponse.of(project, userDetail);
+    return ApiResponse.success(projectSummaryResponse);
   }
 }

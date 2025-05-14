@@ -22,11 +22,13 @@ import org.springframework.restdocs.payload.JsonFieldType;
 class ProjectControllerTest extends RestDocsTest {
   ProjectController controller;
   ProjectService projectService;
+  UserService userService;
 
   @BeforeEach
   public void setup() {
     projectService = mock(ProjectService.class);
-    controller = new ProjectController(projectService);
+    userService = mock(UserService.class);
+    controller = new ProjectController(projectService, userService);
     mockMvc = mockController(controller);
   }
 
@@ -191,28 +193,36 @@ class ProjectControllerTest extends RestDocsTest {
 
   @Test
   public void findInvitationProject() {
+    DefaultDateTime now = new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now());
+    Project project = new Project(1L, 1L, "프로젝트1", "SFE213FE", 0, null, now);
+    UserDetail user = new UserDetail(1L, "사용자1", "https://img.com/a.jpg", "user1@example.com");
+    when(projectService.findInvitationProject(any(), anyString())).thenReturn(project);
+    when(userService.findUserDetail(anyLong())).thenReturn(user);
     given()
         .contentType(ContentType.JSON)
-        .get("projects/invitation/{invitationId}", 1L)
+        .get("projects/invitation/{invitationCode}", "초대코드")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "find-invitation-project",
-            pathParameters(parameterWithName("invitationId").description("프로젝트 초대 id")),
+            pathParameters(parameterWithName("invitationCode").description("프로젝트 초대 코드")),
             responseFields(
                 fieldWithPath("result")
                     .type(JsonFieldType.STRING)
                     .description("성공 여부 (예: SUCCESS 혹은 ERROR)"),
                 fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("초대된 프로젝트 id"),
                 fieldWithPath("data.name").type(JsonFieldType.STRING).description("초대된 프로젝트 이름"),
-                fieldWithPath("data.image").type(JsonFieldType.STRING).description("초대된 프로젝트 이미지"),
+                fieldWithPath("data.image")
+                    .type(JsonFieldType.STRING)
+                    .description("초대된 프로젝트 이미지")
+                    .optional(),
                 fieldWithPath("data.leader.id")
                     .type(JsonFieldType.NUMBER)
                     .description("초대한 프로젝트 팀장 id"),
                 fieldWithPath("data.leader.nickname")
                     .type(JsonFieldType.STRING)
                     .description("초대한 프로젝트 팀장 닉네임"),
-                fieldWithPath("data.leader.image")
+                fieldWithPath("data.leader.profileImgUrl")
                     .type(JsonFieldType.STRING)
                     .description("초대한 프로젝트 팀장 이미지"))));
   }
