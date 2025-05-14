@@ -52,7 +52,7 @@ operation::find-sprint-issues[snippets='http-request,path-parameters,http-respon
 
 operation::find-component-issues[snippets='http-request,path-parameters,http-response,response-fields']
 
-=== [미구현] 스프린트 내 이슈 이동
+=== 스프린트 내 이슈 이동
 
 operation::modify-issue-sprint[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
