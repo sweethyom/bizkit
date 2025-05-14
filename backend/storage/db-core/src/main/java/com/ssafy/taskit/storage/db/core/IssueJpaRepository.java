@@ -104,4 +104,6 @@ public interface IssueJpaRepository extends JpaRepository<IssueEntity, Long> {
       @Param("epicIds") List<Long> epicIds,
       @Param("entityStatus") EntityStatus entityStatus,
       @Param("issueStatus") IssueStatus issueStatus);
+
+  List<IssueEntity> findByAssigneeId(@Param("assigneeId") Long userId);
 }

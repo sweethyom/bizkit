@@ -43,4 +43,6 @@ public interface IssueRepository {
   List<Object[]> countTotalIssuesByEpicIds(List<Long> epicIds);
 
   List<Object[]> countBacklogIssuesByEpicIds(List<Long> epicIds);
+
+  List<Issue> findByUserId(Long userId);
 }

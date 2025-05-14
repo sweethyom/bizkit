@@ -133,4 +133,8 @@ public class IssueService {
   public void deleteIssue(User user, Long issueId) {
     issueDeleter.deleteIssue(user, issueId);
   }
+
+  public List<Issue> findIssuesByUserId(Long userId) {
+    return issueReader.readIssuesByUserId(userId);
+  }
 }
