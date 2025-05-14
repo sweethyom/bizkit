@@ -62,15 +62,11 @@ public class IssueController {
   public ApiResponse<IssueDetailResponse> findIssue(ApiUser apiUser, @PathVariable Long issueId) {
     Issue issue = issueService.findIssue(apiUser.toUser(), issueId);
     Component component = componentService.findComponent(issue.componentId());
-    ComponentResponse componentResponse = ComponentResponse.from(component);
     UserDetail userDetail = userService.findUserDetail(issue.assigneeId());
-    AssigneeResponse assigneeResponse = AssigneeResponse.from(userDetail);
     Epic epic = epicService.findEpic(apiUser.toUser(), issue.epicId());
-    IssueDetailEpicResponse epicResponse = IssueDetailEpicResponse.from(epic);
     Sprint sprint = sprintService.findSprint(issue.sprintId());
-    SprintResponse sprintResponse = SprintResponse.from();
     IssueDetailResponse response =
-        IssueDetailResponse.of(issue, component, userDetail, epic, sprintResponse);
+        IssueDetailResponse.of(issue, component, userDetail, epic, sprint);
     return ApiResponse.success(response);
   }
 
