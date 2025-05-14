@@ -36,18 +36,3 @@ spring.config.activate.on-profile: dev
 ---
 
 spring.config.activate.on-profile: live
-
----
-
-spring:
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: hyomwork7@gmail.com
-    password: kcaauwqbjjygbzir
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
