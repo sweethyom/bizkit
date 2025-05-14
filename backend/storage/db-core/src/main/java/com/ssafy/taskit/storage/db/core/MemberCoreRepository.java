@@ -67,4 +67,9 @@ public class MemberCoreRepository implements MemberRepository {
   public Long findByUserId(Long userId) {
     return memberJpaRepository.findByUserId(userId);
   }
+
+  @Override
+  public int countMembers(Long projectId) {
+    return memberJpaRepository.countByProjectId(projectId);
+  }
 }

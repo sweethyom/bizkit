@@ -25,10 +25,6 @@ public class MemberValidator {
     }
   }
 
-  public boolean isInvitationExists(String invitationId) {
-    return true;
-  }
-
   public boolean isCompletedInvitation(String invitationId) {
     return true;
   }
@@ -37,8 +33,10 @@ public class MemberValidator {
     return true;
   }
 
-  public boolean isProjectFull(String invitationId) {
-    return true;
+  public void isProjectFull(Long projectId) {
+    if (memberRepository.countMembers(projectId) > 30) {
+      throw new CoreException(CoreErrorType.PROJECT_IS_FULL);
+    }
   }
 
   public boolean checkProjectLeader(User user, Long projectId) {

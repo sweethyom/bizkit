@@ -25,4 +25,9 @@ public class UserCoreRepository implements UserRepository {
     List<UserEntity> entities = userJpaRepository.findAllById(userIds);
     return entities.stream().map(UserEntity::toUserDetail).toList();
   }
+
+  @Override
+  public Long findByEmail(String email) {
+    return userJpaRepository.findByEmail(email);
+  }
 }

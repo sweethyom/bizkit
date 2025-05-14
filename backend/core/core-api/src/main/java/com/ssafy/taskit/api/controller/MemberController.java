@@ -42,8 +42,9 @@ public class MemberController {
   @PostMapping("projects/{projectId}/members")
   public ApiResponse<InvitationResponse> appendInvitation(
       ApiUser apiUser, @PathVariable Long projectId, @RequestBody AppendInvitationRequest request) {
-    InvitationResponse response = new InvitationResponse("초대코드1");
-    return ApiResponse.success(response);
+    String invitationCode =
+        memberService.appendInvitation(apiUser.toUser(), projectId, request.toNewInvitation());
+    return ApiResponse.success(new InvitationResponse(invitationCode));
   }
 
   @DeleteMapping("projects/{projectId}/members/me")

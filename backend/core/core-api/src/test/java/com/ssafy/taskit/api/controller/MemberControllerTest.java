@@ -112,6 +112,8 @@ class MemberControllerTest extends RestDocsTest {
 
   @Test
   public void appendInvitation() {
+    when(memberService.appendInvitation(any(User.class), anyLong(), any(NewInvitation.class)))
+        .thenReturn("초대코드");
     given()
         .contentType(ContentType.JSON)
         .body(new AppendInvitationRequest("초대할 팀원의 이메일"))
@@ -127,9 +129,9 @@ class MemberControllerTest extends RestDocsTest {
                 fieldWithPath("result")
                     .type(JsonFieldType.STRING)
                     .description("성공 여부 : SUCCESS 혹은 ERROR"),
-                fieldWithPath("data.invitationId")
+                fieldWithPath("data.invitationCode")
                     .type(JsonFieldType.STRING)
-                    .description("팀원을 초대한 초대 id"))));
+                    .description("팀원을 초대한 초대 코드"))));
   }
 
   @Test

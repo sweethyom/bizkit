@@ -52,7 +52,12 @@ public enum CoreErrorType {
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M001, "팀장은 자신을 삭제할 수 없습니다.", CoreErrorLevel.INFO),
 
   LEADER_IS_NOT_ALLOWED(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M002, "팀장은 프로젝트를 탈퇴할 수 없습니다.", CoreErrorLevel.INFO);
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M002, "팀장은 프로젝트를 탈퇴할 수 없습니다.", CoreErrorLevel.INFO),
+  INVITATION_EXISTS(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M003, "이미 초대된 사용자입니다.", CoreErrorLevel.INFO),
+
+  PROJECT_IS_FULL(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M004, "프로젝트의 최대 인원에 도달했습니다.", CoreErrorLevel.INFO);
 
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
