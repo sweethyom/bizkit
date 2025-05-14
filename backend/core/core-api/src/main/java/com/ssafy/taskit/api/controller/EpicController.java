@@ -42,8 +42,8 @@ public class EpicController {
   public ApiResponse<List<EpicResponse>> findEpics(ApiUser apiUser, @PathVariable Long projectId) {
     List<Epic> epics = epicService.findEpics(apiUser.toUser(), projectId);
     List<Long> epicIds = epics.stream().map(Epic::id).toList();
-    Map<Long, Integer> totalIssueCountMap = issueService.countTotalIssues(epicIds);
-    Map<Long, Integer> backlogIssueCountMap = issueService.countBacklogIssues(epicIds);
+    Map<Long, Long> totalIssueCountMap = issueService.countTotalIssues(epicIds);
+    Map<Long, Long> backlogIssueCountMap = issueService.countBacklogIssues(epicIds);
     List<EpicResponse> response =
         EpicResponse.from(epics, totalIssueCountMap, backlogIssueCountMap);
     return ApiResponse.success(response);

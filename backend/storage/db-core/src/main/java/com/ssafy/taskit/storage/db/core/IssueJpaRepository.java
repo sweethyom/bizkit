@@ -80,5 +80,30 @@ public interface IssueJpaRepository extends JpaRepository<IssueEntity, Long> {
       @Param("cursorId") Long cursorId,
       Pageable pageable);
 
+  @Query(
+      """
+  SELECT i.epicId, count(i)
+  FROM IssueEntity i
+  WHERE i.epicId in :epicIds
+  AND i.entityStatus = :entityStatus
+  GROUP BY i.epicId
+  """)
+  List<Object[]> countTotalIssuesGroupedByEpicIds(
+      @Param("epicIds") List<Long> epicIds, @Param("entityStatus") EntityStatus entityStatus);
+
+  @Query(
+      """
+  SELECT i.epicId, count(i)
+  FROM IssueEntity i
+  WHERE i.epicId in :epicIds
+  AND i.entityStatus = :entityStatus
+  AND i.issueStatus = :issueStatus
+  GROUP BY i.epicId
+  """)
+  List<Object[]> countBacklogIssuesGroupedByEpicIds(
+      @Param("epicIds") List<Long> epicIds,
+      @Param("entityStatus") EntityStatus entityStatus,
+      @Param("issueStatus") IssueStatus issueStatus);
+
   List<IssueEntity> findByAssigneeId(@Param("assigneeId") Long userId);
 }

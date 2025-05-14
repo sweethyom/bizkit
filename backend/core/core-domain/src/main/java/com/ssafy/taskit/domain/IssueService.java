@@ -1,7 +1,9 @@
 package com.ssafy.taskit.domain;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,28 +13,41 @@ public class IssueService {
   private final IssueReader issueReader;
   private final IssueModifier issueModifier;
   private final IssueDeleter issueDeleter;
+  private final IssueRepository issueRepository;
 
   public IssueService(
       IssueAppender issueAppender,
       IssueReader issueReader,
       IssueModifier issueModifier,
-      IssueDeleter issueDeleter) {
+      IssueDeleter issueDeleter,
+      IssueRepository issueRepository) {
     this.issueAppender = issueAppender;
     this.issueReader = issueReader;
     this.issueModifier = issueModifier;
     this.issueDeleter = issueDeleter;
+    this.issueRepository = issueRepository;
   }
 
   public Issue append(User user, Long epicId, NewIssue newIssue) {
     return issueAppender.append(user, epicId, newIssue);
   }
 
-  public Map<Long, Integer> countTotalIssues(List<Long> epicIds) {
-    return Map.of();
+  public Map<Long, Long> countTotalIssues(List<Long> epicIds) {
+    if (epicIds.isEmpty()) {
+      return Collections.emptyMap();
+    }
+    List<Object[]> cntTotalIssues = issueRepository.countTotalIssuesByEpicIds(epicIds);
+    return cntTotalIssues.stream()
+        .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
   }
 
-  public Map<Long, Integer> countBacklogIssues(List<Long> epicIds) {
-    return Map.of();
+  public Map<Long, Long> countBacklogIssues(List<Long> epicIds) {
+    if (epicIds.isEmpty()) {
+      return Collections.emptyMap();
+    }
+    List<Object[]> cntBacklogIssues = issueRepository.countBacklogIssuesByEpicIds(epicIds);
+    return cntBacklogIssues.stream()
+        .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
   }
 
   public List<Issue> findEpicIssues(User user, Long epicId) {
