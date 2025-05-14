@@ -11,9 +11,9 @@ public interface InvitationRepository {
 
   Invitation findByInvitationCode(String invitationCode);
 
-  boolean existsByInvitationCodeAndStatus(String invitationCode);
+  boolean existsByInvitationCode(String invitationCode);
 
-  void updateStatus(String invitationCode);
+  void accept(String invitationCode);
 
   void deleteInvitationMember(String invitationCode);
 }

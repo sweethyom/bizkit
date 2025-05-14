@@ -46,7 +46,7 @@ public class MemberAppender {
   public void appendMember(User user, String invitationCode) {
     Invitation invitation = invitationRepository.findByInvitationCode(invitationCode);
     memberValidator.isProjectFull(invitation.projectId());
-    invitationRepository.updateStatus(invitationCode);
+    invitationRepository.accept(invitationCode);
     memberRepository.save(user.id(), invitation.projectId(), Role.MEMBER, LocalDateTime.now());
   }
 }

@@ -6,6 +6,7 @@ import com.ssafy.taskit.domain.InvitationStatus;
 import com.ssafy.taskit.domain.NewInvitation;
 import java.util.List;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class InvitationCoreRepository implements InvitationRepository {
@@ -17,7 +18,7 @@ public class InvitationCoreRepository implements InvitationRepository {
 
   @Override
   public boolean isInvitationExists(Long userId) {
-    return invitationJpaRepository.isInvitationExists(userId);
+    return invitationJpaRepository.existsByUserId(userId);
   }
 
   @Override
@@ -41,20 +42,24 @@ public class InvitationCoreRepository implements InvitationRepository {
   }
 
   @Override
-  public boolean existsByInvitationCodeAndStatus(String invitationCode) {
+  public boolean existsByInvitationCode(String invitationCode) {
     return invitationJpaRepository.existsByInvitationCodeAndStatus(
         invitationCode, InvitationStatus.PENDING);
   }
 
   @Override
-  public void updateStatus(String invitationCode) {
+  public void accept(String invitationCode) {
     InvitationEntity invitation = invitationJpaRepository.findByInvitationCode(invitationCode);
     invitation.accept();
     invitationJpaRepository.save(invitation);
   }
 
+  @Transactional
   @Override
   public void deleteInvitationMember(String invitationCode) {
-    invitationJpaRepository.deleteByInvitationCode(invitationCode);
+    InvitationEntity byInvitationCode =
+        invitationJpaRepository.findByInvitationCode(invitationCode);
+    byInvitationCode.delete();
+    invitationJpaRepository.save(byInvitationCode);
   }
 }

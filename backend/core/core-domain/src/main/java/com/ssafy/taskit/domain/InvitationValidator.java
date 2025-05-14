@@ -21,13 +21,13 @@ public class InvitationValidator {
   }
 
   public void isValidInvitation(String invitationCode) {
-    if (!invitationRepository.existsByInvitationCodeAndStatus(invitationCode)) {
+    if (!invitationRepository.existsByInvitationCode(invitationCode)) {
       throw new CoreException(CoreErrorType.INVITATION_NOT_VALID);
     }
   }
 
   public void isCompletedInvitation(String invitationCode) {
-    if (invitationRepository.existsByInvitationCodeAndStatus(invitationCode)) {
+    if (invitationRepository.existsByInvitationCode(invitationCode)) {
       throw new CoreException(CoreErrorType.INVITATION_COMPLETED);
     }
   }
