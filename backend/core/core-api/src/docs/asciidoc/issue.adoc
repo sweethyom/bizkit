@@ -4,7 +4,7 @@
 
 operation::append-issue[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
-=== [미구현] 이슈 상세 조회
+=== 이슈 상세 조회
 
 operation::find-issue[snippets='http-request,path-parameters,http-response,response-fields']
 
