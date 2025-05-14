@@ -1,5 +1,7 @@
 package com.ssafy.taskit.domain;
 
+import com.ssafy.taskit.domain.error.CoreErrorType;
+import com.ssafy.taskit.domain.error.CoreException;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -24,5 +26,11 @@ public class SprintReader {
     projectValidator.isProjectExists(projectId);
     memberValidator.isProjectMember(user, projectId);
     return sprintRepository.findSprints(projectId);
+  }
+
+  public Sprint findSprint(Long sprintId) {
+    return sprintRepository
+        .findSprint(sprintId)
+        .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
   }
 }

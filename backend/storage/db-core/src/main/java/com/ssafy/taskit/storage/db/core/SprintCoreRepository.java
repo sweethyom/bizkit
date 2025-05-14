@@ -1,11 +1,16 @@
 package com.ssafy.taskit.storage.db.core;
 
+import com.ssafy.taskit.domain.ModifySprintName;
 import com.ssafy.taskit.domain.NewSprint;
 import com.ssafy.taskit.domain.Sprint;
 import com.ssafy.taskit.domain.SprintRepository;
 import com.ssafy.taskit.domain.User;
+import com.ssafy.taskit.domain.error.CoreErrorType;
+import com.ssafy.taskit.domain.error.CoreException;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class SprintCoreRepository implements SprintRepository {
@@ -28,5 +33,21 @@ public class SprintCoreRepository implements SprintRepository {
     List<SprintEntity> sprintEntities =
         sprintJpaRepository.findAllByProjectIdAndEntityStatus(projectId, EntityStatus.ACTIVE);
     return sprintEntities.stream().map(SprintEntity::toSprint).toList();
+  }
+
+  @Override
+  public Optional<Sprint> findSprint(Long sprintId) {
+    return sprintJpaRepository
+        .findBySprintIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
+        .map(SprintEntity::toSprint);
+  }
+
+  @Transactional
+  @Override
+  public void modifySprintName(Long sprintId, ModifySprintName modifySprintName) {
+    SprintEntity sprintEntity = sprintJpaRepository
+        .findBySprintIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
+    sprintEntity.updateSprintName(modifySprintName.name());
   }
 }

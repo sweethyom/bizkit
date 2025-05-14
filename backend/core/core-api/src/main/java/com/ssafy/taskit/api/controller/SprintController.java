@@ -2,6 +2,7 @@ package com.ssafy.taskit.api.controller;
 
 import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
+import com.ssafy.taskit.domain.ModifySprintName;
 import com.ssafy.taskit.domain.NewSprint;
 import com.ssafy.taskit.domain.Sprint;
 import com.ssafy.taskit.domain.SprintService;
@@ -38,7 +39,11 @@ public class SprintController {
 
   @PatchMapping("/sprints/{sprintId}/name")
   public ApiResponse<Void> modifySprintName(
-      ApiUser apiUser, @PathVariable Long sprintId, @RequestBody ModifySprintNameRequest request) {
+      ApiUser apiUser,
+      @PathVariable Long sprintId,
+      @RequestBody @Validated ModifySprintNameRequest request) {
+    ModifySprintName modifySprintName = request.toModifySprintName();
+    sprintService.modifySprintName(apiUser.toUser(), sprintId, modifySprintName);
     return ApiResponse.success();
   }
 

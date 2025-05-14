@@ -8,13 +8,13 @@ public class SprintService {
   private final SprintAppender sprintAppender;
   private final SprintReader sprintReader;
 
-  private final SprintRepository sprintRepository;
+  private final SprintModifier sprintModifier;
 
   public SprintService(
-      SprintAppender sprintAppender, SprintReader sprintReader, SprintRepository sprintRepository) {
+      SprintAppender sprintAppender, SprintReader sprintReader, SprintModifier sprintModifier) {
     this.sprintAppender = sprintAppender;
     this.sprintReader = sprintReader;
-    this.sprintRepository = sprintRepository;
+    this.sprintModifier = sprintModifier;
   }
 
   public Sprint append(User user, Long projectId, NewSprint newSprint) {
@@ -23,5 +23,9 @@ public class SprintService {
 
   public List<Sprint> findSprints(User user, Long projectId) {
     return sprintReader.findSprints(user, projectId);
+  }
+
+  public void modifySprintName(User user, Long sprintId, ModifySprintName modifySprintName) {
+    sprintModifier.modifySprintName(user, sprintId, modifySprintName);
   }
 }

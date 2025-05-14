@@ -46,4 +46,8 @@ public class SprintEntity extends BaseEntity {
         this.completedDate,
         this.projectId);
   }
+
+  public void updateSprintName(String name) {
+    this.name = name;
+  }
 }
