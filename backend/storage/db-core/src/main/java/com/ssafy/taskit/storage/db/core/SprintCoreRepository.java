@@ -39,7 +39,7 @@ public class SprintCoreRepository implements SprintRepository {
   @Override
   public Optional<Sprint> findSprint(Long sprintId) {
     return sprintJpaRepository
-        .findBySprintIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
         .map(SprintEntity::toSprint);
   }
 
@@ -47,7 +47,7 @@ public class SprintCoreRepository implements SprintRepository {
   @Override
   public void modifySprintName(Long sprintId, ModifySprintName modifySprintName) {
     SprintEntity sprintEntity = sprintJpaRepository
-        .findBySprintIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
     sprintEntity.updateSprintName(modifySprintName.name());
   }
@@ -56,7 +56,7 @@ public class SprintCoreRepository implements SprintRepository {
   @Override
   public void modifySprintDueDate(Long sprintId, ModifySprintDueDate modifySprintDueDate) {
     SprintEntity sprintEntity = sprintJpaRepository
-        .findBySprintIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
     sprintEntity.updateSprintDueDate(modifySprintDueDate.dueDate());
   }
@@ -65,7 +65,7 @@ public class SprintCoreRepository implements SprintRepository {
   @Override
   public void deleteSprint(Long sprintId) {
     SprintEntity sprintEntity = sprintJpaRepository
-        .findBySprintIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
     sprintEntity.delete();
   }
