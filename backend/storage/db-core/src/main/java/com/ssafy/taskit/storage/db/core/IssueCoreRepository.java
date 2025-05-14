@@ -194,6 +194,7 @@ public class IssueCoreRepository implements IssueRepository {
   public List<Object[]> countBacklogIssuesByEpicIds(List<Long> epicIds) {
     return issueJpaRepository.countBacklogIssuesGroupedByEpicIds(
         epicIds, EntityStatus.ACTIVE, IssueStatus.UNASSIGNED);
+  }
 
   @Override
   public List<Issue> findByUserId(Long userId) {

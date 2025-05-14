@@ -66,10 +66,10 @@ public class ComponentCoreRepository implements ComponentRepository {
           entity.delete();
           return entity.toComponent();
         });
+  }
 
   @Override
   public boolean existsByIdAndProjectId(Long componentId, Long projectId) {
     return componentJpaRepository.existsByIdAndProjectId(componentId, projectId);
   }
-  
 }
