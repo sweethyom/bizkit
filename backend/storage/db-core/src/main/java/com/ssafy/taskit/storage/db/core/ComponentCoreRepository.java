@@ -7,6 +7,7 @@ import com.ssafy.taskit.domain.NewComponent;
 import com.ssafy.taskit.domain.User;
 import com.ssafy.taskit.domain.error.CoreErrorType;
 import com.ssafy.taskit.domain.error.CoreException;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
@@ -47,6 +48,7 @@ public class ComponentCoreRepository implements ComponentRepository {
         .map(ComponentEntity::toComponent);
   }
 
+  @Transactional
   @Override
   public void modifyComponent(Long componentId, ModifyComponent modifyComponent) {
     ComponentEntity componentEntity = componentJpaRepository
