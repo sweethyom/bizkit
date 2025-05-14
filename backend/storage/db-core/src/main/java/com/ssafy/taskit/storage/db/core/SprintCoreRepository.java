@@ -73,7 +73,7 @@ public class SprintCoreRepository implements SprintRepository {
   @Override
   public Sprint findById(Long sprintId) {
     SprintEntity sprintEntity = sprintJpaRepository
-        .findBySprintIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
     return sprintEntity.toSprint();
   }
