@@ -25,14 +25,6 @@ public class MemberValidator {
     }
   }
 
-  public boolean isCompletedInvitation(String invitationId) {
-    return true;
-  }
-
-  public boolean isValidInvitation(String invitationId) {
-    return true;
-  }
-
   public void isProjectFull(Long projectId) {
     if (memberRepository.countMembers(projectId) > 30) {
       throw new CoreException(CoreErrorType.PROJECT_IS_FULL);

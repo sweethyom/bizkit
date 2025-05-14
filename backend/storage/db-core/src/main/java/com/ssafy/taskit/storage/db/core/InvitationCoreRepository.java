@@ -2,6 +2,7 @@ package com.ssafy.taskit.storage.db.core;
 
 import com.ssafy.taskit.domain.Invitation;
 import com.ssafy.taskit.domain.InvitationRepository;
+import com.ssafy.taskit.domain.InvitationStatus;
 import com.ssafy.taskit.domain.NewInvitation;
 import java.util.List;
 import org.springframework.stereotype.Repository;
@@ -31,5 +32,24 @@ public class InvitationCoreRepository implements InvitationRepository {
   public List<Invitation> findInvitationMembers(Long projectId) {
     List<InvitationEntity> invitationEntities = invitationJpaRepository.findByProjectId(projectId);
     return invitationEntities.stream().map(InvitationEntity::toInvitation).toList();
+  }
+
+  @Override
+  public Invitation findByInvitationCode(String invitationCode) {
+    InvitationEntity invitation = invitationJpaRepository.findByInvitationCode(invitationCode);
+    return invitation.toInvitation();
+  }
+
+  @Override
+  public boolean existsByInvitationCodeAndStatus(String invitationCode) {
+    return invitationJpaRepository.existsByInvitationCodeAndStatus(
+        invitationCode, InvitationStatus.PENDING);
+  }
+
+  @Override
+  public void updateStatus(String invitationCode) {
+    InvitationEntity invitation = invitationJpaRepository.findByInvitationCode(invitationCode);
+    invitation.accept();
+    invitationJpaRepository.save(invitation);
   }
 }

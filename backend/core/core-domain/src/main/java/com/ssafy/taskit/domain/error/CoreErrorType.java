@@ -57,7 +57,11 @@ public enum CoreErrorType {
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M003, "이미 초대된 사용자입니다.", CoreErrorLevel.INFO),
 
   PROJECT_IS_FULL(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M004, "프로젝트의 최대 인원에 도달했습니다.", CoreErrorLevel.INFO);
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M004, "프로젝트의 최대 인원에 도달했습니다.", CoreErrorLevel.INFO),
+  INVITATION_NOT_FOUND(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M005, "해당 초대가 존재하지 않습니다", CoreErrorLevel.INFO),
+  INVITATION_NOT_VALID(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M006, "해당 초대는 유효하지 않습니다.", CoreErrorLevel.INFO);
 
   private final CoreErrorKind kind;
   private final CoreErrorCode code;

@@ -71,8 +71,9 @@ public class MemberController {
     return ApiResponse.success();
   }
 
-  @PostMapping("members/invitation/{invitationId}")
-  public ApiResponse<Void> acceptInvitation(ApiUser apiUser, @PathVariable String invitationId) {
+  @PostMapping("members/invitation/{invitationCode}")
+  public ApiResponse<Void> acceptInvitation(ApiUser apiUser, @PathVariable String invitationCode) {
+    memberService.acceptInvitation(apiUser.toUser(), invitationCode);
     return ApiResponse.success();
   }
 }

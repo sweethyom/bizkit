@@ -72,4 +72,11 @@ public class MemberCoreRepository implements MemberRepository {
   public int countMembers(Long projectId) {
     return memberJpaRepository.countByProjectId(projectId);
   }
+
+  @Override
+  public Member save(Long userId, Long projectId, Role role, LocalDateTime lastAccessedAt) {
+    return memberJpaRepository
+        .save(new MemberEntity(userId, projectId, role, lastAccessedAt))
+        .toMember();
+  }
 }

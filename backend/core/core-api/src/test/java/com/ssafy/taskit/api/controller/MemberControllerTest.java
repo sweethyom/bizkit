@@ -1,8 +1,7 @@
 package com.ssafy.taskit.api.controller;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -85,9 +84,12 @@ class MemberControllerTest extends RestDocsTest {
   public void findInvitationMembers() {
     DefaultDateTime time = new DefaultDateTime(
         LocalDateTime.now().minusDays(1), LocalDateTime.now().minusDays(1));
-    Invitation invitation1 = new Invitation(1L, 1L, "user1@example.com", 1L, "초대 코드", time);
-    Invitation invitation2 = new Invitation(2L, 2L, "user2@example.com", 1L, "초대 코드", time);
-    Invitation invitation3 = new Invitation(3L, 3L, "user3@example.com", 1L, "초대 코드", time);
+    Invitation invitation1 =
+        new Invitation(1L, 1L, "user1@example.com", 1L, "초대 코드", InvitationStatus.PENDING, time);
+    Invitation invitation2 =
+        new Invitation(2L, 2L, "user2@example.com", 1L, "초대 코드", InvitationStatus.PENDING, time);
+    Invitation invitation3 =
+        new Invitation(3L, 3L, "user3@example.com", 1L, "초대 코드", InvitationStatus.PENDING, time);
 
     UserDetail user1 = new UserDetail(1L, "사용자1", "user1@example.com", "https://img.com/a.jpg");
     UserDetail user2 = new UserDetail(2L, "사용자2", "user2@example.com", "https://img.com/b.jpg");
@@ -203,14 +205,15 @@ class MemberControllerTest extends RestDocsTest {
 
   @Test
   public void acceptInvitation() {
+    doNothing().when(memberService).acceptInvitation(any(User.class), anyString());
     given()
         .contentType(ContentType.JSON)
-        .post("members/invitation/{invitationId}", "초대아이디1")
+        .post("members/invitation/{invitationCode}", "초대코드")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "accept-invitation",
-            pathParameters(parameterWithName("invitationId").description("사용자가 수락할 초대 id")),
+            pathParameters(parameterWithName("invitationCode").description("사용자가 수락할 초대 코드")),
             responseFields(fieldWithPath("result")
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 : SUCCESS 혹은 ERROR"))));

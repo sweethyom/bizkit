@@ -9,6 +9,8 @@ public enum CoreErrorCode {
   M002,
   M003,
   M004,
+  M005,
+  M006,
   C000,
 
   C001,

@@ -8,6 +8,7 @@ public class MemberService {
   private final MemberReader memberReader;
   private final MemberValidator memberValidator;
   private final ProjectValidator projectValidator;
+  private final InvitationValidator invitationValidator;
 
   private final MemberDeleter memberDeleter;
   private final MemberAppender memberAppender;
@@ -16,11 +17,13 @@ public class MemberService {
       MemberReader memberReader,
       MemberValidator memberValidator,
       ProjectValidator projectValidator,
+      InvitationValidator invitationValidator,
       MemberDeleter memberDeleter,
       MemberAppender memberAppender) {
     this.memberReader = memberReader;
     this.memberValidator = memberValidator;
     this.projectValidator = projectValidator;
+    this.invitationValidator = invitationValidator;
     this.memberDeleter = memberDeleter;
     this.memberAppender = memberAppender;
   }
@@ -54,5 +57,11 @@ public class MemberService {
     projectValidator.isProjectExists(projectId);
     memberValidator.isProjectMember(user, projectId);
     return memberReader.findInvitationMembers(projectId);
+  }
+
+  public void acceptInvitation(User user, String invitationCode) {
+    invitationValidator.isInvitationExists(user.id());
+    invitationValidator.isValidInvitation(invitationCode);
+    memberAppender.appendMember(user, invitationCode);
   }
 }

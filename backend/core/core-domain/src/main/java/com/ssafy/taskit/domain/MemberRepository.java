@@ -19,4 +19,6 @@ public interface MemberRepository {
   Long findByUserId(Long userId);
 
   int countMembers(Long projectId);
+
+  Member save(Long userId, Long projectId, Role role, LocalDateTime lastAccessedAt);
 }

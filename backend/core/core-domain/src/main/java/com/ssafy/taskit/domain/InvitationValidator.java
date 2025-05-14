@@ -18,4 +18,10 @@ public class InvitationValidator {
       throw new CoreException(CoreErrorType.INVITATION_EXISTS);
     }
   }
+
+  public void isValidInvitation(String invitationCode) {
+    if (!invitationRepository.existsByInvitationCodeAndStatus(invitationCode)) {
+      throw new CoreException(CoreErrorType.INVITATION_NOT_VALID);
+    }
+  }
 }

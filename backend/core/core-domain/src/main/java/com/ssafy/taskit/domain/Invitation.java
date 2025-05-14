@@ -8,4 +8,5 @@ public record Invitation(
     String email,
     Long projectId,
     String invitationCode,
+    InvitationStatus status,
     DefaultDateTime defaultDateTime) {}

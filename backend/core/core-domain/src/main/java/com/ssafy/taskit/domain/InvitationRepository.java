@@ -8,4 +8,10 @@ public interface InvitationRepository {
   Invitation save(Long userId, NewInvitation newInvitation, Long projectId, String invitationCode);
 
   List<Invitation> findInvitationMembers(Long projectId);
+
+  Invitation findByInvitationCode(String invitationCode);
+
+  boolean existsByInvitationCodeAndStatus(String invitationCode);
+
+  void updateStatus(String invitationCode);
 }
