@@ -1,6 +1,10 @@
 package com.ssafy.taskit.api.controller;
 
 import static com.ssafy.s12p21d206.achu.test.api.RestDocsUtils.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -10,8 +14,14 @@ import static org.springframework.restdocs.snippet.Attributes.key;
 import com.ssafy.s12p21d206.achu.test.api.RestDocsTest;
 import com.ssafy.taskit.domain.IssueHandlingOption;
 import com.ssafy.taskit.domain.IssueStatus;
+import com.ssafy.taskit.domain.NewSprint;
+import com.ssafy.taskit.domain.Sprint;
+import com.ssafy.taskit.domain.SprintService;
+import com.ssafy.taskit.domain.SprintStatus;
+import com.ssafy.taskit.domain.User;
 import io.restassured.http.ContentType;
 import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -21,14 +31,19 @@ class SprintControllerTest extends RestDocsTest {
 
   private SprintController controller;
 
+  private SprintService sprintService;
+
   @BeforeEach
   void setup() {
-    controller = new SprintController();
+    sprintService = mock(SprintService.class);
+    controller = new SprintController(sprintService);
     mockMvc = mockController(controller);
   }
 
   @Test
   void appendSprint() {
+    when(sprintService.append(any(User.class), anyLong(), any(NewSprint.class)))
+        .thenReturn(new Sprint(1L, "스프린트 이름", SprintStatus.READY, null, null, null, 1L));
     given()
         .contentType(ContentType.JSON)
         .body(new AppendSprintRequest("생성할 스프린트 제목"))
@@ -51,6 +66,26 @@ class SprintControllerTest extends RestDocsTest {
 
   @Test
   void findSprints() {
+    when(sprintService.findSprints(any(User.class), anyLong()))
+        .thenReturn(List.of(
+            new Sprint(1L, "대기 중 스프린트", SprintStatus.READY, null, null, null, 1L),
+            new Sprint(
+                2L,
+                "진행 중 스프린트",
+                SprintStatus.ONGOING,
+                LocalDate.of(2024, 5, 1),
+                LocalDate.of(2024, 5, 15),
+                null,
+                1L),
+            new Sprint(
+                3L,
+                "완료된 스프린트",
+                SprintStatus.COMPLETED,
+                LocalDate.of(2024, 4, 1),
+                LocalDate.of(2024, 4, 15),
+                LocalDate.of(2024, 4, 16),
+                1L)));
+
     given()
         .contentType(ContentType.JSON)
         .get("/projects/{projectId}/sprints", 1L)
@@ -65,15 +100,17 @@ class SprintControllerTest extends RestDocsTest {
                     .description("성공 여부 (예: SUCCESS 혹은 ERROR"),
                 fieldWithPath("data.[].id").type(JsonFieldType.NUMBER).description("스프린트 아이디"),
                 fieldWithPath("data.[].name").type(JsonFieldType.STRING).description("스프린트 이름"),
-                fieldWithPath("data.[].status")
+                fieldWithPath("data.[].sprintStatus")
                     .type(JsonFieldType.STRING)
                     .description("스프린트 상태 (READY, ONGOING, COMPLETED)"),
                 fieldWithPath("data.[].startDate")
+                    .optional()
                     .type(JsonFieldType.STRING)
-                    .description("스프린트 시작일"),
+                    .description("스프린트 시작일 (스프린트 진행 / 종료 상태의 경우 존재)"),
                 fieldWithPath("data.[].dueDate")
+                    .optional()
                     .type(JsonFieldType.STRING)
-                    .description("스프린트 예상 종료일"),
+                    .description("스프린트 예상 종료일 (스프린트 진행 / 종료 상태의 경우 존재)"),
                 fieldWithPath("data.[].completedDate")
                     .optional()
                     .type(JsonFieldType.STRING)

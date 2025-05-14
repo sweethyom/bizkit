@@ -19,4 +19,20 @@ public record Project(
   public String generateKey() {
     return key + "-" + currentSequence;
   }
+
+  public Long getId() {
+    return this.id;
+  }
+
+  public String getName() {
+    return this.name;
+  }
+
+  public String getImage() {
+    return this.image;
+  }
+
+  public Long getUserId() {
+    return this.userId;
+  }
 }

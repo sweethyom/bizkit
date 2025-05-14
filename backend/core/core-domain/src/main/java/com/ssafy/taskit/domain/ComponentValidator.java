@@ -20,11 +20,17 @@ public class ComponentValidator {
     }
   }
 
-  public boolean isComponentExists(Long componentId) {
-    return true;
+  public void isComponentExists(Long componentId) {
+    boolean check = componentRepository.findById(componentId).isPresent();
+    if (!check) {
+      throw new CoreException(CoreErrorType.COMPONENT_NOT_FOUND);
+    }
   }
 
-  public boolean isComponentInProject(Long componentId, Long projectId) {
-    return true;
+  public void isComponentInProject(Long componentId, Long projectId) {
+    boolean check = componentRepository.existsByIdAndProjectId(componentId, projectId);
+    if (!check) {
+      throw new CoreException(CoreErrorType.COMPONENT_NOT_IN_PROJECT);
+    }
   }
 }

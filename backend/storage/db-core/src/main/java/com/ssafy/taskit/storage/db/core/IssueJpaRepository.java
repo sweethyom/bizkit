@@ -79,4 +79,6 @@ public interface IssueJpaRepository extends JpaRepository<IssueEntity, Long> {
       @Param("updatedAt") LocalDateTime updatedAt,
       @Param("cursorId") Long cursorId,
       Pageable pageable);
+
+  List<IssueEntity> findByAssigneeId(@Param("assigneeId") Long userId);
 }
