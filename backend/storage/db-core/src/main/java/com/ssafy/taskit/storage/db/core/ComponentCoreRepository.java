@@ -44,7 +44,7 @@ public class ComponentCoreRepository implements ComponentRepository {
   @Override
   public Optional<Component> findById(Long componentId) {
     return componentJpaRepository
-        .findByComponentIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
         .map(ComponentEntity::toComponent);
   }
 
@@ -52,7 +52,7 @@ public class ComponentCoreRepository implements ComponentRepository {
   @Override
   public void modifyComponent(Long componentId, ModifyComponent modifyComponent) {
     ComponentEntity componentEntity = componentJpaRepository
-        .findByComponentIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.COMPONENT_NOT_FOUND));
     componentEntity.updateComponentName(modifyComponent.name());
     componentEntity.updateComponentContent(modifyComponent.content());
@@ -61,7 +61,7 @@ public class ComponentCoreRepository implements ComponentRepository {
   @Override
   public Optional<Component> deleteComponent(Long componentId) {
     return componentJpaRepository
-        .findByComponentIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
+        .findByIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
         .map(entity -> {
           entity.delete();
           return entity.toComponent();
