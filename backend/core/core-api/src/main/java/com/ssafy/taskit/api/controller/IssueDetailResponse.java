@@ -5,6 +5,7 @@ import com.ssafy.taskit.domain.Epic;
 import com.ssafy.taskit.domain.Importance;
 import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueStatus;
+import com.ssafy.taskit.domain.Sprint;
 import com.ssafy.taskit.domain.UserDetail;
 
 public record IssueDetailResponse(
@@ -20,11 +21,7 @@ public record IssueDetailResponse(
     IssueDetailEpicResponse epic,
     SprintResponse sprint) {
   public static IssueDetailResponse of(
-      Issue issue,
-      Component component,
-      UserDetail userDetail,
-      Epic epic,
-      SprintResponse sprintResponse) {
+      Issue issue, Component component, UserDetail userDetail, Epic epic, Sprint sprint) {
     return new IssueDetailResponse(
         issue.id(),
         issue.name(),
@@ -36,6 +33,6 @@ public record IssueDetailResponse(
         new ComponentResponse(component.id(), component.name()),
         new AssigneeResponse(userDetail.id(), userDetail.nickname(), userDetail.profileImgUrl()),
         new IssueDetailEpicResponse(epic.id(), epic.name(), epic.key()),
-        sprintResponse);
+        new SprintResponse(sprint.id(), sprint.name(), sprint.sprintStatus()));
   }
 }

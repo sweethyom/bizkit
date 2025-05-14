@@ -129,7 +129,7 @@ class IssueControllerTest extends RestDocsTest {
         .thenReturn(new Sprint(
             1L,
             "1주차 스프린트",
-            SprintStatus.ONGOING,
+            SprintStatus.READY,
             LocalDate.now(),
             LocalDate.now(),
             LocalDate.now(),
