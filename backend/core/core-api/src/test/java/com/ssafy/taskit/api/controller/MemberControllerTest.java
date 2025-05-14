@@ -83,6 +83,20 @@ class MemberControllerTest extends RestDocsTest {
 
   @Test
   public void findInvitationMembers() {
+    DefaultDateTime time = new DefaultDateTime(
+        LocalDateTime.now().minusDays(1), LocalDateTime.now().minusDays(1));
+    Invitation invitation1 = new Invitation(1L, 1L, "user1@example.com", 1L, "초대 코드", time);
+    Invitation invitation2 = new Invitation(2L, 2L, "user2@example.com", 1L, "초대 코드", time);
+    Invitation invitation3 = new Invitation(3L, 3L, "user3@example.com", 1L, "초대 코드", time);
+
+    UserDetail user1 = new UserDetail(1L, "사용자1", "user1@example.com", "https://img.com/a.jpg");
+    UserDetail user2 = new UserDetail(2L, "사용자2", "user2@example.com", "https://img.com/b.jpg");
+    UserDetail user3 = new UserDetail(3L, "사용자3", "user3@example.com", "https://img.com/c.jpg");
+    List<UserDetail> users = List.of(user1, user2, user3);
+
+    when(memberService.findInvitationMembers(any(User.class), anyLong()))
+        .thenReturn(List.of(invitation1, invitation2, invitation3));
+    when(userService.findUserDetailsByIds(anyList())).thenReturn(List.of(user1, user2, user3));
     given()
         .contentType(ContentType.JSON)
         .get("projects/{projectId}/members/invitation", 1L)
@@ -95,7 +109,7 @@ class MemberControllerTest extends RestDocsTest {
                 fieldWithPath("result")
                     .type(JsonFieldType.STRING)
                     .description("성공 여부 : SUCCESS 혹은 ERROR"),
-                fieldWithPath("data.[].invitationId")
+                fieldWithPath("data.[].invitationCode")
                     .type(JsonFieldType.STRING)
                     .description("초대 id"),
                 fieldWithPath("data.[].id").type(JsonFieldType.NUMBER).description("초대한 사용자의 id"),

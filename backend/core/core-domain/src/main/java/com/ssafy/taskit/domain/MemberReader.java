@@ -6,9 +6,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class MemberReader {
   private final MemberRepository memberRepository;
+  private final InvitationRepository invitationRepository;
 
-  public MemberReader(MemberRepository memberRepository) {
+  public MemberReader(
+      MemberRepository memberRepository, InvitationRepository invitationRepository) {
     this.memberRepository = memberRepository;
+    this.invitationRepository = invitationRepository;
   }
 
   public List<Member> findMembers(Long projectId) {
@@ -17,5 +20,9 @@ public class MemberReader {
 
   public Member findMember(Long memberId) {
     return memberRepository.findById(memberId);
+  }
+
+  public List<Invitation> findInvitationMembers(Long projectId) {
+    return invitationRepository.findInvitationMembers(projectId);
   }
 }

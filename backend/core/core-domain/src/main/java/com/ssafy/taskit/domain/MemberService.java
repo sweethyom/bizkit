@@ -49,4 +49,10 @@ public class MemberService {
     Invitation invitation = memberAppender.appendInvitation(projectId, newInvitation);
     return invitation.invitationCode();
   }
+
+  public List<Invitation> findInvitationMembers(User user, Long projectId) {
+    projectValidator.isProjectExists(projectId);
+    memberValidator.isProjectMember(user, projectId);
+    return memberReader.findInvitationMembers(projectId);
+  }
 }

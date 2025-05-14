@@ -3,6 +3,7 @@ package com.ssafy.taskit.storage.db.core;
 import com.ssafy.taskit.domain.Invitation;
 import com.ssafy.taskit.domain.InvitationRepository;
 import com.ssafy.taskit.domain.NewInvitation;
+import java.util.List;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -24,5 +25,11 @@ public class InvitationCoreRepository implements InvitationRepository {
     return invitationJpaRepository
         .save(new InvitationEntity(userId, newInvitation.email(), projectId, invitationCode))
         .toInvitation();
+  }
+
+  @Override
+  public List<Invitation> findInvitationMembers(Long projectId) {
+    List<InvitationEntity> invitationEntities = invitationJpaRepository.findByProjectId(projectId);
+    return invitationEntities.stream().map(InvitationEntity::toInvitation).toList();
   }
 }

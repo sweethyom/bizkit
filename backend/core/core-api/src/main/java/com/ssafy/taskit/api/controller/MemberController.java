@@ -32,11 +32,10 @@ public class MemberController {
   @GetMapping("projects/{projectId}/members/invitation")
   public ApiResponse<List<InvitedMemberResponse>> findInvitationMembers(
       ApiUser apiUser, @PathVariable Long projectId) {
-    List<InvitedMemberResponse> responses = List.of(
-        new InvitedMemberResponse("초대아이디1", 4L, "초대사용자닉네임1", "초대사용자이메일1", "default1.jpg"),
-        new InvitedMemberResponse("초대아이디2", 5L, "초대사용자닉네임2", "초대사용자이메일2", "default2.jpg"),
-        new InvitedMemberResponse("초대아이디3", 6L, "초대사용자닉네임3", "초대사용자이메일3", "default3.jpg"));
-    return ApiResponse.success(responses);
+    List<Invitation> invitations = memberService.findInvitationMembers(apiUser.toUser(), projectId);
+    List<Long> userIds = invitations.stream().map(Invitation::userId).toList();
+    List<UserDetail> users = userService.findUserDetailsByIds(userIds);
+    return ApiResponse.success(InvitedMemberResponse.of(invitations, users));
   }
 
   @PostMapping("projects/{projectId}/members")
