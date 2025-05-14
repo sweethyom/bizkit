@@ -8,7 +8,7 @@ operation::append-project[snippets='http-request,request-part-request-fields,htt
 
 operation::find-projects[snippets='http-request,query-parameters,http-response,response-fields']
 
-=== [미구현] 프로젝트 상세조회
+=== 프로젝트 상세조회
 
 operation::find-project[snippets='http-request,path-parameters,http-response,response-fields']
 
@@ -20,7 +20,7 @@ operation::modify-project[snippets='http-request,path-parameters,http-request,ht
 
 operation::modify-project-image[snippets='http-request,path-parameters,http-request,http-response,response-fields']
 
-=== [미구현] 프로젝트 삭제
+=== 프로젝트 삭제
 
 operation::delete-project[snippets='http-request,path-parameters,http-response,response-fields']
 
