@@ -14,4 +14,6 @@ public interface SprintRepository {
   Optional<Sprint> findSprint(Long sprintId);
 
   void modifySprintDueDate(Long sprintId, ModifySprintDueDate modifySprintDueDate);
+
+  void deleteSprint(Long sprintId);
 }

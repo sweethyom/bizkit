@@ -51,6 +51,7 @@ public class SprintController {
   @DeleteMapping("/sprints/{sprintId}")
   public ApiResponse<Void> deleteSprint(
       ApiUser apiUser, @PathVariable Long sprintId, @RequestBody DeleteSprintRequest request) {
+    sprintService.deleteSprint(apiUser.toUser(), sprintId, request.option());
     return ApiResponse.success();
   }
 

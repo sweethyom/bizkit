@@ -12,6 +12,10 @@ public class SprintValidator {
     return true;
   }
 
+  public boolean isNotOngoingSprint(Long sprintId) {
+    return true;
+  }
+
   public boolean isReadySprint(Long sprintId) {
     return true;
   }
