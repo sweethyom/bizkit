@@ -47,7 +47,13 @@ public enum CoreErrorType {
   USER_NOT_FOUND(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I005, "해당 사용자를 찾을 수 없습니다.", CoreErrorLevel.INFO),
   SPRINT_NOT_FOUND(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.S000, "해당 스프린트를 찾을 수 없습니다.", CoreErrorLevel.INFO);
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.S000, "해당 스프린트를 찾을 수 없습니다.", CoreErrorLevel.INFO),
+
+  SPRINT_DUE_DATE_BEFORE_START(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.S001,
+      "예상 종료일은 시작일보다 빠를 수 없습니다.",
+      CoreErrorLevel.INFO);
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
   private final String message;

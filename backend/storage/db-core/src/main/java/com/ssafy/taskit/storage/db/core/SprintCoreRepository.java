@@ -1,5 +1,6 @@
 package com.ssafy.taskit.storage.db.core;
 
+import com.ssafy.taskit.domain.ModifySprintDueDate;
 import com.ssafy.taskit.domain.ModifySprintName;
 import com.ssafy.taskit.domain.NewSprint;
 import com.ssafy.taskit.domain.Sprint;
@@ -7,10 +8,10 @@ import com.ssafy.taskit.domain.SprintRepository;
 import com.ssafy.taskit.domain.User;
 import com.ssafy.taskit.domain.error.CoreErrorType;
 import com.ssafy.taskit.domain.error.CoreException;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class SprintCoreRepository implements SprintRepository {
@@ -49,5 +50,14 @@ public class SprintCoreRepository implements SprintRepository {
         .findBySprintIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
     sprintEntity.updateSprintName(modifySprintName.name());
+  }
+
+  @Transactional
+  @Override
+  public void modifySprintDueDate(Long sprintId, ModifySprintDueDate modifySprintDueDate) {
+    SprintEntity sprintEntity = sprintJpaRepository
+        .findBySprintIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
+    sprintEntity.updateSprintDueDate(modifySprintDueDate.dueDate());
   }
 }

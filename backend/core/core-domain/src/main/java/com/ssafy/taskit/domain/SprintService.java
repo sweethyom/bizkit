@@ -28,4 +28,9 @@ public class SprintService {
   public void modifySprintName(User user, Long sprintId, ModifySprintName modifySprintName) {
     sprintModifier.modifySprintName(user, sprintId, modifySprintName);
   }
+
+  public void modifySprintDueDate(
+      User user, Long sprintId, ModifySprintDueDate modifySprintDueDate) {
+    sprintModifier.modifySprintDueDate(user, sprintId, modifySprintDueDate);
+  }
 }

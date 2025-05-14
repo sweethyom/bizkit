@@ -50,4 +50,8 @@ public class SprintEntity extends BaseEntity {
   public void updateSprintName(String name) {
     this.name = name;
   }
+
+  public void updateSprintDueDate(LocalDate dueDate) {
+    this.dueDate = dueDate;
+  }
 }

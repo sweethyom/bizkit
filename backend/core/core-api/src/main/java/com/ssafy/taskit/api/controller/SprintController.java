@@ -2,6 +2,7 @@ package com.ssafy.taskit.api.controller;
 
 import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
+import com.ssafy.taskit.domain.ModifySprintDueDate;
 import com.ssafy.taskit.domain.ModifySprintName;
 import com.ssafy.taskit.domain.NewSprint;
 import com.ssafy.taskit.domain.Sprint;
@@ -57,7 +58,9 @@ public class SprintController {
   public ApiResponse<Void> modifySprintDueDate(
       ApiUser apiUser,
       @PathVariable Long sprintId,
-      @RequestBody ModifySprintDueDateRequest request) {
+      @RequestBody @Validated ModifySprintDueDateRequest request) {
+    ModifySprintDueDate modifySprintDueDate = request.toModifySprintDueDate();
+    sprintService.modifySprintDueDate(apiUser.toUser(), sprintId, modifySprintDueDate);
     return ApiResponse.success();
   }
 

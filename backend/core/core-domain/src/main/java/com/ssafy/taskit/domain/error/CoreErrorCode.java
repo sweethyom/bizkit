@@ -12,6 +12,7 @@ public enum CoreErrorCode {
 
   C003,
   S000,
+  S001,
   E000,
   I000,
   I001,
