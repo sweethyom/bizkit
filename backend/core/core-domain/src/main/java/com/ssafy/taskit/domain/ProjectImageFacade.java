@@ -15,8 +15,8 @@ public class ProjectImageFacade {
     this.imageService = imageService;
   }
 
-  public ProjectDetail modifyProjectImage(User user, Long projectId, File imageFile) {
+  public void modifyProjectImage(User user, Long projectId, File imageFile) {
     String imageUrl = imageService.uploadImage(imageFile, ImageCompressionOption.THUMBNAIL_IMAGE);
-    return projectService.modifyProjectImage(user, projectId, imageUrl);
+    projectService.modifyProjectImage(user, projectId, imageUrl);
   }
 }

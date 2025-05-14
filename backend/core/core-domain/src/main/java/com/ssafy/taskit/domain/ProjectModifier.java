@@ -15,7 +15,7 @@ public class ProjectModifier {
     return projectRepository.modifyProjectName(projectId, name, isLeader);
   }
 
-  ProjectDetail modifyProjectImage(Long projectId, String ImageUrl, boolean isLeader) {
-    return projectRepository.modifyProjectImage(projectId, ImageUrl, isLeader);
+  void modifyProjectImage(Long projectId, String ImageUrl, boolean isLeader) {
+    projectRepository.modifyProjectImage(projectId, ImageUrl, isLeader);
   }
 }

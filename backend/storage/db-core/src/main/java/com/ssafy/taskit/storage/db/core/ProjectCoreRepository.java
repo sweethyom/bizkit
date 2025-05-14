@@ -84,13 +84,13 @@ public class ProjectCoreRepository implements ProjectRepository {
   }
 
   @Override
-  public ProjectDetail modifyProjectImage(Long projectId, String imageUrl, boolean isLeader) {
+  public void modifyProjectImage(Long projectId, String imageUrl, boolean isLeader) {
     ProjectEntity projectEntity = projectJpaRepository
         .findById(projectId)
         .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
     projectEntity.changeImageUrl(imageUrl);
     projectJpaRepository.save(projectEntity);
-    return projectEntity.toProjectDetail(isLeader);
+    projectEntity.toProjectDetail(isLeader);
   }
 
   @Transactional
