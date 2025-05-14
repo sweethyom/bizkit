@@ -16,5 +16,5 @@ public interface ProjectJpaRepository extends JpaRepository<ProjectEntity, Long>
   @Query("SELECT m.projectId FROM MemberEntity m WHERE m.userId = :userId")
   List<Long> findProjectIdsByUserId(@Param("userId") User user, Sort sort);
 
-  Optional<ProjectEntity> findByIdAndEntityStatus(Long projectId, EntityStatus entityStatus);
+  Optional<ProjectEntity> findByIdAndEntityStatus(Long id, EntityStatus entityStatus);
 }
