@@ -57,4 +57,9 @@ public class ComponentCoreRepository implements ComponentRepository {
     componentEntity.updateComponentName(modifyComponent.name());
     componentEntity.updateComponentContent(modifyComponent.content());
   }
+
+  @Override
+  public boolean existsByIdAndProjectId(Long componentId, Long projectId) {
+    return componentJpaRepository.existsByIdAndProjectId(componentId, projectId);
+  }
 }
