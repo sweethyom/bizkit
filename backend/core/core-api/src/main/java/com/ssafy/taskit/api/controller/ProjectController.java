@@ -15,7 +15,10 @@ public class ProjectController {
   private final ProjectImageFacade projectImageFacade;
   private final UserService userService;
 
-  public ProjectController(ProjectService projectService, ProjectImageFacade projectImageFacade,  UserService userService) {
+  public ProjectController(
+      ProjectService projectService,
+      ProjectImageFacade projectImageFacade,
+      UserService userService) {
     this.projectService = projectService;
     this.userService = userService;
     this.projectImageFacade = projectImageFacade;
