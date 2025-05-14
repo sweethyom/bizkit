@@ -24,4 +24,6 @@ public interface ComponentRepository {
   void modifyComponent(Long componentId, ModifyComponent modifyComponent);
 
   boolean existsByIdAndProjectId(Long componentId, Long projectId);
+
+  List<Component> findAllByIds(List<Long> componentIds);
 }

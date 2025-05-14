@@ -72,4 +72,13 @@ public class ComponentCoreRepository implements ComponentRepository {
   public boolean existsByIdAndProjectId(Long componentId, Long projectId) {
     return componentJpaRepository.existsByIdAndProjectId(componentId, projectId);
   }
+
+  @Override
+  public List<Component> findAllByIds(List<Long> componentIds) {
+    return componentJpaRepository
+        .findAllByIdInAndEntityStatus(componentIds, EntityStatus.ACTIVE)
+        .stream()
+        .map(ComponentEntity::toComponent)
+        .toList();
+  }
 }

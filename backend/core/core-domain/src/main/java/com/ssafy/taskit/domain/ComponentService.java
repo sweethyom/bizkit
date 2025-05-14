@@ -1,6 +1,10 @@
 package com.ssafy.taskit.domain;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -66,5 +70,13 @@ public class ComponentService {
   public Component findComponent(Long componentId) {
     componentValidator.isComponentExists(componentId);
     return componentReader.findComponent(componentId);
+  }
+
+  public Map<Long, Component> mapByIds(List<Long> componentIds) {
+    if (componentIds.isEmpty()) {
+      return Collections.emptyMap();
+    }
+    List<Component> components = componentReader.findComponents(componentIds);
+    return components.stream().collect(Collectors.toMap(Component::id, Function.identity()));
   }
 }
