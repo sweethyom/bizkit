@@ -33,4 +33,8 @@ public class ProjectReader {
     Invitation invitation = invitationRepository.findByInvitationCode(invitationCode);
     return projectRepository.findById(invitation.projectId());
   }
+
+  public List<Project> readProjects(List<Long> projectIds) {
+    return projectRepository.findAllByIds(projectIds);
+  }
 }

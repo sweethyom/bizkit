@@ -1,6 +1,10 @@
 package com.ssafy.taskit.domain;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -60,5 +64,13 @@ public class ProjectService {
   public Project findInvitationProject(User user, String invitationCode) {
     invitationValidator.isInvitedMember(user, invitationCode);
     return projectReader.findInvitationProject(user, invitationCode);
+  }
+
+  public Map<Long, Project> mapByIds(List<Long> projectIds) {
+    if (projectIds.isEmpty()) {
+      return Collections.emptyMap();
+    }
+    List<Project> projects = projectReader.readProjects(projectIds);
+    return projects.stream().collect(Collectors.toMap(Project::id, Function.identity()));
   }
 }
