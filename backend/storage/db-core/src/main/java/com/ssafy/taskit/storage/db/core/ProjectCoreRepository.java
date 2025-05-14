@@ -83,6 +83,16 @@ public class ProjectCoreRepository implements ProjectRepository {
     return projectEntity.toProjectDetail(isLeader);
   }
 
+  @Override
+  public void modifyProjectImage(Long projectId, String imageUrl, boolean isLeader) {
+    ProjectEntity projectEntity = projectJpaRepository
+        .findById(projectId)
+        .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
+    projectEntity.changeImageUrl(imageUrl);
+    projectJpaRepository.save(projectEntity);
+    projectEntity.toProjectDetail(isLeader);
+  }
+
   @Transactional
   @Override
   public Long deleteProject(Long projectId) {

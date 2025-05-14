@@ -52,6 +52,12 @@ public class ProjectService {
     return projectModifier.modifyProjectName(projectId, name, isLeader);
   }
 
+  public void modifyProjectImage(User user, Long projectId, String imageUrl) {
+    memberValidator.isProjectLeader(user, projectId);
+    boolean isLeader = memberValidator.checkProjectLeader(user, projectId);
+    projectModifier.modifyProjectImage(projectId, imageUrl, isLeader);
+  }
+
   public Long deleteProject(User user, Long projectId) {
     memberValidator.isProjectLeader(user, projectId);
     return projectDeleter.deleteProject(projectId);

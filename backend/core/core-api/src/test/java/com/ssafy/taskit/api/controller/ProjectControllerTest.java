@@ -1,8 +1,7 @@
 package com.ssafy.taskit.api.controller;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
@@ -17,6 +16,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 
 class ProjectControllerTest extends RestDocsTest {
@@ -24,11 +24,14 @@ class ProjectControllerTest extends RestDocsTest {
   ProjectService projectService;
   UserService userService;
 
+  ProjectImageFacade projectImageFacade;
+
   @BeforeEach
   public void setup() {
     projectService = mock(ProjectService.class);
     userService = mock(UserService.class);
-    controller = new ProjectController(projectService, userService);
+    projectImageFacade = mock(ProjectImageFacade.class);
+    controller = new ProjectController(projectService, projectImageFacade, userService);
     mockMvc = mockController(controller);
   }
 
@@ -161,16 +164,15 @@ class ProjectControllerTest extends RestDocsTest {
   @Test
   public void modifyProjectImage() {
     given()
-        .contentType(ContentType.JSON)
-        .body(new ModifyProjectImageRequest("default001.jpg"))
+        .contentType(MediaType.MULTIPART_FORM_DATA)
+        .multiPart("projectImage", "modify-test.jpg", new byte[0], "image/jpeg")
         .patch("projects/{projectId}/image", 1L)
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "modify-project-image",
             pathParameters(parameterWithName("projectId").description("이미지를 수정할 프로젝트 id")),
-            requestFields(
-                fieldWithPath("image").type(JsonFieldType.STRING).description("수정할 프로젝트 이미지")),
+            requestParts(partWithName("projectImage").description("수정할 프로젝트 이미지파일")),
             responseFields(fieldWithPath("result")
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 (예: SUCCESS 혹은 ERROR)"))));
