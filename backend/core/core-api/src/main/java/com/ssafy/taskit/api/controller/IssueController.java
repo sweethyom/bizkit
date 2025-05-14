@@ -2,7 +2,6 @@ package com.ssafy.taskit.api.controller;
 
 import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
-import com.ssafy.taskit.domain.Assignee;
 import com.ssafy.taskit.domain.Component;
 import com.ssafy.taskit.domain.ComponentService;
 import com.ssafy.taskit.domain.Epic;
@@ -11,6 +10,7 @@ import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueService;
 import com.ssafy.taskit.domain.IssueStatus;
 import com.ssafy.taskit.domain.Project;
+import com.ssafy.taskit.domain.ProjectService;
 import com.ssafy.taskit.domain.Sprint;
 import com.ssafy.taskit.domain.SprintService;
 import com.ssafy.taskit.domain.UserDetail;
@@ -35,18 +35,21 @@ public class IssueController {
   private final EpicService epicService;
   private final ComponentService componentService;
   private final SprintService sprintService;
+  private final ProjectService projectService;
 
   public IssueController(
       IssueService issueService,
       UserService userService,
       EpicService epicService,
       ComponentService componentService,
-      SprintService sprintService) {
+      SprintService sprintService,
+      ProjectService projectService) {
     this.issueService = issueService;
     this.userService = userService;
     this.epicService = epicService;
     this.componentService = componentService;
     this.sprintService = sprintService;
+    this.projectService = projectService;
   }
 
   @PostMapping("epics/{epicId}/issues")
@@ -147,28 +150,28 @@ public class IssueController {
   public ApiResponse<List<EpicIssuesResponse>> findEpicIssues(
       ApiUser apiUser, @PathVariable Long epicId) {
     List<Issue> epicIssues = issueService.findEpicIssues(apiUser.toUser(), epicId);
-    List<Long> componentIds = epicIssues.stream().map(Issue::componentId).toList();
-    List<Long> assigneeIds = epicIssues.stream().map(Issue::assigneeId).toList();
-    Map<Long, Component> componentMap = issueService.generateComponentMap(componentIds);
-    Map<Long, Assignee> assigneeMap = issueService.generateAssigneeMap(assigneeIds);
-    List<EpicIssuesResponse> response =
-        EpicIssuesResponse.of(epicIssues, componentMap, assigneeMap);
+    List<Long> componentIds =
+        epicIssues.stream().map(Issue::componentId).distinct().toList();
+    List<Long> assigneeIds =
+        epicIssues.stream().map(Issue::assigneeId).distinct().toList();
+    Map<Long, Component> componentMap = componentService.mapByIds(componentIds);
+    Map<Long, UserDetail> userMap = userService.mapByIds(assigneeIds);
+    List<EpicIssuesResponse> response = EpicIssuesResponse.of(epicIssues, componentMap, userMap);
     return ApiResponse.success(response);
   }
 
   @GetMapping("sprints/{sprintId}/issues")
   public ApiResponse<List<SprintIssuesResponse>> findSprintIssues(
       ApiUser apiUser, @PathVariable Long sprintId) {
-
     List<Issue> issues = issueService.findSprintIssues(apiUser.toUser(), sprintId);
-    List<Long> componentIds = issues.stream().map(Issue::componentId).toList();
-    List<Long> assigneeIds = issues.stream().map(Issue::assigneeId).toList();
-    List<Long> epicIds = issues.stream().map(Issue::epicId).toList();
-    Map<Long, Component> componentMap = issueService.generateComponentMap(componentIds);
-    Map<Long, Assignee> assigneeMap = issueService.generateAssigneeMap(assigneeIds);
-    Map<Long, Epic> epicMap = issueService.generateEpicMap(epicIds);
+    List<Long> componentIds = issues.stream().map(Issue::componentId).distinct().toList();
+    List<Long> assigneeIds = issues.stream().map(Issue::assigneeId).distinct().toList();
+    List<Long> epicIds = issues.stream().map(Issue::epicId).distinct().toList();
+    Map<Long, Component> componentMap = componentService.mapByIds(componentIds);
+    Map<Long, UserDetail> userMap = userService.mapByIds(assigneeIds);
+    Map<Long, Epic> epicMap = epicService.mapByIds(epicIds);
     List<SprintIssuesResponse> response =
-        SprintIssuesResponse.of(issues, componentMap, assigneeMap, epicMap);
+        SprintIssuesResponse.of(issues, componentMap, userMap, epicMap);
     return ApiResponse.success(response);
   }
 
@@ -176,14 +179,14 @@ public class IssueController {
   public ApiResponse<List<ComponentIssuesResponse>> findComponentIssues(
       ApiUser apiUser, @PathVariable Long componentId) {
     List<Issue> issues = issueService.findComponentIssues(apiUser.toUser(), componentId);
-    List<Long> componentIds = issues.stream().map(Issue::componentId).toList();
-    List<Long> assigneeIds = issues.stream().map(Issue::assigneeId).toList();
-    List<Long> epicIds = issues.stream().map(Issue::epicId).toList();
-    Map<Long, Component> componentMap = issueService.generateComponentMap(componentIds);
-    Map<Long, Assignee> assigneeMap = issueService.generateAssigneeMap(assigneeIds);
-    Map<Long, Epic> epicMap = issueService.generateEpicMap(epicIds);
+    List<Long> componentIds = issues.stream().map(Issue::componentId).distinct().toList();
+    List<Long> assigneeIds = issues.stream().map(Issue::assigneeId).distinct().toList();
+    List<Long> epicIds = issues.stream().map(Issue::epicId).distinct().toList();
+    Map<Long, Component> componentMap = componentService.mapByIds(componentIds);
+    Map<Long, UserDetail> userMap = userService.mapByIds(assigneeIds);
+    Map<Long, Epic> epicMap = epicService.mapByIds(epicIds);
     List<ComponentIssuesResponse> response =
-        ComponentIssuesResponse.of(issues, componentMap, assigneeMap, epicMap);
+        ComponentIssuesResponse.of(issues, componentMap, userMap, epicMap);
     return ApiResponse.success(response);
   }
 
@@ -205,10 +208,10 @@ public class IssueController {
     List<Issue> issues =
         issueService.findMyIssues(apiUser.toUser(), issueStatus, cursorId, pageSize);
     List<Long> epicIds = issues.stream().map(Issue::epicId).distinct().toList();
-    Map<Long, Epic> epicMap = issueService.generateEpicMap(epicIds);
+    Map<Long, Epic> epicMap = epicService.mapByIds(epicIds);
     List<Long> projectIds =
         epicMap.values().stream().map(Epic::projectId).distinct().toList();
-    Map<Long, Project> projectMap = issueService.generateProjectMap(projectIds);
+    Map<Long, Project> projectMap = projectService.mapByIds(projectIds);
     List<MyIssuesResponse> response = MyIssuesResponse.of(issues, epicMap, projectMap);
     return ApiResponse.success(response);
   }

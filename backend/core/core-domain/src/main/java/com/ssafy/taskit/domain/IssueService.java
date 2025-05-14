@@ -54,10 +54,6 @@ public class IssueService {
     return issueReader.readEpicIssues(user, epicId);
   }
 
-  public Map<Long, Component> generateComponentMap(List<Long> componentIds) {
-    return Map.of();
-  }
-
   public Map<Long, Assignee> generateAssigneeMap(List<Long> assigneeIds) {
     return Map.of();
   }
@@ -106,10 +102,6 @@ public class IssueService {
     return issueReader.readSprintIssues(user, sprintId);
   }
 
-  public Map<Long, Epic> generateEpicMap(List<Long> epicIds) {
-    return Map.of();
-  }
-
   public Issue findIssue(User user, Long issueId) {
     return issueReader.readIssue(user, issueId);
   }
@@ -124,10 +116,6 @@ public class IssueService {
       return issueReader.readMyIssuesFirstPage(user, issueStatus, pageSize);
     }
     return issueReader.readMyIssues(user, issueStatus, cursorId, pageSize);
-  }
-
-  public Map<Long, Project> generateProjectMap(List<Long> projectIds) {
-    return Map.of();
   }
 
   public void deleteIssue(User user, Long issueId) {
