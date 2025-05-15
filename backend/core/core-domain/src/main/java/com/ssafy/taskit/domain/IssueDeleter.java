@@ -25,7 +25,7 @@ public class IssueDeleter {
     issueValidator.isIssueExists(issueId);
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
-    memberValidator.isProjectMember(user, epic.projectId());
+    memberValidator.validateNotMember(user, epic.projectId());
     issueRepository.delete(issueId);
   }
 }

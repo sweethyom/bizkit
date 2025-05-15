@@ -9,5 +9,5 @@ public interface UserRepository {
 
   List<UserDetail> findUserDetailsByIdIn(List<Long> userIds);
 
-  Long findByEmail(String email);
+  User findByEmail(String email);
 }

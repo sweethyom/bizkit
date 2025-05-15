@@ -14,8 +14,8 @@ public class InvitationValidator {
     this.invitationRepository = invitationRepository;
   }
 
-  public void isInvitationExists(Long userId) {
-    if (!invitationRepository.isInvitationExists(userId)) {
+  public void validateInvitationNotExists(Long userId) {
+    if (invitationRepository.isInvitationExists(userId)) {
       throw new CoreException(CoreErrorType.INVITATION_EXISTS);
     }
   }

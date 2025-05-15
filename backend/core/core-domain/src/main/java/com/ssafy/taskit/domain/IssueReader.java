@@ -41,14 +41,14 @@ public class IssueReader {
   public List<Issue> readEpicIssues(User user, Long epicId) {
     epicValidator.isEpicExists(epicId);
     Epic epic = epicRepository.findById(epicId);
-    memberValidator.isProjectMember(user, epic.projectId());
+    memberValidator.validateNotMember(user, epic.projectId());
     return issueRepository.findEpicIssues(epicId);
   }
 
   public List<Issue> readSprintIssues(User user, Long sprintId) {
     sprintValidator.isSprintExists(sprintId);
     Sprint sprint = sprintRepository.findById(sprintId);
-    memberValidator.isProjectMember(user, sprint.projectId());
+    memberValidator.validateNotMember(user, sprint.projectId());
     return issueRepository.findSprintIssues(sprintId);
   }
 
@@ -56,7 +56,7 @@ public class IssueReader {
     issueValidator.isIssueExists(issueId);
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
-    memberValidator.isProjectMember(user, epic.projectId());
+    memberValidator.validateNotMember(user, epic.projectId());
     return issueRepository.findById(issueId);
   }
 
@@ -66,7 +66,7 @@ public class IssueReader {
       Component component = componentRepository
           .findById(componentId)
           .orElseThrow(() -> new CoreException(CoreErrorType.COMPONENT_NOT_FOUND));
-      memberValidator.isProjectMember(user, component.projectId());
+      memberValidator.validateNotMember(user, component.projectId());
     }
     return issueRepository.findComponentIssues(componentId);
   }

@@ -19,7 +19,7 @@ public class EpicDeleter {
   public void deleteEpic(User user, Long epicId) {
     epicValidator.isEpicExists(epicId);
     Epic epic = epicRepository.findById(epicId);
-    memberValidator.isProjectMember(user, epic.projectId());
+    memberValidator.validateNotMember(user, epic.projectId());
     epicRepository.deleteEpic(epicId);
   }
 }

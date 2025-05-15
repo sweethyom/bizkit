@@ -24,7 +24,7 @@ public class SprintReader {
 
   public List<Sprint> findSprints(User user, Long projectId) {
     projectValidator.isProjectExists(projectId);
-    memberValidator.isProjectMember(user, projectId);
+    memberValidator.validateNotMember(user, projectId);
     return sprintRepository.findSprints(projectId);
   }
 

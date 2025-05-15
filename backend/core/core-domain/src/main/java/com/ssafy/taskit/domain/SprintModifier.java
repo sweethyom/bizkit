@@ -29,7 +29,7 @@ public class SprintModifier {
   public void modifySprintName(User user, Long sprintId, ModifySprintName modifySprintName) {
     sprintValidator.isSprintExists(sprintId);
     Sprint sprint = sprintReader.findSprint(sprintId);
-    memberValidator.isProjectMember(user, sprint.projectId());
+    memberValidator.validateNotMember(user, sprint.projectId());
     sprintRepository.modifySprintName(sprintId, modifySprintName);
   }
 
@@ -37,7 +37,7 @@ public class SprintModifier {
       User user, Long sprintId, ModifySprintDueDate modifySprintDueDate) {
     sprintValidator.isSprintExists(sprintId);
     Sprint sprint = sprintReader.findSprint(sprintId);
-    memberValidator.isProjectMember(user, sprint.projectId());
+    memberValidator.validateNotMember(user, sprint.projectId());
     sprintValidator.isOngoingSprint(sprintId);
     if (sprint.dueDate().isBefore(sprint.startDate())) {
       throw new CoreException(CoreErrorType.SPRINT_DUE_DATE_BEFORE_START);

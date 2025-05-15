@@ -30,7 +30,7 @@ public class MemberService {
 
   public List<Member> findMembers(User user, Long projectId) {
     projectValidator.isProjectExists(projectId);
-    memberValidator.isProjectMember(user, projectId);
+    memberValidator.validateNotMember(user, projectId);
     return memberReader.findMembers(projectId);
   }
 
@@ -55,12 +55,12 @@ public class MemberService {
 
   public List<Invitation> findInvitationMembers(User user, Long projectId) {
     projectValidator.isProjectExists(projectId);
-    memberValidator.isProjectMember(user, projectId);
+    memberValidator.validateNotMember(user, projectId);
     return memberReader.findInvitationMembers(projectId);
   }
 
   public void acceptInvitation(User user, String invitationCode) {
-    invitationValidator.isInvitationExists(user.id());
+    invitationValidator.validateInvitationNotExists(user.id());
     invitationValidator.isValidInvitation(invitationCode);
     memberAppender.appendMember(user, invitationCode);
   }

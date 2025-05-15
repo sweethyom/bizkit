@@ -22,7 +22,7 @@ public class SprintAppender {
 
   public Sprint append(User user, Long projectId, NewSprint newSprint) {
     projectValidator.isProjectExists(projectId);
-    memberValidator.isProjectMember(user, projectId);
+    memberValidator.validateNotMember(user, projectId);
     return sprintRepository.save(user, projectId, newSprint);
   }
 }

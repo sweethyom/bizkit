@@ -19,7 +19,13 @@ public class MemberValidator {
     }
   }
 
-  public void isProjectMember(User user, Long projectId) {
+  public void validateNotMember(User user, Long projectId) {
+    if (memberRepository.isMember(user.id(), projectId)) {
+      throw new CoreException(CoreErrorType.ALREADY_MEMBER);
+    }
+  }
+
+  public void validateMember(User user, Long projectId) {
     if (!memberRepository.isMember(user.id(), projectId)) {
       throw new CoreException(CoreErrorType.MEMBER_NOT_FOUND);
     }
@@ -35,9 +41,9 @@ public class MemberValidator {
     return memberRepository.isLeader(user.id(), projectId);
   }
 
-  public void isProjectMember(Long userId, Long projectId) {
-    if (!memberRepository.isMember(userId, projectId)) {
-      throw new CoreException(CoreErrorType.MEMBER_NOT_FOUND);
+  public void validateNotMember(Long userId, Long projectId) {
+    if (memberRepository.isMember(userId, projectId)) {
+      throw new CoreException(CoreErrorType.ALREADY_MEMBER);
     }
   }
 

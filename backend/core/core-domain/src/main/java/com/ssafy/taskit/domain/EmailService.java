@@ -1,5 +1,6 @@
 package com.ssafy.taskit.domain;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,6 +11,7 @@ public class EmailService {
     this.emailSender = emailSender;
   }
 
+  @Async
   public void sendInvitation(String email, String invitationCode) {
     String link = "https://bizkit.co.kr/invitations/" + invitationCode;
     String subject = "프로젝트 초대";

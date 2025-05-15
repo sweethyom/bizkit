@@ -31,14 +31,14 @@ public class MemberAppender {
 
   public Invitation appendInvitation(Long projectId, NewInvitation newInvitation) {
 
-    Long userId = userRepository.findByEmail(newInvitation.email());
-    invitationValidator.isInvitationExists(userId);
-    memberValidator.isProjectMember(userId, projectId);
+    User user = userRepository.findByEmail(newInvitation.email());
+    invitationValidator.validateInvitationNotExists(user.id());
+    memberValidator.validateNotMember(user.id(), projectId);
     memberValidator.isProjectFull(projectId);
 
     String invitationCode = UUID.randomUUID().toString();
     Invitation invitation =
-        invitationRepository.save(userId, newInvitation, projectId, invitationCode);
+        invitationRepository.save(user.id(), newInvitation, projectId, invitationCode);
     emailService.sendInvitation(newInvitation.email(), invitationCode);
     return invitation;
   }

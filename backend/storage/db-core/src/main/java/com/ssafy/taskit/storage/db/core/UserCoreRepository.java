@@ -1,5 +1,6 @@
 package com.ssafy.taskit.storage.db.core;
 
+import com.ssafy.taskit.domain.User;
 import com.ssafy.taskit.domain.UserDetail;
 import com.ssafy.taskit.domain.UserRepository;
 import java.util.List;
@@ -27,7 +28,8 @@ public class UserCoreRepository implements UserRepository {
   }
 
   @Override
-  public Long findByEmail(String email) {
-    return userJpaRepository.findByEmail(email);
+  public User findByEmail(String email) {
+    UserEntity userEntity = userJpaRepository.findByEmail(email);
+    return new User(userEntity.getId());
   }
 }

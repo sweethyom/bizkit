@@ -36,7 +36,7 @@ public class SprintDeleter {
   public void deleteSprint(User user, Long sprintId, IssueHandlingOption option) {
     sprintValidator.isSprintExists(sprintId);
     Sprint sprint = sprintReader.findSprint(sprintId);
-    memberValidator.isProjectMember(user, sprint.projectId());
+    memberValidator.validateNotMember(user, sprint.projectId());
     sprintValidator.isNotOngoingSprint(sprintId);
     List<Issue> issues = issueRepository.findSprintIssues(sprintId);
     handleSprintIssues(user, issues, option);
