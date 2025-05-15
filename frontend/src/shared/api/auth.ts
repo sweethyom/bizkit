@@ -1,16 +1,23 @@
 import { TokenInfo } from '@/shared/model/types';
-import { api } from './instance';
+import axios from 'axios';
 import { ApiResponse } from './types';
+
+const authInstance = axios.create({
+  baseURL: '/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 export const authApi = {
   reissueToken: (refreshToken: string) => {
-    return api.post<ApiResponse<TokenInfo>>('/auth/token/reissue', {
+    return authInstance.post<ApiResponse<TokenInfo>>('/auth/token/reissue', {
       refreshToken,
     });
   },
 
   renewToken: (refreshToken: string) => {
-    return api.post<ApiResponse<TokenInfo>>('/auth/token/renew', {
+    return authInstance.post<ApiResponse<TokenInfo>>('/auth/token/renew', {
       refreshToken,
     });
   },
