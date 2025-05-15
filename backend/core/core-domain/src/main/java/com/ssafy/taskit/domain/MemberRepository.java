@@ -21,4 +21,6 @@ public interface MemberRepository {
   int countMembers(Long projectId);
 
   Member save(Long userId, Long projectId, Role role, LocalDateTime lastAccessedAt);
+
+  Member save(Member leader);
 }

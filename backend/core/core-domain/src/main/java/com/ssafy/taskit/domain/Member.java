@@ -9,4 +9,9 @@ public record Member(
     Long projectId,
     Role memberRole,
     LocalDateTime lastAccessedAt,
-    DefaultDateTime defaultDateTime) {}
+    DefaultDateTime defaultDateTime) {
+
+  public static Member createLeader(User user, Project project) {
+    return new Member(null, user.id(), project.id(), Role.LEADER, null, null);
+  }
+}

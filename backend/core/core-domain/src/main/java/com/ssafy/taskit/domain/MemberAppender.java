@@ -49,4 +49,9 @@ public class MemberAppender {
     invitationRepository.accept(invitationCode);
     memberRepository.save(user.id(), invitation.projectId(), Role.MEMBER, LocalDateTime.now());
   }
+
+  public void appendLeader(User user, Project project) {
+    Member leader = Member.createLeader(user, project);
+    memberRepository.save(leader);
+  }
 }

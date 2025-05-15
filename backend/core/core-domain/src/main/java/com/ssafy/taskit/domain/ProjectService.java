@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProjectService {
@@ -15,8 +16,8 @@ public class ProjectService {
   private final ProjectModifier projectModifier;
   private final ProjectDeleter projectDeleter;
   private final MemberValidator memberValidator;
-  private final ProjectValidator projectValidator;
   private final InvitationValidator invitationValidator;
+  private final MemberAppender memberAppender;
 
   public ProjectService(
       ProjectAppender projectAppender,
@@ -24,20 +25,21 @@ public class ProjectService {
       ProjectModifier projectModifier,
       ProjectDeleter projectDeleter,
       MemberValidator memberValidator,
-      ProjectValidator projectValidator,
-      InvitationValidator invitationValidator) {
+      InvitationValidator invitationValidator,
+      MemberAppender memberAppender) {
     this.projectAppender = projectAppender;
     this.projectReader = projectReader;
     this.projectModifier = projectModifier;
     this.projectDeleter = projectDeleter;
     this.memberValidator = memberValidator;
-    this.projectValidator = projectValidator;
     this.invitationValidator = invitationValidator;
+    this.memberAppender = memberAppender;
   }
 
+  @Transactional
   public Long append(User user, NewProject newProject) {
     Project project = projectAppender.append(user, newProject);
-
+    memberAppender.appendLeader(user, project);
     return project.id();
   }
 

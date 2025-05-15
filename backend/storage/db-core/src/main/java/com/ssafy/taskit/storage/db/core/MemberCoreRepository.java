@@ -79,4 +79,9 @@ public class MemberCoreRepository implements MemberRepository {
         .save(new MemberEntity(userId, projectId, role, lastAccessedAt))
         .toMember();
   }
+
+  @Override
+  public Member save(Member member) {
+    return memberJpaRepository.save(MemberEntity.from(member)).toMember();
+  }
 }

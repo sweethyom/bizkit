@@ -50,4 +50,9 @@ public class MemberEntity extends BaseEntity {
   public void updateLastAccessedAt() {
     this.lastAccessedAt = LocalDateTime.now();
   }
+
+  public static MemberEntity from(Member member) {
+    return new MemberEntity(
+        member.userId(), member.projectId(), member.memberRole(), member.lastAccessedAt());
+  }
 }
