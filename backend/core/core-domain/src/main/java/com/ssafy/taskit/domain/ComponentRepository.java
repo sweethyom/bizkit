@@ -19,7 +19,7 @@ public interface ComponentRepository {
    */
   Optional<Component> findById(Long componentId);
 
-  Optional<Component> deleteComponent(Long componentId);
+  void deleteComponent(Long componentId);
 
   void modifyComponent(Long componentId, ModifyComponent modifyComponent);
 

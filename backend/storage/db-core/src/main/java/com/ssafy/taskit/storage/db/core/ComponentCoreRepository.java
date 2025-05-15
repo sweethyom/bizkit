@@ -59,12 +59,12 @@ public class ComponentCoreRepository implements ComponentRepository {
   }
 
   @Override
-  public Optional<Component> deleteComponent(Long componentId) {
-    return componentJpaRepository
+  public void deleteComponent(Long componentId) {
+    componentJpaRepository
         .findByIdAndEntityStatus(componentId, EntityStatus.ACTIVE)
-        .map(entity -> {
+        .ifPresent(entity -> {
           entity.delete();
-          return entity.toComponent();
+          componentJpaRepository.save(entity);
         });
   }
 
