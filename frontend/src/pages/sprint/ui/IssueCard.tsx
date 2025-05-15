@@ -1,7 +1,6 @@
 import { Draggable } from '@hello-pangea/dnd';
 import { clsx } from 'clsx';
 import { Issue } from '@/pages/sprint/model/types';
-import { ArrowUp, ArrowRight, ArrowDown, Clock } from 'lucide-react';
 
 interface IssueCardProps {
   issue: Issue;
@@ -10,29 +9,21 @@ interface IssueCardProps {
 }
 
 export const IssueCard: React.FC<IssueCardProps> = ({ issue, index, onIssueClick }) => {
-  const priorityIcons = {
-    low: <ArrowDown className='w-3 h-3 text-blue-600' />,
-    medium: <ArrowRight className='w-3 h-3 text-amber-600' />,
-    high: <ArrowUp className='w-3 h-3 text-red-600' />,
-  };
-
-  const priorityColors = {
-    low: 'bg-blue-50 text-blue-700 border-blue-200',
-    medium: 'bg-amber-50 text-amber-700 border-amber-200',
-    high: 'bg-red-50 text-red-700 border-red-200',
-  };
-
-  const priorityLabels = {
-    low: '낮음',
-    medium: '중간',
-    high: '높음',
-  };
-
   const handleClick = () => {
     if (onIssueClick) {
       onIssueClick(issue);
     }
   };
+
+  // 담당자 이니셜
+  const initials = issue.assignee?.charAt(0)?.toUpperCase() || '';
+  
+  // 우선순위 레이블
+  const priorityLabel = {
+    low: '낮음',
+    medium: '중간',
+    high: '높음'
+  }[issue.priority] || '';
 
   return (
     <Draggable draggableId={issue.id} index={index}>
@@ -43,40 +34,41 @@ export const IssueCard: React.FC<IssueCardProps> = ({ issue, index, onIssueClick
           {...provided.dragHandleProps}
           onClick={handleClick}
           className={clsx(
-            'bg-white rounded-lg mb-2 p-3 border border-gray-200 shadow-sm cursor-pointer hover:border-gray-300 hover:shadow transition-all',
-            snapshot.isDragging && 'shadow-md border-blue-300 bg-blue-50',
+            'bg-gray-200 mb-2 cursor-pointer transition-all relative border border-gray-300',
+            snapshot.isDragging && 'bg-gray-300',
           )}
         >
-          <div className='flex items-center justify-between mb-2'>
-            <div className='text-gray-500 text-xs font-medium bg-gray-100 px-2 py-0.5 rounded'>
-              {issue.key}
+          {/* 와이어프레임 스타일이지만 실제 데이터 표시 */}
+          <div>
+            {/* 헤더 영역 - 실제 키 값 */}
+            <div className='p-1 border-b border-gray-300 bg-gray-300'>
+              <div className='text-xs font-medium'>{issue.key}</div>
             </div>
-            <div
-              className={clsx(
-                'flex items-center text-xs px-2 py-0.5 rounded border',
-                priorityColors[issue.priority],
-              )}
-            >
-              {priorityIcons[issue.priority]}
-              <span className='ml-1'>{priorityLabels[issue.priority]}</span>
+            
+            {/* 내용 영역 - 실제 데이터 */}
+            <div className='p-1'>
+              <div className='text-xs truncate'>{issue.title}</div>
+              <div className='text-xs truncate'>{issue.epic}</div>
+              <div className='text-xs truncate'>{issue.component}</div>
+              <div className='text-xs truncate'>{issue.assignee}</div>
             </div>
-          </div>
 
-          <h3 className='font-medium text-gray-800 mb-2 line-clamp-2'>{issue.title}</h3>
-
-          <div className='flex items-center justify-between text-xs text-gray-500 mt-2'>
-            <div className='flex items-center'>
-              <div className='w-5 h-5 bg-gray-300 rounded-full mr-1 flex items-center justify-center text-white font-bold text-xs'>
-                {issue.assignee.charAt(0)}
+            {/* 하단 정보 영역 - 실제 데이터 */}
+            <div className='border-t border-gray-300 p-1 bg-gray-300'>
+              <div className='text-xs flex items-center justify-between'>
+                <span>{issue.storyPoints}점</span>
+                <span>{priorityLabel}</span>
+                <span>{issue.assignee.split(' ')[0]}</span>
               </div>
-              <span>{issue.assignee}</span>
-            </div>
-
-            <div className='flex items-center'>
-              <Clock className='w-3 h-3 mr-1' />
-              <span>{issue.storyPoints} 포인트</span>
             </div>
           </div>
+          
+          {/* 담당자 아바타 */}
+          {initials && (
+            <div className='absolute top-1 right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-xs'>
+              {initials}
+            </div>
+          )}
         </div>
       )}
     </Draggable>

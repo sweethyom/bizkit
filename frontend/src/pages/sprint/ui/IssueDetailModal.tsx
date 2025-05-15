@@ -34,6 +34,25 @@ export const IssueDetailModal: React.FC<IssueDetailModalProps> = ({
     storyPoints: false,
   });
 
+  // ESC 키를 누르면 모달 닫기
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    // 모달이 열려 있을 때만 키보드 이벤트 리스너 추가
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+
+    // 정리 함수
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   useEffect(() => {
     if (isOpen && issue) {
       // 모달이 열리면 이슈의 상세 정보를 가져오기
@@ -146,7 +165,15 @@ export const IssueDetailModal: React.FC<IssueDetailModalProps> = ({
   };
 
   return (
-    <div className='fixed inset-0 bg-black/20 flex items-center justify-center z-50'>
+    <div 
+      className='fixed inset-0 bg-black/20 flex items-center justify-center z-50'
+      onClick={(e) => {
+        // 모달 내부가 아닌 외부 배경을 클릭했을 때만 모달 닫기
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className='bg-white rounded-lg p-6 w-[650px] max-h-[90vh] overflow-y-auto shadow-xl'>
         {/* 상단 헤더 */}
         <div className='flex items-center justify-between mb-4 pb-2 border-b'>

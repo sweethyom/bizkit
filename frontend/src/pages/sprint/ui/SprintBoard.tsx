@@ -110,34 +110,61 @@ export const SprintBoard: React.FC = () => {
     }
   };
 
-  const handleToggleExpand = (statusGroupId: string, componentIdToToggle: string) => {
-    if (!sprintData) return;
-
-    const updatedStatusGroups = sprintData.statusGroups.map((statusGroup) => {
-      if (statusGroup.id === statusGroupId) {
-        const updatedComponentGroups = statusGroup.componentGroups.map((componentGroup) => {
-          if (componentGroup.id === componentIdToToggle) {
-            return {
-              ...componentGroup,
-              isExpanded: !componentGroup.isExpanded,
-            };
-          }
-          return componentGroup; // 다른 컴포넌트 그룹은 그대로 반환
-        });
-
-        return {
-          ...statusGroup,
-          componentGroups: updatedComponentGroups, // 업데이트된 컴포넌트 그룹으로 교체
-        };
-      }
-      return statusGroup; // 다른 상태 그룹은 그대로 반환
+  // 펼쳐진 컴포넌트 그룹 이름 관리
+  const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
+  
+  // 컴포넌트별 이슈 총 개수를 계산하는 함수
+  const getComponentIssueCounts = () => {
+    if (!sprintData) return {};
+    
+    const counts: {[key: string]: number} = {};
+    
+    // 각 컴포넌트별로 해당 컴포넌트 이름을 키로 하는 이슈 개수 계산
+    sprintData.statusGroups.forEach(statusGroup => {
+      statusGroup.componentGroups.forEach(componentGroup => {
+        if (!counts[componentGroup.name]) {
+          counts[componentGroup.name] = 0;
+        }
+        counts[componentGroup.name] = Math.max(counts[componentGroup.name], componentGroup.issues.length);
+      });
     });
+    
+    return counts;
+  };
+  
+  // 각 컴포넌트 이름별 이슈 총 개수
+  const componentIssueCounts = getComponentIssueCounts();
 
-    setSprintData({
-      ...sprintData,
-      statusGroups: updatedStatusGroups,
+  const handleToggleExpand = (componentName: string) => {
+    setExpandedComponents((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(componentName)) {
+        newSet.delete(componentName);
+      } else {
+        newSet.add(componentName);
+      }
+      return newSet;
     });
   };
+
+  // 필터 초기화 시 모든 컴포넌트 그룹도 초기 상태로 돌리기
+  useEffect(() => {
+    if (!activeFilter && sprintData) {
+      // 필터가 없을 때 mock 데이터의 초기 상태로 돌리기
+      // 명시적으로 expanded=true로 설정된 컴포넌트만 확장
+      const initialExpandedComponents = new Set<string>();
+      
+      sprintData.statusGroups.forEach(statusGroup => {
+        statusGroup.componentGroups.forEach(componentGroup => {
+          if (componentGroup.isExpanded) {
+            initialExpandedComponents.add(componentGroup.name);
+          }
+        });
+      });
+      
+      setExpandedComponents(initialExpandedComponents);
+    }
+  }, [activeFilter, sprintData]);
 
   const onDragEnd = async (result: DropResult) => {
     const { source, destination, type } = result;
@@ -280,6 +307,40 @@ export const SprintBoard: React.FC = () => {
     ),
   ).filter(Boolean); // 빈 값 제거
 
+  // 필터링된 이슈 총 개수 계산
+  const getTotalFilteredIssuesCount = () => {
+    if (!sprintData || !activeFilter) return 0;
+    
+    let count = 0;
+    sprintData.statusGroups.forEach(statusGroup => {
+      statusGroup.componentGroups.forEach(componentGroup => {
+        if (activeFilter.startsWith('component-')) {
+          const filterComponent = activeFilter.replace('component-', '');
+          if (componentGroup.name === filterComponent) {
+            count += componentGroup.issues.length;
+          }
+        } else if (activeFilter.startsWith('assignee-')) {
+          const filterAssignee = activeFilter.replace('assignee-', '');
+          count += componentGroup.issues.filter(issue => issue.assignee === filterAssignee).length;
+        }
+      });
+    });
+    
+    return count;
+  };
+  
+  // 필터 이름 추출
+  const getFilterName = () => {
+    if (!activeFilter) return null;
+    
+    if (activeFilter.startsWith('component-')) {
+      return `컴포넌트: ${activeFilter.replace('component-', '')}`;
+    } else if (activeFilter.startsWith('assignee-')) {
+      return `담당자: ${activeFilter.replace('assignee-', '')}`;
+    }
+    return null;
+  };
+
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* 헤더 */}
@@ -287,6 +348,14 @@ export const SprintBoard: React.FC = () => {
         <div className='max-w-7xl mx-auto'>
           <h1 className='text-2xl font-bold text-gray-800'>스프린트 보드</h1>
           <p className='text-gray-500 mt-1'>작업 상태를 한눈에 파악하고 관리하세요</p>
+          {activeFilter && (
+            <div className="mt-2 flex items-center">
+              <span className="text-sm text-gray-600 mr-2">필터링 중:</span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-blue-100 text-blue-800 text-sm font-medium">
+                {getFilterName()} ({getTotalFilteredIssuesCount()}개 이슈)
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -342,19 +411,66 @@ export const SprintBoard: React.FC = () => {
               ))}
             </div>
           </div>
+          
+          {/* 필터 초기화 버튼 */}
+          {activeFilter && (
+            <button
+              className="ml-auto px-3 py-1 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-md flex items-center text-sm font-medium transition-colors"
+              onClick={() => setActiveFilter(null)}
+            >
+              필터 초기화
+              <span className="ml-1">×</span>
+            </button>
+          )}
         </div>
 
         {/* 보드 섹션 */}
         <DragDropContext onDragEnd={onDragEnd}>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-            {sprintData.statusGroups.map((statusGroup) => (
-              <StatusColumn
-                key={statusGroup.id}
-                statusGroup={statusGroup}
-                onToggleExpand={handleToggleExpand}
-                onIssueClick={handleIssueClick}
-              />
-            ))}
+            {sprintData.statusGroups.map((statusGroup) => {
+              // 상태 그룹의 모든 컴포넌트 그룹에 대한 필터링된 사본 생성
+              const filteredComponentGroups = statusGroup.componentGroups.map((componentGroup) => {
+                // 컴포넌트 필터가 활성화된 경우
+                if (activeFilter?.startsWith('component-')) {
+                  const filterComponent = activeFilter.replace('component-', '');
+                  // 컴포넌트 이름이 필터와 일치하지 않으면 빈 이슈 배열 반환
+                  if (componentGroup.name !== filterComponent) {
+                    return { ...componentGroup, issues: [] };
+                  }
+                }
+
+                // 담당자 필터가 활성화된 경우
+                if (activeFilter?.startsWith('assignee-')) {
+                  const filterAssignee = activeFilter.replace('assignee-', '');
+                  // 이슈 중 담당자가 필터와 일치하는 것만 유지
+                  return {
+                    ...componentGroup,
+                    issues: componentGroup.issues.filter((issue) => issue.assignee === filterAssignee),
+                  };
+                }
+
+                // 필터가 없으면 원래 컴포넌트 그룹 반환
+                return componentGroup;
+              });
+
+              // 필터링된 컴포넌트 그룹으로 상태 그룹 복사본 생성
+              const filteredStatusGroup = {
+                ...statusGroup,
+                componentGroups: filteredComponentGroups,
+              };
+
+              return (
+                <StatusColumn
+                  key={statusGroup.id}
+                  statusGroup={filteredStatusGroup}
+                  onToggleExpand={handleToggleExpand}
+                  expandedComponents={expandedComponents}
+                  onIssueClick={handleIssueClick}
+                  filterActive={activeFilter !== null}
+                  componentIssueCounts={componentIssueCounts}
+                />
+              );
+            })}
           </div>
         </DragDropContext>
       </div>

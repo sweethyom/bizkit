@@ -4,8 +4,11 @@ import { ComponentGroup } from '@/pages/sprint/ui/ComponentGroup';
 
 interface StatusColumnProps {
   statusGroup: StatusGroup;
-  onToggleExpand: (statusGroupId: string, componentId: string) => void;
+  onToggleExpand: (componentName: string) => void;
+  expandedComponents: Set<string>;
   onIssueClick?: (issue: Issue) => void;
+  filterActive?: boolean;
+  componentIssueCounts: {[key: string]: number};
 }
 
 const statusColors = {
@@ -23,7 +26,10 @@ const statusHeaderColors = {
 export const StatusColumn: React.FC<StatusColumnProps> = ({
   statusGroup,
   onToggleExpand,
+  expandedComponents,
   onIssueClick,
+  filterActive = false,
+  componentIssueCounts,
 }) => {
   // 해당 상태에 있는 모든 이슈 개수 계산
   const totalIssues = statusGroup.componentGroups.reduce(
@@ -57,15 +63,44 @@ export const StatusColumn: React.FC<StatusColumnProps> = ({
             {...provided.droppableProps}
             className='flex-1 p-2 min-h-[400px] max-h-[calc(100vh-200px)] overflow-y-auto'
           >
-            {statusGroup.componentGroups.map((componentGroup) => (
-              <ComponentGroup
-                key={componentGroup.id}
-                componentGroup={componentGroup}
-                statusId={statusGroup.id}
-                onToggleExpand={() => onToggleExpand(statusGroup.id, componentGroup.id)}
-                onIssueClick={onIssueClick}
-              />
-            ))}
+            {statusGroup.componentGroups.some(group => group.issues.length > 0) ? (
+              // 이슈가 있는 경우 컴포넌트 그룹 표시
+              <>
+                {statusGroup.componentGroups.map((componentGroup) => {
+                  // 필터링 경우에는 비어있는 컴포넌트 그룹은 표시하지 않거나 접힌 상태로 표시
+                  // 필터가 없는 경우에는 모든 컴포넌트 그룹 표시
+                  const noIssuesInComponent = componentGroup.issues.length === 0;
+                  
+                  // 필터가 활성화되었고 해당 컴포넌트에 이슈가 없는 경우 표시하지 않음
+                  if (filterActive && noIssuesInComponent) {
+                    return null;
+                  }
+                  
+                  return (
+                      <ComponentGroup
+                        key={componentGroup.id}
+                        componentGroup={{
+                          ...componentGroup,
+                          isExpanded: expandedComponents.has(componentGroup.name)
+                        }}
+                        statusId={statusGroup.id}
+                        onToggleExpand={() => onToggleExpand(componentGroup.name)}
+                        onIssueClick={onIssueClick}
+                        maxIssueCount={componentIssueCounts[componentGroup.name] || 0}
+                      />
+                  );
+                })}
+              </>
+            ) : (
+              // 필터링 된 결과가 없는 경우 메시지 표시
+              <div className="flex flex-col items-center justify-center h-full text-gray-500 py-8">
+                <svg className="w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                <p className="text-center">필터링된 결과가 없습니다.</p>
+                <p className="text-sm mt-1">필터를 변경하거나 초기화해 보세요.</p>
+              </div>
+            )}
             {provided.placeholder}
           </div>
         )}
