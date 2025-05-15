@@ -68,17 +68,17 @@ const ModifyComponentModal: React.FC<ModifyComponentModalProps> = ({
   return (
     <div
       className={clsx(
-        'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn',
+        'bg-opacity-50 animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black p-4',
       )}
     >
-      <div className={clsx('bg-white rounded-xl shadow-lg p-6 w-full max-w-md animate-scaleIn')}>
-        <div className={clsx('flex justify-between items-center mb-4')}>
+      <div className={clsx('animate-scaleIn w-full max-w-md rounded-xl bg-white p-6 shadow-lg')}>
+        <div className={clsx('mb-4 flex items-center justify-between')}>
           <h3 className={clsx('text-xl font-semibold text-gray-900')}>컴포넌트 수정</h3>
           <button
             type='button'
             onClick={onClose}
             className={clsx(
-              'text-gray-400 hover:text-gray-500 focus:outline-none transition-colors',
+              'text-gray-400 transition-colors hover:text-gray-500 focus:outline-none',
             )}
           >
             <X className={clsx('h-6 w-6')} />
@@ -88,17 +88,17 @@ const ModifyComponentModal: React.FC<ModifyComponentModalProps> = ({
         {error && (
           <div
             className={clsx(
-              'mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-md flex items-start',
+              'mb-4 flex items-start rounded-md border-l-4 border-red-500 bg-red-50 p-3 text-red-700',
             )}
           >
-            <AlertCircle size={20} className={clsx('mr-2 flex-shrink-0 mt-0.5')} />
+            <AlertCircle size={20} className={clsx('mt-0.5 mr-2 flex-shrink-0')} />
             <p>{error}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className={clsx('space-y-4')}>
           <div>
-            <label htmlFor='name' className={clsx('block text-sm font-medium text-gray-700 mb-1')}>
+            <label htmlFor='name' className={clsx('mb-1 block text-sm font-medium text-gray-700')}>
               이름 <span className={clsx('text-red-500')}>*</span>
             </label>
             <input
@@ -107,7 +107,7 @@ const ModifyComponentModal: React.FC<ModifyComponentModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               className={clsx(
-                'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors',
+                'w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition-colors focus:border-indigo-500 focus:ring-indigo-500',
               )}
               placeholder='컴포넌트 이름'
               disabled={isLoading}
@@ -117,7 +117,7 @@ const ModifyComponentModal: React.FC<ModifyComponentModalProps> = ({
           <div>
             <label
               htmlFor='description'
-              className={clsx('block text-sm font-medium text-gray-700 mb-1')}
+              className={clsx('mb-1 block text-sm font-medium text-gray-700')}
             >
               설명
             </label>
@@ -127,19 +127,19 @@ const ModifyComponentModal: React.FC<ModifyComponentModalProps> = ({
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               className={clsx(
-                'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 resize-none transition-colors',
+                'w-full resize-none rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition-colors focus:border-indigo-500 focus:ring-indigo-500',
               )}
               placeholder='컴포넌트 설명 (선택사항)'
               disabled={isLoading}
             />
           </div>
 
-          <div className={clsx('flex justify-end space-x-3 pt-4 border-t border-gray-200')}>
+          <div className={clsx('flex justify-end space-x-3 border-t border-gray-200 pt-4')}>
             <button
               type='button'
               onClick={onClose}
               className={clsx(
-                'px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors',
+                'rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none',
               )}
               disabled={isLoading}
             >
@@ -148,10 +148,10 @@ const ModifyComponentModal: React.FC<ModifyComponentModalProps> = ({
             <button
               type='submit'
               className={clsx(
-                'flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50',
+                'flex items-center rounded-lg border border-transparent px-4 py-2 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50',
                 {
                   'bg-indigo-600 hover:bg-indigo-700': isDirty,
-                  'bg-gray-400 cursor-not-allowed': !isDirty,
+                  'cursor-not-allowed bg-gray-400': !isDirty,
                 },
               )}
               disabled={isLoading || !isDirty}
@@ -160,7 +160,7 @@ const ModifyComponentModal: React.FC<ModifyComponentModalProps> = ({
                 <>
                   <div
                     className={clsx(
-                      'w-4 h-4 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2',
+                      'mr-2 h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-white',
                     )}
                   ></div>
                   저장 중...

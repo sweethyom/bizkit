@@ -22,7 +22,7 @@ const ComponentSettingPage: React.FC = () => {
   const [showModifyModal, setShowModifyModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [componentName, setComponentName] = useState('');
-  const [componentDescription, setComponentDescription] = useState('');
+  const [componentContent, setComponentContent] = useState('');
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +57,7 @@ const ComponentSettingPage: React.FC = () => {
       const filtered = components.filter(
         (comp) =>
           comp.name.toLowerCase().includes(query) ||
-          (comp.description && comp.description.toLowerCase().includes(query)),
+          (comp.content && comp.content.toLowerCase().includes(query)),
       );
       setFilteredComponents(filtered);
     }
@@ -72,14 +72,14 @@ const ComponentSettingPage: React.FC = () => {
       const newComponent = await addComponent(projectId, {
         id: '',
         name: componentName.trim(),
-        description: componentDescription.trim() || undefined,
+        content: componentContent.trim() || undefined,
       });
 
       setComponents([...components, newComponent]);
       setFilteredComponents([...components, newComponent]);
       setSuccess('컴포넌트가 성공적으로 추가되었습니다.');
       setComponentName('');
-      setComponentDescription('');
+      setComponentContent('');
       setShowAddModal(false);
 
       // 3초 후 성공 메시지 제거
@@ -102,7 +102,7 @@ const ComponentSettingPage: React.FC = () => {
       const updatedComponent = await updateComponent(projectId, {
         ...selectedComponent,
         name: componentName.trim(),
-        description: componentDescription.trim() || undefined,
+        content: componentContent.trim() || undefined,
       });
 
       const updatedComponents = components.map((comp) =>
@@ -136,7 +136,7 @@ const ComponentSettingPage: React.FC = () => {
     setError(null);
 
     try {
-      const success = await deleteComponent(projectId, selectedComponent.id);
+      const success = await deleteComponent(projectId, parseInt(selectedComponent.id));
       if (success) {
         const updatedComponents = components.filter((comp) => comp.id !== selectedComponent.id);
         setComponents(updatedComponents);
@@ -158,22 +158,22 @@ const ComponentSettingPage: React.FC = () => {
   const openModifyModal = (component: Component) => {
     setSelectedComponent(component);
     setComponentName(component.name);
-    setComponentDescription(component.description || '');
+    setComponentContent(component.content || '');
     setShowModifyModal(true);
   };
 
   const resetForm = () => {
     setComponentName('');
-    setComponentDescription('');
+    setComponentContent('');
     setSelectedComponent(null);
     setError(null);
   };
 
   return (
     <div className='min-h-screen bg-gray-50 p-8'>
-      <div className='max-w-6xl mx-auto'>
-        <div className='flex justify-between items-center'>
-          <h1 className='text-3xl font-bold text-gray-800 flex items-center'>
+      <div className='mx-auto max-w-6xl'>
+        <div className='flex items-center justify-between'>
+          <h1 className='flex items-center text-3xl font-bold text-gray-800'>
             <Puzzle className='mr-3' size={28} />
             컴포넌트 관리
           </h1>
@@ -184,7 +184,7 @@ const ComponentSettingPage: React.FC = () => {
               resetForm();
               setShowAddModal(true);
             }}
-            className='flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors'
+            className='flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none'
           >
             <Plus size={18} className='mr-2' />
             컴포넌트 추가
@@ -193,8 +193,8 @@ const ComponentSettingPage: React.FC = () => {
 
         {/* 에러 및 성공 메시지 */}
         {error && (
-          <div className='mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-md flex items-start'>
-            <AlertCircle size={20} className='mr-2 flex-shrink-0 mt-0.5' />
+          <div className='mt-4 flex items-start rounded-md border-l-4 border-red-500 bg-red-50 p-4 text-red-700'>
+            <AlertCircle size={20} className='mt-0.5 mr-2 flex-shrink-0' />
             <p>{error}</p>
             <button
               onClick={() => setError(null)}
@@ -209,7 +209,7 @@ const ComponentSettingPage: React.FC = () => {
         {success && (
           <div
             className={clsx(
-              'mt-4 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-md flex items-start animate-fadeIn',
+              'animate-fadeIn mt-4 flex items-start rounded-md border-l-4 border-green-500 bg-green-50 p-4 text-green-700',
             )}
           >
             <CheckCircle size={20} className={clsx('mr-2 flex-shrink-0')} />
@@ -218,13 +218,13 @@ const ComponentSettingPage: React.FC = () => {
         )}
 
         <div className={clsx('mt-6')}>
-          <div className={clsx('bg-white rounded-xl shadow-sm overflow-hidden')}>
+          <div className={clsx('overflow-hidden rounded-xl bg-white shadow-sm')}>
             {/* 검색 및 필터링 */}
-            <div className={clsx('p-4 bg-gray-50 border-b border-gray-200')}>
-              <div className={clsx('flex items-center relative')}>
+            <div className={clsx('border-b border-gray-200 bg-gray-50 p-4')}>
+              <div className={clsx('relative flex items-center')}>
                 <div
                   className={clsx(
-                    'absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none',
+                    'pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3',
                   )}
                 >
                   <Search size={18} className={clsx('text-gray-400')} />
@@ -235,7 +235,7 @@ const ComponentSettingPage: React.FC = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder='컴포넌트 이름이나 설명으로 검색'
                   className={clsx(
-                    'pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full sm:max-w-xs focus:ring-indigo-500 focus:border-indigo-500',
+                    'w-full rounded-lg border border-gray-300 py-2 pr-4 pl-10 focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-xs',
                   )}
                 />
               </div>
@@ -244,10 +244,10 @@ const ComponentSettingPage: React.FC = () => {
             {/* 컴포넌트 목록 테이블 */}
             <div className={clsx('overflow-x-auto')}>
               {isLoading ? (
-                <div className={clsx('flex justify-center items-center py-20')}>
+                <div className={clsx('flex items-center justify-center py-20')}>
                   <div
                     className={clsx(
-                      'w-10 h-10 border-t-2 border-b-2 border-indigo-500 rounded-full animate-spin',
+                      'h-10 w-10 animate-spin rounded-full border-t-2 border-b-2 border-indigo-500',
                     )}
                   ></div>
                   <span className={clsx('ml-3 text-gray-500')}>컴포넌트 정보를 불러오는 중...</span>
@@ -259,7 +259,7 @@ const ComponentSettingPage: React.FC = () => {
                       <th
                         scope='col'
                         className={clsx(
-                          'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider',
+                          'px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase',
                         )}
                       >
                         이름
@@ -267,7 +267,7 @@ const ComponentSettingPage: React.FC = () => {
                       <th
                         scope='col'
                         className={clsx(
-                          'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider',
+                          'px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase',
                         )}
                       >
                         설명
@@ -275,21 +275,21 @@ const ComponentSettingPage: React.FC = () => {
                       <th
                         scope='col'
                         className={clsx(
-                          'px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider',
+                          'px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase',
                         )}
                       >
                         작업
                       </th>
                     </tr>
                   </thead>
-                  <tbody className={clsx('bg-white divide-y divide-gray-200')}>
+                  <tbody className={clsx('divide-y divide-gray-200 bg-white')}>
                     {filteredComponents.map((component) => (
-                      <tr key={component.id} className={clsx('hover:bg-gray-50 transition-colors')}>
+                      <tr key={component.id} className={clsx('transition-colors hover:bg-gray-50')}>
                         <td className={clsx('px-6 py-4 whitespace-nowrap')}>
                           <div className={clsx('flex items-center')}>
                             <div
                               className={clsx(
-                                'flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600',
+                                'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600',
                               )}
                             >
                               <Puzzle size={20} />
@@ -302,22 +302,22 @@ const ComponentSettingPage: React.FC = () => {
                           </div>
                         </td>
                         <td className={clsx('px-6 py-4')}>
-                          <div className={clsx('text-sm text-gray-500 max-w-md break-words')}>
-                            {component.description || (
+                          <div className={clsx('max-w-md text-sm break-words text-gray-500')}>
+                            {component.content || (
                               <span className={clsx('text-gray-400 italic')}>설명 없음</span>
                             )}
                           </div>
                         </td>
                         <td
                           className={clsx(
-                            'px-6 py-4 whitespace-nowrap text-right text-sm font-medium',
+                            'px-6 py-4 text-right text-sm font-medium whitespace-nowrap',
                           )}
                         >
                           <div className={clsx('flex items-center justify-end space-x-3')}>
                             <button
                               onClick={() => openModifyModal(component)}
                               className={clsx(
-                                'flex items-center text-indigo-600 hover:text-indigo-900 transition-colors',
+                                'flex items-center text-indigo-600 transition-colors hover:text-indigo-900',
                               )}
                             >
                               <Edit size={16} className={clsx('mr-1')} />
@@ -327,15 +327,15 @@ const ComponentSettingPage: React.FC = () => {
                               onClick={() => handleDeleteClick(component)}
                               disabled={isDeleting === component.id}
                               className={clsx(
-                                'flex items-center text-red-600 hover:text-red-800 transition-colors',
-                                isDeleting === component.id && 'opacity-50 cursor-not-allowed',
+                                'flex items-center text-red-600 transition-colors hover:text-red-800',
+                                isDeleting === component.id && 'cursor-not-allowed opacity-50',
                               )}
                             >
                               {isDeleting === component.id ? (
                                 <>
                                   <div
                                     className={clsx(
-                                      'w-4 h-4 border-t-2 border-b-2 border-red-600 rounded-full animate-spin mr-1',
+                                      'mr-1 h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-red-600',
                                     )}
                                   ></div>
                                   삭제 중...
@@ -354,7 +354,7 @@ const ComponentSettingPage: React.FC = () => {
                   </tbody>
                 </table>
               ) : (
-                <div className={clsx('text-center py-20')}>
+                <div className={clsx('py-20 text-center')}>
                   <Puzzle className={clsx('mx-auto h-12 w-12 text-gray-300')} />
                   <h3 className={clsx('mt-2 text-sm font-medium text-gray-900')}>
                     {searchQuery ? '검색 결과가 없습니다' : '컴포넌트가 없습니다'}
@@ -368,7 +368,7 @@ const ComponentSettingPage: React.FC = () => {
                         type='button'
                         onClick={() => setSearchQuery('')}
                         className={clsx(
-                          'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500',
+                          'inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none',
                         )}
                       >
                         검색 초기화
@@ -383,10 +383,10 @@ const ComponentSettingPage: React.FC = () => {
                           setShowAddModal(true);
                         }}
                         className={clsx(
-                          'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500',
+                          'inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none',
                         )}
                       >
-                        <Plus className={clsx('-ml-1 mr-2 h-5 w-5')} aria-hidden='true' />
+                        <Plus className={clsx('mr-2 -ml-1 h-5 w-5')} aria-hidden='true' />
                         컴포넌트 추가하기
                       </button>
                     </div>
@@ -402,14 +402,14 @@ const ComponentSettingPage: React.FC = () => {
       {showAddModal && (
         <div
           className={clsx(
-            'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn',
+            'bg-opacity-50 animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black p-4',
           )}
         >
           <div
-            className={clsx('bg-white rounded-xl p-6 w-full max-w-md shadow-lg animate-scaleIn')}
+            className={clsx('animate-scaleIn w-full max-w-md rounded-xl bg-white p-6 shadow-lg')}
           >
-            <div className={clsx('flex justify-between items-center mb-4')}>
-              <h3 className={clsx('text-xl font-bold text-gray-900 flex items-center')}>
+            <div className={clsx('mb-4 flex items-center justify-between')}>
+              <h3 className={clsx('flex items-center text-xl font-bold text-gray-900')}>
                 <Plus size={20} className={clsx('mr-2 text-indigo-600')} />
                 컴포넌트 추가
               </h3>
@@ -419,7 +419,7 @@ const ComponentSettingPage: React.FC = () => {
                   setShowAddModal(false);
                   resetForm();
                 }}
-                className={clsx('text-gray-400 hover:text-gray-500 transition-colors')}
+                className={clsx('text-gray-400 transition-colors hover:text-gray-500')}
               >
                 <X size={20} />
               </button>
@@ -428,7 +428,7 @@ const ComponentSettingPage: React.FC = () => {
             {error && (
               <div
                 className={clsx(
-                  'mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-md flex items-start',
+                  'mb-4 flex items-start rounded-md border-l-4 border-red-500 bg-red-50 p-3 text-red-700',
                 )}
               >
                 <AlertCircle size={20} className={clsx('mr-2 flex-shrink-0')} />
@@ -440,7 +440,7 @@ const ComponentSettingPage: React.FC = () => {
               <div>
                 <label
                   htmlFor='componentName'
-                  className={clsx('block text-sm font-medium text-gray-700 mb-1')}
+                  className={clsx('mb-1 block text-sm font-medium text-gray-700')}
                 >
                   이름 <span className={clsx('text-red-500')}>*</span>
                 </label>
@@ -450,7 +450,7 @@ const ComponentSettingPage: React.FC = () => {
                   value={componentName}
                   onChange={(e) => setComponentName(e.target.value)}
                   className={clsx(
-                    'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors',
+                    'w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition-colors focus:border-indigo-500 focus:ring-indigo-500',
                   )}
                   placeholder='컴포넌트 이름 (예: 프론트엔드, 백엔드)'
                   disabled={isAdding}
@@ -459,18 +459,18 @@ const ComponentSettingPage: React.FC = () => {
 
               <div>
                 <label
-                  htmlFor='componentDescription'
-                  className={clsx('block text-sm font-medium text-gray-700 mb-1')}
+                  htmlFor='componentContent'
+                  className={clsx('mb-1 block text-sm font-medium text-gray-700')}
                 >
                   설명
                 </label>
                 <textarea
-                  id='componentDescription'
-                  value={componentDescription}
-                  onChange={(e) => setComponentDescription(e.target.value)}
+                  id='componentContent'
+                  value={componentContent}
+                  onChange={(e) => setComponentContent(e.target.value)}
                   rows={3}
                   className={clsx(
-                    'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 resize-none transition-colors',
+                    'w-full resize-none rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition-colors focus:border-indigo-500 focus:ring-indigo-500',
                   )}
                   placeholder='컴포넌트 설명 (선택사항)'
                   disabled={isAdding}
@@ -478,7 +478,7 @@ const ComponentSettingPage: React.FC = () => {
               </div>
             </div>
 
-            <div className={clsx('mt-6 flex justify-end space-x-3 pt-4 border-t border-gray-200')}>
+            <div className={clsx('mt-6 flex justify-end space-x-3 border-t border-gray-200 pt-4')}>
               <button
                 type='button'
                 onClick={() => {
@@ -486,7 +486,7 @@ const ComponentSettingPage: React.FC = () => {
                   resetForm();
                 }}
                 className={clsx(
-                  'px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors',
+                  'rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50',
                 )}
                 disabled={isAdding}
               >
@@ -497,14 +497,14 @@ const ComponentSettingPage: React.FC = () => {
                 onClick={handleAddComponent}
                 disabled={isAdding || !componentName.trim()}
                 className={clsx(
-                  'flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 focus:outline-none disabled:opacity-50 transition-colors',
+                  'flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 focus:outline-none disabled:opacity-50',
                 )}
               >
                 {isAdding ? (
                   <>
                     <div
                       className={clsx(
-                        'w-4 h-4 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2',
+                        'mr-2 h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-white',
                       )}
                     ></div>
                     추가 중...
@@ -525,14 +525,14 @@ const ComponentSettingPage: React.FC = () => {
       {showModifyModal && selectedComponent && (
         <div
           className={clsx(
-            'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn',
+            'bg-opacity-50 animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black p-4',
           )}
         >
           <div
-            className={clsx('bg-white rounded-xl p-6 w-full max-w-md shadow-lg animate-scaleIn')}
+            className={clsx('animate-scaleIn w-full max-w-md rounded-xl bg-white p-6 shadow-lg')}
           >
-            <div className={clsx('flex justify-between items-center mb-4')}>
-              <h3 className={clsx('text-xl font-bold text-gray-900 flex items-center')}>
+            <div className={clsx('mb-4 flex items-center justify-between')}>
+              <h3 className={clsx('flex items-center text-xl font-bold text-gray-900')}>
                 <Edit size={20} className={clsx('mr-2 text-indigo-600')} />
                 컴포넌트 수정
               </h3>
@@ -542,7 +542,7 @@ const ComponentSettingPage: React.FC = () => {
                   setShowModifyModal(false);
                   resetForm();
                 }}
-                className={clsx('text-gray-400 hover:text-gray-500 transition-colors')}
+                className={clsx('text-gray-400 transition-colors hover:text-gray-500')}
               >
                 <X size={20} />
               </button>
@@ -551,7 +551,7 @@ const ComponentSettingPage: React.FC = () => {
             {error && (
               <div
                 className={clsx(
-                  'mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-md flex items-start',
+                  'mb-4 flex items-start rounded-md border-l-4 border-red-500 bg-red-50 p-3 text-red-700',
                 )}
               >
                 <AlertCircle size={20} className={clsx('mr-2 flex-shrink-0')} />
@@ -563,7 +563,7 @@ const ComponentSettingPage: React.FC = () => {
               <div>
                 <label
                   htmlFor='componentName'
-                  className={clsx('block text-sm font-medium text-gray-700 mb-1')}
+                  className={clsx('mb-1 block text-sm font-medium text-gray-700')}
                 >
                   이름 <span className={clsx('text-red-500')}>*</span>
                 </label>
@@ -573,7 +573,7 @@ const ComponentSettingPage: React.FC = () => {
                   value={componentName}
                   onChange={(e) => setComponentName(e.target.value)}
                   className={clsx(
-                    'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors',
+                    'w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition-colors focus:border-indigo-500 focus:ring-indigo-500',
                   )}
                   placeholder='컴포넌트 이름'
                   disabled={isAdding}
@@ -582,18 +582,18 @@ const ComponentSettingPage: React.FC = () => {
 
               <div>
                 <label
-                  htmlFor='componentDescription'
-                  className={clsx('block text-sm font-medium text-gray-700 mb-1')}
+                  htmlFor='componentContent'
+                  className={clsx('mb-1 block text-sm font-medium text-gray-700')}
                 >
                   설명
                 </label>
                 <textarea
-                  id='componentDescription'
-                  value={componentDescription}
-                  onChange={(e) => setComponentDescription(e.target.value)}
+                  id='componentContent'
+                  value={componentContent}
+                  onChange={(e) => setComponentContent(e.target.value)}
                   rows={3}
                   className={clsx(
-                    'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 resize-none transition-colors',
+                    'w-full resize-none rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition-colors focus:border-indigo-500 focus:ring-indigo-500',
                   )}
                   placeholder='컴포넌트 설명 (선택사항)'
                   disabled={isAdding}
@@ -601,7 +601,7 @@ const ComponentSettingPage: React.FC = () => {
               </div>
             </div>
 
-            <div className={clsx('mt-6 flex justify-end space-x-3 pt-4 border-t border-gray-200')}>
+            <div className={clsx('mt-6 flex justify-end space-x-3 border-t border-gray-200 pt-4')}>
               <button
                 type='button'
                 onClick={() => {
@@ -609,7 +609,7 @@ const ComponentSettingPage: React.FC = () => {
                   resetForm();
                 }}
                 className={clsx(
-                  'px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors',
+                  'rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50',
                 )}
                 disabled={isAdding}
               >
@@ -622,17 +622,17 @@ const ComponentSettingPage: React.FC = () => {
                   isAdding ||
                   !componentName.trim() ||
                   (componentName === selectedComponent.name &&
-                    componentDescription === (selectedComponent.description || ''))
+                    componentContent === (selectedComponent.content || ''))
                 }
                 className={clsx(
-                  'flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 focus:outline-none disabled:opacity-50 transition-colors',
+                  'flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 focus:outline-none disabled:opacity-50',
                 )}
               >
                 {isAdding ? (
                   <>
                     <div
                       className={clsx(
-                        'w-4 h-4 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2',
+                        'mr-2 h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-white',
                       )}
                     ></div>
                     저장 중...
@@ -653,13 +653,13 @@ const ComponentSettingPage: React.FC = () => {
       {showDeleteModal && selectedComponent && (
         <div
           className={clsx(
-            'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn',
+            'bg-opacity-50 animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black p-4',
           )}
         >
           <div
-            className={clsx('bg-white rounded-xl p-6 w-full max-w-md shadow-lg animate-scaleIn')}
+            className={clsx('animate-scaleIn w-full max-w-md rounded-xl bg-white p-6 shadow-lg')}
           >
-            <div className={clsx('flex justify-between items-center mb-3')}>
+            <div className={clsx('mb-3 flex items-center justify-between')}>
               <h3 className={clsx('text-xl font-bold text-gray-900')}>컴포넌트 삭제</h3>
               <button
                 type='button'
@@ -667,15 +667,15 @@ const ComponentSettingPage: React.FC = () => {
                   setShowDeleteModal(false);
                   setSelectedComponent(null);
                 }}
-                className={clsx('text-gray-400 hover:text-gray-500 transition-colors')}
+                className={clsx('text-gray-400 transition-colors hover:text-gray-500')}
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className={clsx('mb-6 bg-red-50 p-4 rounded-md border-l-4 border-red-500')}>
+            <div className={clsx('mb-6 rounded-md border-l-4 border-red-500 bg-red-50 p-4')}>
               <div className={clsx('flex')}>
-                <AlertCircle className={clsx('h-5 w-5 text-red-400 flex-shrink-0')} />
+                <AlertCircle className={clsx('h-5 w-5 flex-shrink-0 text-red-400')} />
                 <div className={clsx('ml-3')}>
                   <p className={clsx('text-sm text-red-800')}>
                     <strong>{selectedComponent.name}</strong> 컴포넌트를 삭제하시겠습니까? 이 작업은
@@ -685,7 +685,7 @@ const ComponentSettingPage: React.FC = () => {
               </div>
             </div>
 
-            <div className={clsx('flex space-x-3 justify-end border-t border-gray-200 pt-4')}>
+            <div className={clsx('flex justify-end space-x-3 border-t border-gray-200 pt-4')}>
               <button
                 type='button'
                 onClick={() => {
@@ -693,7 +693,7 @@ const ComponentSettingPage: React.FC = () => {
                   setSelectedComponent(null);
                 }}
                 className={clsx(
-                  'px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors',
+                  'rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50',
                 )}
               >
                 취소
@@ -703,14 +703,14 @@ const ComponentSettingPage: React.FC = () => {
                 onClick={handleDeleteComponent}
                 disabled={isDeleting === selectedComponent.id}
                 className={clsx(
-                  'flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-70',
+                  'flex items-center rounded-lg border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-70',
                 )}
               >
                 {isDeleting === selectedComponent.id ? (
                   <>
                     <div
                       className={clsx(
-                        'w-4 h-4 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2',
+                        'mr-2 h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-white',
                       )}
                     ></div>
                     삭제 중...

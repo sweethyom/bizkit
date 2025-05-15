@@ -56,12 +56,12 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ projectId, onClose, onI
   return (
     <div
       className={clsx(
-        'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn',
+        'bg-opacity-50 animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black p-4',
       )}
     >
-      <div className={clsx('bg-white rounded-xl shadow-lg p-6 w-full max-w-md animate-scaleIn')}>
-        <div className={clsx('flex justify-between items-center mb-4')}>
-          <h3 className={clsx('text-xl font-semibold text-gray-900 flex items-center')}>
+      <div className={clsx('animate-scaleIn w-full max-w-md rounded-xl bg-white p-6 shadow-lg')}>
+        <div className={clsx('mb-4 flex items-center justify-between')}>
+          <h3 className={clsx('flex items-center text-xl font-semibold text-gray-900')}>
             <UserPlus size={20} className={clsx('mr-2 text-indigo-600')} />
             팀원 초대
           </h3>
@@ -69,7 +69,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ projectId, onClose, onI
             type='button'
             onClick={onClose}
             className={clsx(
-              'text-gray-400 hover:text-gray-500 focus:outline-none transition-colors',
+              'text-gray-400 transition-colors hover:text-gray-500 focus:outline-none',
             )}
           >
             <X size={20} />
@@ -79,7 +79,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ projectId, onClose, onI
         {error && (
           <div
             className={clsx(
-              'mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-md flex items-start',
+              'mb-4 flex items-start rounded-md border-l-4 border-red-500 bg-red-50 p-3 text-red-700',
             )}
           >
             <AlertCircle size={20} className={clsx('mr-2 flex-shrink-0')} />
@@ -89,13 +89,13 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ projectId, onClose, onI
 
         <form onSubmit={handleSubmit} className={clsx('space-y-4')}>
           <div>
-            <label htmlFor='email' className={clsx('block text-sm font-medium text-gray-700 mb-1')}>
+            <label htmlFor='email' className={clsx('mb-1 block text-sm font-medium text-gray-700')}>
               이메일 <span className={clsx('text-red-500')}>*</span>
             </label>
             <div className={clsx('relative')}>
               <div
                 className={clsx(
-                  'absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none',
+                  'pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3',
                 )}
               >
                 <Mail size={18} className={clsx('text-gray-400')} />
@@ -106,7 +106,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ projectId, onClose, onI
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className={clsx(
-                  'w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors',
+                  'w-full rounded-lg border border-gray-300 py-2 pr-4 pl-10 shadow-sm transition-colors focus:border-indigo-500 focus:ring-indigo-500',
                 )}
                 placeholder='초대할 이메일 주소'
                 disabled={isLoading}
@@ -117,12 +117,12 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ projectId, onClose, onI
             </p>
           </div>
 
-          <div className={clsx('flex justify-end space-x-3 pt-4 border-t border-gray-200 mt-4')}>
+          <div className={clsx('mt-4 flex justify-end space-x-3 border-t border-gray-200 pt-4')}>
             <button
               type='button'
               onClick={onClose}
               className={clsx(
-                'px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors',
+                'rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none',
               )}
               disabled={isLoading}
             >
@@ -131,7 +131,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ projectId, onClose, onI
             <button
               type='submit'
               className={clsx(
-                'flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors',
+                'flex items-center rounded-lg border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50',
               )}
               disabled={isLoading}
             >
@@ -139,7 +139,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({ projectId, onClose, onI
                 <>
                   <div
                     className={clsx(
-                      'w-4 h-4 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2',
+                      'mr-2 h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-white',
                     )}
                   ></div>
                   초대 중...
