@@ -29,7 +29,7 @@ public class IssueAppender {
   public Issue append(User user, Long epicId, NewIssue newIssue) {
     epicValidator.isEpicExists(epicId);
     Epic epic = epicRepository.findById(epicId);
-    memberValidator.validateNotMember(user, epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
     String key = keyGenerator.generateKey(epic.projectId());
     return issueRepository.save(epicId, newIssue, key);
   }

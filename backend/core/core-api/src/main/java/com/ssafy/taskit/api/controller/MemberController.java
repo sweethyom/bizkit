@@ -10,7 +10,6 @@ public class MemberController {
 
   private final MemberService memberService;
   private final UserService userService;
-
   private final IssueService issueService;
 
   public MemberController(

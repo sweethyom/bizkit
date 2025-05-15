@@ -52,7 +52,7 @@ public class ProjectCoreRepository implements ProjectRepository {
   public ProjectDetail findProject(User user, Long id, boolean isLeader) {
     ProjectEntity projectEntity = projectJpaRepository
         .findById(id)
-        .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
+        .orElseThrow(() -> new CoreException(CoreErrorType.PROJECT_NOT_EXIST));
     return projectEntity.toProjectDetail(isLeader);
   }
 
@@ -95,14 +95,12 @@ public class ProjectCoreRepository implements ProjectRepository {
 
   @Transactional
   @Override
-  public Long deleteProject(Long projectId) {
+  public void deleteProject(Long projectId) {
     Optional<ProjectEntity> optionalEntity = projectJpaRepository.findById(projectId);
     if (optionalEntity.isEmpty()) {
-      return -1L;
+      throw new CoreException(CoreErrorType.PROJECT_NOT_EXIST);
     }
-
     ProjectEntity projectEntity = optionalEntity.get();
     projectEntity.delete();
-    return projectEntity.getId();
   }
 }

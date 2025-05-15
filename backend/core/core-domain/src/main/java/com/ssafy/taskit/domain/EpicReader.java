@@ -24,14 +24,14 @@ public class EpicReader {
 
   public List<Epic> readEpics(User user, Long projectId) {
     projectValidator.isProjectExists(projectId);
-    memberValidator.validateNotMember(user, projectId);
+    memberValidator.validateMember(user, projectId);
     return epicRepository.findEpics(projectId);
   }
 
   public Epic readEpic(User user, Long epicId) {
     epicValidator.isEpicExists(epicId);
     Epic epic = epicRepository.findById(epicId);
-    memberValidator.validateNotMember(user, epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
     return epicRepository.findById(epicId);
   }
 

@@ -19,7 +19,7 @@ public class EpicModifier {
   public void modifyEpic(User user, Long epicId, ModifyEpic modifyEpic) {
     epicValidator.isEpicExists(epicId);
     Epic epic = epicRepository.findById(epicId);
-    memberValidator.validateNotMember(user, epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
     epicRepository.modifyEpic(epicId, modifyEpic);
   }
 }

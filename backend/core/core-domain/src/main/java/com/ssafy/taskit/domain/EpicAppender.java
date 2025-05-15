@@ -25,7 +25,7 @@ public class EpicAppender {
   @Transactional
   public Epic append(User user, Long projectId, NewEpic newEpic) {
     projectValidator.isProjectExists(projectId);
-    memberValidator.validateNotMember(user, projectId);
+    memberValidator.validateMember(user, projectId);
     String key = keyGenerator.generateKey(projectId);
     return epicRepository.save(projectId, newEpic, key);
   }

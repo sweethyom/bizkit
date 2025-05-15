@@ -33,7 +33,7 @@ public class MemberAppender {
 
     User user = userRepository.findByEmail(newInvitation.email());
     invitationValidator.validateInvitationNotExists(user.id());
-    memberValidator.validateNotMember(user.id(), projectId);
+    memberValidator.validateNotMember(user, projectId);
     memberValidator.isProjectFull(projectId);
 
     String invitationCode = UUID.randomUUID().toString();

@@ -34,7 +34,7 @@ public class IssueModifier {
     issueValidator.isIssueExists(issueId);
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
-    memberValidator.validateNotMember(user, epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
     issueRepository.modifyIssueName(issueId, modifyIssueName);
   }
 
@@ -42,7 +42,7 @@ public class IssueModifier {
     issueValidator.isIssueExists(issueId);
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
-    memberValidator.validateNotMember(user, epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
     issueRepository.modifyIssueContent(issueId, modifyIssueContent);
   }
 
@@ -51,8 +51,8 @@ public class IssueModifier {
     issueValidator.isIssueExists(issueId);
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
-    memberValidator.validateNotMember(user, epic.projectId());
-    memberValidator.validateNotMember(modifyIssueAssignee.assigneeId(), epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
+    memberValidator.validateMember(modifyIssueAssignee.assigneeId(), epic.projectId());
     issueRepository.modifyIssueAssignee(issueId, modifyIssueAssignee);
   }
 
@@ -61,7 +61,7 @@ public class IssueModifier {
     issueValidator.isIssueExists(issueId);
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
-    memberValidator.validateNotMember(user, epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
     componentValidator.isComponentInProject(modifyIssueComponent.componentId(), epic.projectId());
     issueRepository.modifyIssueComponent(issueId, modifyIssueComponent);
   }
@@ -71,7 +71,7 @@ public class IssueModifier {
     issueValidator.isIssueExists(issueId);
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
-    memberValidator.validateNotMember(user, epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
     issueRepository.modifyIssueBizpoint(issueId, modifyIssueBizpoint);
   }
 
@@ -80,7 +80,7 @@ public class IssueModifier {
     issueValidator.isIssueExists(issueId);
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
-    memberValidator.validateNotMember(user, epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
     issueRepository.modifyIssueImportance(issueId, modifyIssueImportance);
   }
 
@@ -88,7 +88,7 @@ public class IssueModifier {
     issueValidator.isIssueExists(issueId);
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
-    memberValidator.validateNotMember(user, epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
     sprintValidator.isOngoingSprint(issue.sprintId());
     issueRepository.modifyIssueStatus(issueId, modifyIssueStatus);
   }
@@ -97,7 +97,7 @@ public class IssueModifier {
     issueValidator.isIssueExists(issueId);
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
-    memberValidator.validateNotMember(user, epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
     epicValidator.isEpicInProject(modifyIssueEpic.epicId(), epic.projectId());
     issueRepository.modifyIssueEpic(issueId, modifyIssueEpic);
   }
@@ -106,7 +106,7 @@ public class IssueModifier {
     issueValidator.isIssueExists(issueId);
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
-    memberValidator.validateNotMember(user, epic.projectId());
+    memberValidator.validateMember(user, epic.projectId());
     sprintValidator.isCompletedSprint(issue.sprintId());
     sprintValidator.isSprintExists(modifyIssueSprint.targetId());
     sprintValidator.isSprintsEquals(issue.sprintId(), modifyIssueSprint.targetId());

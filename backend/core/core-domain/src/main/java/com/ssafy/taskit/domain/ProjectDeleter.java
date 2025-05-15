@@ -12,8 +12,8 @@ public class ProjectDeleter {
     this.projectValidator = projectValidator;
   }
 
-  public Long deleteProject(Long projectId) {
+  public void deleteProject(Long projectId) {
     projectValidator.isProjectExists(projectId);
-    return projectRepository.deleteProject(projectId);
+    projectRepository.deleteProject(projectId);
   }
 }

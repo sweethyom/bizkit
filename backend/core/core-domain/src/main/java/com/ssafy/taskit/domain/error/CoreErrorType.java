@@ -120,7 +120,10 @@ public enum CoreErrorType {
       "MIME 타입과 파일이 일치하지 않습니다.",
       CoreErrorLevel.WARN),
   INVALID_IMAGE(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P003, "파일이 이미지가 아닙니다.", CoreErrorLevel.WARN);
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P003, "파일이 이미지가 아닙니다.", CoreErrorLevel.WARN),
+  NOT_LEADER(CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P004, "팀장이 아닙니다.", CoreErrorLevel.INFO),
+  PROJECT_NOT_EXIST(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P005, "존재하지 않는 프로젝트입니다.", CoreErrorLevel.INFO);
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
   private final String message;

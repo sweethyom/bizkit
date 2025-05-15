@@ -48,7 +48,7 @@ public class ComponentService {
 
   public List<Component> findComponents(User user, Long projectId) {
     projectValidator.isProjectExists(projectId);
-    memberValidator.validateNotMember(user, projectId);
+    memberValidator.validateMember(user, projectId);
     return componentReader.findComponents(projectId);
   }
 
@@ -59,7 +59,7 @@ public class ComponentService {
   public void deleteComponent(User user, Long componentId) {
     componentValidator.isComponentExists(componentId);
     Component component = componentReader.findComponent(componentId);
-    memberValidator.validateNotMember(user, component.projectId());
+    memberValidator.validateMember(user, component.projectId());
     List<Issue> issues = issueService.findComponentIssues(user, componentId);
     for (Issue issue : issues) {
       issueService.modifyIssueComponent(user, issue.id(), new ModifyIssueComponent(null));

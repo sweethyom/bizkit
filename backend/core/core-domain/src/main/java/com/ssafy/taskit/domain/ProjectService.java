@@ -64,9 +64,9 @@ public class ProjectService {
     projectModifier.modifyProjectImage(projectId, imageUrl, isLeader);
   }
 
-  public Long deleteProject(User user, Long projectId) {
+  public void deleteProject(User user, Long projectId) {
     memberValidator.isProjectLeader(user, projectId);
-    return projectDeleter.deleteProject(projectId);
+    projectDeleter.deleteProject(projectId);
   }
 
   public Project findInvitationProject(User user, String invitationCode) {
