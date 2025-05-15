@@ -19,4 +19,12 @@ export const ROUTES_MAP = {
     path: '/projects/:projectId/components',
     name: 'ComponentSettings',
   },
+  sprint: {
+    path: '/projects/:projectId/sprint',
+    name: 'Sprint',
+  },
+  profile: {
+    path: '/profile',
+    name: 'Profile',
+  },
 };

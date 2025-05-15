@@ -1,5 +1,7 @@
 // settings/api/settingsApi.ts
-import { Component, InviteMember, ProjectSettings, TeamMember } from '../model/types';
+import { Component, InviteMember, ProjectSettings, TeamMember } from '@/pages/settings/model/types';
+import { api, ApiResponse } from '@/shared/api';
+import axios from 'axios';
 
 // API 경로 상수
 const API_PATHS = {
@@ -11,11 +13,10 @@ const API_PATHS = {
 // 프로젝트 설정 가져오기
 export const getProjectSettings = async (projectId: string): Promise<ProjectSettings> => {
   try {
-    // 실제 API 연동 시 아래 코드 주석 해제
-    // return await api.get<ProjectSettings>(API_PATHS.PROJECT(projectId));
-
-    // 현재는 모킹 데이터 반환
-    return await mockGetProjectSettings(projectId);
+    // 실제 API 호출
+    const response = await api.get<ApiResponse<ProjectSettings>>(API_PATHS.PROJECT(projectId));
+    console.log('프로젝트 설정 가져오기 응답:', response.data);
+    return response.data.data as ProjectSettings;
   } catch (error) {
     console.error('프로젝트 설정 가져오기 실패:', error);
     throw error;
@@ -27,11 +28,13 @@ export const updateProjectSettings = async (
   settings: ProjectSettings,
 ): Promise<ProjectSettings> => {
   try {
-    // 실제 API 연동 시 아래 코드 주석 해제
-    // return await api.put<ProjectSettings>(API_PATHS.PROJECT(settings.id), settings);
-
-    // 현재는 모킹 데이터 반환
-    return await mockUpdateProjectSettings(settings);
+    // 실제 API 호출
+    const response = await api.patch<ApiResponse<ProjectSettings>>(
+      API_PATHS.PROJECT(settings.id),
+      settings,
+    );
+    console.log('프로젝트 설정 업데이트 응답:', response.data);
+    return response.data.data as ProjectSettings;
   } catch (error) {
     console.error('프로젝트 설정 업데이트 실패:', error);
     throw error;
@@ -41,12 +44,10 @@ export const updateProjectSettings = async (
 // 프로젝트 삭제
 export const deleteProject = async (projectId: string): Promise<boolean> => {
   try {
-    // 실제 API 연동 시 아래 코드 주석 해제
-    // await api.delete(API_PATHS.PROJECT(projectId));
-    // return true;
-
-    // 현재는 모킹 데이터 반환
-    return await mockDeleteProject(projectId);
+    // 실제 API 호출
+    const response = await api.delete<ApiResponse<void>>(API_PATHS.PROJECT(projectId));
+    console.log('프로젝트 삭제 응답:', response.data);
+    return response.data.result === 'SUCCESS';
   } catch (error) {
     console.error('프로젝트 삭제 실패:', error);
     throw error;
@@ -56,11 +57,11 @@ export const deleteProject = async (projectId: string): Promise<boolean> => {
 // 팀원 목록 가져오기
 export const getTeamMembers = async (projectId: string): Promise<TeamMember[]> => {
   try {
-    // 실제 API 연동 시 아래 코드 주석 해제
-    // return await api.get<TeamMember[]>(API_PATHS.MEMBERS(projectId));
-
-    // 현재는 모킹 데이터 반환
-    return await mockGetTeamMembers(projectId);
+    // 실제 API 호출
+    console.log('팀원 목록 가져오기 - 프로젝트 ID:', projectId);
+    const response = await api.get<ApiResponse<TeamMember[]>>(API_PATHS.MEMBERS(projectId));
+    console.log('팀원 목록 가져오기 응답:', response.data);
+    return response.data.data || [];
   } catch (error) {
     console.error('팀원 목록 가져오기 실패:', error);
     throw error;
@@ -73,14 +74,38 @@ export const inviteTeamMember = async (
   member: InviteMember,
 ): Promise<boolean> => {
   try {
-    // 실제 API 연동 시 아래 코드 주석 해제
-    // await api.post(API_PATHS.MEMBERS(projectId), member);
-    // return true;
+    // 실제 API 연동
+    console.log('초대할 이메일:', member.email);
+    console.log('프로젝트 ID:', projectId);
 
-    // 현재는 모킹 데이터 반환
-    return await mockInviteTeamMember(projectId, member);
+    // API 명세서에 맞게 수정
+    const response = await api.post(API_PATHS.MEMBERS(projectId), { email: member.email });
+
+    // 응답 데이터 상세 로깅
+    console.log('팀원 초대 응답 전체:', response);
+    console.log('팀원 초대 응답 데이터:', response.data);
+    console.log('팀원 초대 응답 상태 코드:', response.status);
+
+    // 성공 여부 확인
+    if (response.status === 200 && response.data && response.data.result === 'SUCCESS') {
+      return true;
+    } else {
+      console.error('팀원 초대 응답이 성공이 아님:', response.data);
+      return false;
+    }
   } catch (error) {
     console.error('팀원 초대 실패:', error);
+
+    // 엑시오스 오류인 경우 더 자세한 정보 출력
+    if (axios.isAxiosError(error)) {
+      console.error('요청 URL:', error.config?.url);
+      console.error('요청 방식:', error.config?.method);
+      console.error('요청 헤더:', error.config?.headers);
+      console.error('요청 본문:', error.config?.data);
+      console.error('응답 상태:', error.response?.status);
+      console.error('응답 데이터:', error.response?.data);
+    }
+
     throw error;
   }
 };
@@ -88,12 +113,12 @@ export const inviteTeamMember = async (
 // 팀원 삭제
 export const removeTeamMember = async (projectId: string, memberId: string): Promise<boolean> => {
   try {
-    // 실제 API 연동 시 아래 코드 주석 해제
-    // await api.delete(`${API_PATHS.MEMBERS(projectId)}/${memberId}`);
-    // return true;
-
-    // 현재는 모킹 데이터 반환
-    return await mockRemoveTeamMember(projectId, memberId);
+    // 실제 API 호출
+    console.log('팀원 삭제 - 팀원 ID:', memberId);
+    // API 명세서에 따라 수정한 경로
+    const response = await api.delete<ApiResponse<void>>(`/members/${memberId}`);
+    console.log('팀원 삭제 응답:', response.data);
+    return response.data.result === 'SUCCESS';
   } catch (error) {
     console.error('팀원 삭제 실패:', error);
     throw error;
@@ -103,11 +128,11 @@ export const removeTeamMember = async (projectId: string, memberId: string): Pro
 // 컴포넌트 목록 가져오기
 export const getComponents = async (projectId: string): Promise<Component[]> => {
   try {
-    // 실제 API 연동 시 아래 코드 주석 해제
-    // return await api.get<Component[]>(API_PATHS.COMPONENTS(projectId));
-
-    // 현재는 모킹 데이터 반환
-    return await mockGetComponents(projectId);
+    // 실제 API 호출
+    console.log('컴포넌트 목록 가져오기 - 프로젝트 ID:', projectId);
+    const response = await api.get<ApiResponse<Component[]>>(API_PATHS.COMPONENTS(projectId));
+    console.log('컴포넌트 목록 가져오기 응답:', response.data);
+    return response.data.data || [];
   } catch (error) {
     console.error('컴포넌트 목록 가져오기 실패:', error);
     throw error;
@@ -117,11 +142,14 @@ export const getComponents = async (projectId: string): Promise<Component[]> => 
 // 컴포넌트 추가
 export const addComponent = async (projectId: string, component: Component): Promise<Component> => {
   try {
-    // 실제 API 연동 시 아래 코드 주석 해제
-    // return await api.post<Component>(API_PATHS.COMPONENTS(projectId), component);
-
-    // 현재는 모킹 데이터 반환
-    return await mockAddComponent(projectId, component);
+    // 실제 API 호출
+    console.log('컴포넌트 추가 - 프로젝트 ID:', projectId, '컴포넌트:', component);
+    const response = await api.post<ApiResponse<Component>>(
+      API_PATHS.COMPONENTS(projectId),
+      component,
+    );
+    console.log('컴포넌트 추가 응답:', response.data);
+    return response.data.data as Component;
   } catch (error) {
     console.error('컴포넌트 추가 실패:', error);
     throw error;
@@ -134,11 +162,28 @@ export const updateComponent = async (
   component: Component,
 ): Promise<Component> => {
   try {
-    // 실제 API 연동 시 아래 코드 주석 해제
-    // return await api.put<Component>(`${API_PATHS.COMPONENTS(projectId)}/${component.id}`, component);
+    // 실제 API 호출
+    console.log('컴포넌트 수정 - 프로젝트 ID:', projectId, '컴포넌트 ID:', component.id);
 
-    // 현재는 모킹 데이터 반환
-    return await mockUpdateComponent(projectId, component);
+    // API 명세에 맞게 필요한 필드만 전송
+    const requestData = {
+      name: component.name,
+      content: component.content || ''
+    };
+
+    const response = await api.put<ApiResponse<{ id: number }>>(
+      `/components/${component.id}`,
+      requestData
+    );
+
+    console.log('컴포넌트 수정 응답:', response.data);
+
+    // 응답 데이터와 기존 데이터를 결합하여 반환
+    return {
+      id: component.id,
+      name: component.name,
+      content: component.content
+    };
   } catch (error) {
     console.error('컴포넌트 수정 실패:', error);
     throw error;
@@ -146,140 +191,72 @@ export const updateComponent = async (
 };
 
 // 컴포넌트 삭제
-export const deleteComponent = async (projectId: string, componentId: string): Promise<boolean> => {
+export const deleteComponent = async (projectId: string, componentId: number): Promise<boolean> => {
   try {
-    // 실제 API 연동 시 아래 코드 주석 해제
-    // await api.delete(`${API_PATHS.COMPONENTS(projectId)}/${componentId}`);
-    // return true;
-
-    // 현재는 모킹 데이터 반환
-    return await mockDeleteComponent(projectId, componentId);
+    // 실제 API 호출
+    console.log('컴포넌트 삭제 - 프로젝트 ID:', projectId, '컴포넌트 ID:', componentId);
+    // API 명세에 맞게 경로 수정
+    const response = await api.delete<ApiResponse<void>>(`/components/${componentId}`);
+    console.log('컴포넌트 삭제 응답:', response.data);
+    return response.data.result === 'SUCCESS';
   } catch (error) {
     console.error('컴포넌트 삭제 실패:', error);
     throw error;
   }
 };
 
-// ==================== 모킹 함수 ====================
+// ==================== 멤버 관련 API ====================
 
-const mockGetProjectSettings = (projectId: string): Promise<ProjectSettings> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        id: projectId,
-        name: '프로젝트 이름',
-        imageUrl: 'https://via.placeholder.com/100',
-      });
-    }, 500);
-  });
+// 초대 팀원 목록 조회
+export const getInvitedMembers = async (projectId: string): Promise<InvitedMember[]> => {
+  try {
+    console.log('초대 팀원 목록 가져오기 - 프로젝트 ID:', projectId);
+    const response = await api.get<ApiResponse<InvitedMember[]>>(
+      `/projects/${projectId}/members/invitation`,
+    );
+    console.log('초대 팀원 목록 가져오기 응답:', response.data);
+    return response.data.data || [];
+  } catch (error) {
+    console.error('초대 팀원 목록 가져오기 실패:', error);
+    throw error;
+  }
 };
 
-const mockUpdateProjectSettings = (settings: ProjectSettings): Promise<ProjectSettings> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(settings);
-    }, 500);
-  });
+// 팀 나가기
+export const leaveTeam = async (projectId: string): Promise<boolean> => {
+  try {
+    console.log('팀 나가기 - 프로젝트 ID:', projectId);
+    const response = await api.delete<ApiResponse<void>>(`/projects/${projectId}/members/me`);
+    console.log('팀 나가기 응답:', response.data);
+    return response.data.result === 'SUCCESS';
+  } catch (error) {
+    console.error('팀 나가기 실패:', error);
+    throw error;
+  }
 };
 
-const mockDeleteProject = (projectId: string): Promise<boolean> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, 500);
-  });
+// 초대 팀원 삭제
+export const removeInvitedMember = async (invitationId: string): Promise<boolean> => {
+  try {
+    console.log('초대 팀원 삭제 - 초대 ID:', invitationId);
+    const response = await api.delete<ApiResponse<void>>(`/members/invitation/${invitationId}`);
+    console.log('초대 팀원 삭제 응답:', response.data);
+    return response.data.result === 'SUCCESS';
+  } catch (error) {
+    console.error('초대 팀원 삭제 실패:', error);
+    throw error;
+  }
 };
 
-const mockGetTeamMembers = (projectId: string): Promise<TeamMember[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        {
-          id: '1',
-          nickname: '홍길동',
-          email: 'hong@example.com',
-          role: 'LEADER',
-        },
-        {
-          id: '2',
-          nickname: '김철수',
-          email: 'kim@example.com',
-          role: 'MEMBER',
-        },
-        {
-          id: '3',
-          nickname: '이영희',
-          email: 'lee@example.com',
-          role: 'MEMBER',
-        },
-      ]);
-    }, 500);
-  });
-};
-
-const mockInviteTeamMember = (projectId: string, member: InviteMember): Promise<boolean> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, 500);
-  });
-};
-
-const mockRemoveTeamMember = (projectId: string, memberId: string): Promise<boolean> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, 500);
-  });
-};
-
-const mockGetComponents = (projectId: string): Promise<Component[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        {
-          id: '1',
-          name: '프론트엔드',
-          description: '프론트엔드 관련 컴포넌트',
-        },
-        {
-          id: '2',
-          name: '백엔드',
-          description: '백엔드 관련 컴포넌트',
-        },
-        {
-          id: '3',
-          name: '데이터베이스',
-          description: '데이터베이스 관련 컴포넌트',
-        },
-      ]);
-    }, 500);
-  });
-};
-
-const mockAddComponent = (projectId: string, component: Component): Promise<Component> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        id: new Date().getTime().toString(),
-        ...component,
-      });
-    }, 500);
-  });
-};
-
-const mockUpdateComponent = (projectId: string, component: Component): Promise<Component> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(component);
-    }, 500);
-  });
-};
-
-const mockDeleteComponent = (projectId: string, componentId: string): Promise<boolean> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, 500);
-  });
+// 초대 수락
+export const acceptInvitation = async (invitationId: string): Promise<boolean> => {
+  try {
+    console.log('초대 수락 - 초대 ID:', invitationId);
+    const response = await api.post<ApiResponse<void>>(`/members/invitation/${invitationId}`);
+    console.log('초대 수락 응답:', response.data);
+    return response.data.result === 'SUCCESS';
+  } catch (error) {
+    console.error('초대 수락 실패:', error);
+    throw error;
+  }
 };

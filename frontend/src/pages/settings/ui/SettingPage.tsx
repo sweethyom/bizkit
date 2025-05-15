@@ -143,17 +143,17 @@ const SettingPage: React.FC = () => {
   if (isLoading || !settings) {
     return (
       <div className={clsx('min-h-screen bg-gray-50 p-8')}>
-        <div className={clsx('max-w-4xl mx-auto')}>
+        <div className={clsx('mx-auto max-w-4xl')}>
           <h1 className={clsx('text-3xl font-bold text-gray-800')}>프로젝트 설정</h1>
           <div
             className={clsx(
-              'mt-4 p-6 bg-white rounded-xl shadow-sm flex items-center justify-center min-h-[200px]',
+              'mt-4 flex min-h-[200px] items-center justify-center rounded-xl bg-white p-6 shadow-sm',
             )}
           >
             <div className={clsx('flex flex-col items-center')}>
               <div
                 className={clsx(
-                  'w-10 h-10 border-t-2 border-b-2 border-indigo-500 rounded-full animate-spin mb-4',
+                  'mb-4 h-10 w-10 animate-spin rounded-full border-t-2 border-b-2 border-indigo-500',
                 )}
               ></div>
               <p className={clsx('text-gray-500')}>프로젝트 설정을 불러오는 중...</p>
@@ -166,8 +166,8 @@ const SettingPage: React.FC = () => {
 
   return (
     <div className={clsx('min-h-screen bg-gray-50 p-8')}>
-      <div className={clsx('max-w-4xl mx-auto')}>
-        <h1 className={clsx('text-3xl font-bold text-gray-800 flex items-center')}>
+      <div className={clsx('mx-auto max-w-4xl')}>
+        <h1 className={clsx('flex items-center text-3xl font-bold text-gray-800')}>
           <Settings className={clsx('mr-3')} size={28} />
           프로젝트 설정
         </h1>
@@ -176,10 +176,10 @@ const SettingPage: React.FC = () => {
         {formError && (
           <div
             className={clsx(
-              'mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-md flex items-start',
+              'mt-4 flex items-start rounded-md border-l-4 border-red-500 bg-red-50 p-4 text-red-700',
             )}
           >
-            <AlertTriangle size={20} className={clsx('mr-2 flex-shrink-0 mt-0.5')} />
+            <AlertTriangle size={20} className={clsx('mt-0.5 mr-2 flex-shrink-0')} />
             <p>{formError}</p>
             <button
               onClick={() => setFormError(null)}
@@ -194,26 +194,26 @@ const SettingPage: React.FC = () => {
         {successMessage && (
           <div
             className={clsx(
-              'mt-4 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-md flex items-start',
+              'mt-4 flex items-start rounded-md border-l-4 border-green-500 bg-green-50 p-4 text-green-700',
             )}
           >
-            <CheckCircle size={20} className={clsx('mr-2 flex-shrink-0 mt-0.5')} />
+            <CheckCircle size={20} className={clsx('mt-0.5 mr-2 flex-shrink-0')} />
             <p>{successMessage}</p>
           </div>
         )}
 
-        <div className={clsx('mt-6 bg-white rounded-xl shadow-sm p-8')}>
+        <div className={clsx('mt-6 rounded-xl bg-white p-8 shadow-sm')}>
           <div className={clsx('space-y-8')}>
             {/* 프로젝트 대표 이미지 */}
             <div>
-              <h2 className={clsx('text-lg font-medium text-gray-700 mb-4')}>
+              <h2 className={clsx('mb-4 text-lg font-medium text-gray-700')}>
                 프로젝트 대표 이미지
               </h2>
               <div className={clsx('flex items-center space-x-6')}>
                 <div
                   onClick={handleImageClick}
                   className={clsx(
-                    'relative w-32 h-32 rounded-full bg-gray-100 overflow-hidden border-2 border-gray-200 cursor-pointer hover:border-indigo-300 transition-all duration-200 flex items-center justify-center group',
+                    'group relative flex h-32 w-32 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-gray-200 bg-gray-100 transition-all duration-200 hover:border-indigo-300',
                   )}
                 >
                   {imageUrl ? (
@@ -221,11 +221,11 @@ const SettingPage: React.FC = () => {
                       <img
                         src={imageUrl}
                         alt='프로젝트 이미지'
-                        className={clsx('w-full h-full object-cover')}
+                        className={clsx('h-full w-full object-cover')}
                       />
                       <div
                         className={clsx(
-                          'absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center',
+                          'bg-opacity-40 absolute inset-0 flex items-center justify-center bg-black opacity-0 transition-opacity duration-200 group-hover:opacity-100',
                         )}
                       >
                         <Camera className={clsx('text-white')} size={24} />
@@ -234,11 +234,11 @@ const SettingPage: React.FC = () => {
                   ) : (
                     <div
                       className={clsx(
-                        'flex flex-col items-center justify-center text-gray-400 group-hover:text-indigo-500 transition-colors',
+                        'flex flex-col items-center justify-center text-gray-400 transition-colors group-hover:text-indigo-500',
                       )}
                     >
                       <Camera size={32} />
-                      <span className={clsx('text-xs mt-2')}>이미지 추가</span>
+                      <span className={clsx('mt-2 text-xs')}>이미지 추가</span>
                     </div>
                   )}
                 </div>
@@ -255,7 +255,7 @@ const SettingPage: React.FC = () => {
                     type='button'
                     onClick={handleImageClick}
                     className={clsx(
-                      'px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all',
+                      'rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none',
                     )}
                   >
                     {imageUrl ? '이미지 변경' : '이미지 업로드'}
@@ -271,7 +271,7 @@ const SettingPage: React.FC = () => {
 
             {/* 프로젝트 이름 */}
             <div>
-              <h2 className={clsx('text-lg font-medium text-gray-700 mb-4')}>
+              <h2 className={clsx('mb-4 text-lg font-medium text-gray-700')}>
                 이름 <span className={clsx('text-red-500')}>*</span>
               </h2>
               <div className={clsx('w-full')}>
@@ -280,7 +280,7 @@ const SettingPage: React.FC = () => {
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
                   className={clsx(
-                    'w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors',
+                    'w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm transition-colors focus:border-indigo-500 focus:ring-indigo-500',
                   )}
                   placeholder='프로젝트 이름'
                 />
@@ -294,14 +294,14 @@ const SettingPage: React.FC = () => {
                 onClick={handleSave}
                 disabled={isSaving}
                 className={clsx(
-                  'flex items-center justify-center w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-70',
+                  'flex w-full items-center justify-center rounded-lg bg-indigo-600 px-6 py-3 font-medium text-white transition-colors hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:opacity-70 sm:w-auto',
                 )}
               >
                 {isSaving ? (
                   <>
                     <div
                       className={clsx(
-                        'w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2',
+                        'mr-2 h-5 w-5 animate-spin rounded-full border-t-2 border-b-2 border-white',
                       )}
                     ></div>
                     저장 중...
@@ -323,7 +323,7 @@ const SettingPage: React.FC = () => {
             type='button'
             onClick={() => setShowConfirmDelete(true)}
             className={clsx(
-              'flex items-center text-red-600 font-medium hover:text-red-800 focus:outline-none transition-colors',
+              'flex items-center font-medium text-red-600 transition-colors hover:text-red-800 focus:outline-none',
             )}
           >
             <Trash2 size={18} className={clsx('mr-1')} />
@@ -336,29 +336,29 @@ const SettingPage: React.FC = () => {
       {showConfirmDelete && (
         <div
           className={clsx(
-            'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn',
+            'bg-opacity-50 animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black p-4',
           )}
         >
           <div
             className={clsx(
-              'bg-white rounded-xl p-6 w-full max-w-md shadow-xl transform transition-all animate-scaleIn',
+              'animate-scaleIn w-full max-w-md transform rounded-xl bg-white p-6 shadow-xl transition-all',
             )}
           >
-            <div className={clsx('flex items-center justify-between mb-3')}>
+            <div className={clsx('mb-3 flex items-center justify-between')}>
               <h3 className={clsx('text-xl font-bold text-gray-900')}>프로젝트 삭제</h3>
               <button
                 type='button'
                 onClick={() => setShowConfirmDelete(false)}
-                className={clsx('text-gray-400 hover:text-gray-500 transition-colors')}
+                className={clsx('text-gray-400 transition-colors hover:text-gray-500')}
               >
                 <X size={20} />
               </button>
             </div>
 
             <div className={clsx('p-1')}>
-              <div className={clsx('mb-6 bg-red-50 p-4 rounded-md border-l-4 border-red-500')}>
+              <div className={clsx('mb-6 rounded-md border-l-4 border-red-500 bg-red-50 p-4')}>
                 <div className={clsx('flex')}>
-                  <AlertTriangle size={20} className={clsx('text-red-400 flex-shrink-0')} />
+                  <AlertTriangle size={20} className={clsx('flex-shrink-0 text-red-400')} />
                   <div className={clsx('ml-3')}>
                     <h3 className={clsx('text-sm font-medium text-red-800')}>주의 사항</h3>
                     <div className={clsx('mt-2 text-sm text-red-700')}>
@@ -371,7 +371,7 @@ const SettingPage: React.FC = () => {
                 </div>
               </div>
 
-              <p className={clsx('text-gray-700 mb-2 font-medium')}>
+              <p className={clsx('mb-2 font-medium text-gray-700')}>
                 삭제를 확인하려면 프로젝트 이름을 입력하세요:
               </p>
               <input
@@ -379,18 +379,18 @@ const SettingPage: React.FC = () => {
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 className={clsx(
-                  'w-full mb-6 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-red-500 focus:border-red-500',
+                  'mb-6 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-red-500 focus:ring-red-500',
                 )}
                 placeholder={settings.name}
               />
             </div>
 
-            <div className={clsx('flex space-x-3 justify-end border-t border-gray-200 pt-4')}>
+            <div className={clsx('flex justify-end space-x-3 border-t border-gray-200 pt-4')}>
               <button
                 type='button'
                 onClick={() => setShowConfirmDelete(false)}
                 className={clsx(
-                  'px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors',
+                  'rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50',
                 )}
               >
                 취소
@@ -400,14 +400,14 @@ const SettingPage: React.FC = () => {
                 onClick={handleDeleteProject}
                 disabled={isDeleting || deleteConfirmText !== settings.name}
                 className={clsx(
-                  'flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-70',
+                  'flex items-center rounded-lg border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-70',
                 )}
               >
                 {isDeleting ? (
                   <>
                     <div
                       className={clsx(
-                        'w-4 h-4 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2',
+                        'mr-2 h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-white',
                       )}
                     ></div>
                     삭제 중...

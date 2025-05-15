@@ -1,9 +1,10 @@
 import { HomePage } from '@/pages/home';
+import { ProfilePage } from '@/pages/profile';
 import { ComponentSettingPage, SettingPage, TeamSettingPage } from '@/pages/settings';
-import SignInPage from '@/pages/signin';
+import { default as SignInPage } from '@/pages/signin';
+import { SprintPage } from '@/pages/sprint';
 import { ROUTES_MAP } from '@/shared/config';
 import { BrowserRouter, Route, Routes } from 'react-router';
-
 export const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -13,6 +14,8 @@ export const AppRouter = () => {
         <Route path={ROUTES_MAP.projectSettings.path} element={<SettingPage />} />
         <Route path={ROUTES_MAP.teamSettings.path} element={<TeamSettingPage />} />
         <Route path={ROUTES_MAP.componentSettings.path} element={<ComponentSettingPage />} />
+        <Route path={ROUTES_MAP.profile.path} element={<ProfilePage />} />
+        <Route path={ROUTES_MAP.sprint.path} element={<SprintPage />} />
       </Routes>
     </BrowserRouter>
   );

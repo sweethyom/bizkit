@@ -1,17 +1,10 @@
 // signin/model/types.ts
+import { TokenInfo } from '@/shared/model';
+
 export interface SignInCredentials {
   username: string; // 이메일 형식
   password: string;
 }
 
-export interface SignInResponse {
-  result: string;
-  data: {
-    tokenType: string;
-    accessToken: string;
-    accessTokenExpiresIn: number;
-    refreshToken: string;
-    refreshTokenExpiresIn: number;
-    refreshTokenRenewAvailableSeconds: number;
-  };
-}
+// 로그인 응답형은 TokenInfo와 동일함
+export type SignInResponse = TokenInfo;
