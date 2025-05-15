@@ -51,6 +51,9 @@ api.interceptors.response.use(
           const renewResponse = await authApi.renewToken(refreshToken);
           if (renewResponse.status === 200) {
             const newTokenInfo = renewResponse.data.data;
+            if (!newTokenInfo) {
+              throw new Error('No new token info');
+            }
             tokenStorage.set(newTokenInfo);
 
             originalRequest.headers.Authorization = `${newTokenInfo.tokenType} ${newTokenInfo.accessToken}`;
