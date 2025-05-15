@@ -81,3 +81,24 @@ INSERT INTO "user" (
              CURRENT_TIMESTAMP(),
              CURRENT_TIMESTAMP()
          );
+
+-- 테스트 계정 데이터4
+INSERT INTO "user" (
+    EMAIL,
+    NICKNAME,
+    PASSWORD,
+    PROFILE_IMAGE_URL,
+    PROFILE_IMG_URL,
+    ENTITY_STATUS,
+    CREATED_AT,
+    UPDATED_AT
+) VALUES (
+             'test5@test.com',
+             'test5',
+             '{noop}password!',
+             NULL,
+             NULL,
+             'ACTIVE',
+             CURRENT_TIMESTAMP(),
+             CURRENT_TIMESTAMP()
+         );
