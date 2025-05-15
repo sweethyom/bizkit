@@ -1,44 +1,35 @@
 // profile/model/types.ts
 export interface UserProfile {
   id: string;
-  name: string;
   email: string;
-  profileImage?: string;
-  role: string;
-  department?: string;
-  position?: string;
-  bio?: string;
-  projects: UserProject[];
-  activities: UserActivity[];
-  skills: string[];
+  nickname: string;
+  avatarUrl?: string | null;
 }
 
-export interface UserProject {
-  id: string;
-  name: string;
-  role: string;
-  tasksCount: number;
+export interface ProfileFormValues {
+  nickname: string;
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
-export interface UserActivity {
-  id: string;
-  type: 'task' | 'comment' | 'update';
-  projectId: string;
-  projectName: string;
-  content: string;
-  date: string;
-  status?: string;
-  priority?: string;
+export interface ApiError {
+  message: string;
+  code?: string;
+  field?: string;
 }
 
-export interface ProfileTabType {
-  id: string;
-  name: string;
+// API 응답 타입
+
+// 사용자 프로필 API 응답
+export interface UserProfileResponse {
+  id: number;
+  email: string;
+  nickname: string;
+  profileImageUrl?: string | null;
 }
 
-export const PROFILE_TABS: ProfileTabType[] = [
-  { id: 'overview', name: '개요' },
-  { id: 'projects', name: '프로젝트' },
-  { id: 'activities', name: '활동' },
-  { id: 'settings', name: '설정' },
-];
+// 프로필 이미지 업로드 API 응답
+export interface ProfileImageResponse {
+  profileImageUrl: string;
+}

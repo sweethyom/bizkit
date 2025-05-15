@@ -24,7 +24,7 @@ export const ROUTES_MAP = {
     name: 'Sprint',
   },
   profile: {
-    path: '/profile/:userId',
+    path: '/profile',
     name: 'Profile',
   },
 };

@@ -1,171 +1,237 @@
 // profile/api/profile.ts
+import {
+  ProfileImageResponse,
+  UserProfile,
+  UserProfileResponse,
+} from '@/pages/profile/model/types';
+import { api, ApiResponse } from '@/shared/api';
 import axios from 'axios';
-import { UserProfile } from '@/pages/profile/model/types';
 
-// Mock data 사용 여부 설정
-const USE_MOCK_DATA = true;
+// 개발용 Mock 모드 (실제 서버 연동이 되지 않을 때 사용)
+// 이 부분은 필요에 따라 USE_MOCK_DATA = false로 변경하여 실제 API 호출 가능
+const USE_MOCK_DATA = false;
 
-/**
- * 사용자 프로필 조회
- * @param userId 사용자 ID
- */
-export const fetchUserProfile = async (userId: string): Promise<UserProfile> => {
-  if (USE_MOCK_DATA) {
-    // Mock 데이터 반환
-    return getMockUserProfile(userId);
-  }
+// 실제 API 구현 함수들
+const apiImplementations = {
+  fetchUserProfile: async (): Promise<UserProfile> => {
+    try {
+      const response = await api.get<ApiResponse<UserProfileResponse>>('/users/me');
 
-  try {
-    // 실제 API 호출
-    const response = await axios.get('/users/me');
+      if (response.data.result === 'SUCCESS' && response.data.data) {
+        // 타입을 명시적으로 지정하여 오류 해결
+        const userData = response.data.data as UserProfileResponse;
+        const { id, email, nickname, profileImageUrl } = userData;
 
-    if (response.data.result === 'SUCCESS') {
-      const { id, email, nickname, profileImageUrl } = response.data.data;
-
-      // API 응답 형식을 내부 모델 형식으로 변환
-      return {
-        id: id.toString(),
-        name: nickname,
-        email: email,
-        profileImage: profileImageUrl,
-        role: '개발자', // API에서 제공하지 않는 정보는 기본값 설정
-        projects: [],
-        activities: [],
-        skills: [],
-      };
-    } else {
-      throw new Error('Failed to fetch user profile');
+        return {
+          id: id.toString(),
+          email,
+          nickname,
+          avatarUrl: profileImageUrl,
+        };
+      } else {
+        throw new Error('Failed to fetch user profile');
+      }
+    } catch (error: unknown) {
+      console.error('Failed to fetch user profile:', error);
+      throw error;
     }
-  } catch (error) {
-    console.error('Failed to fetch user profile:', error);
-    throw error;
-  }
-};
+  },
 
-/**
- * 사용자 프로필 업데이트
- * @param userId 사용자 ID
- * @param profileData 업데이트할 프로필 데이터
- */
-export const updateUserProfile = async (
-  userId: string,
-  profileData: Partial<UserProfile>,
-): Promise<UserProfile> => {
-  if (USE_MOCK_DATA) {
-    // Mock 업데이트 시뮬레이션
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return {
-      ...getMockUserProfile(userId),
-      ...profileData,
-    };
-  }
+  /**
+   * 닉네임 변경
+   * PATCH /api/users/nickname
+   */
+  updateNickname: async (nickname: string): Promise<void> => {
+    try {
+      // API 명세서에 맞춰 요청
+      const response = await api.patch<ApiResponse<void>>('/users/nickname', { nickname });
 
-  try {
-    // 닉네임 업데이트
-    if (profileData.name) {
-      await axios.patch('/users/nickname', {
-        nickname: profileData.name,
+      if (response.data.result !== 'SUCCESS') {
+        throw new Error('닉네임 변경에 실패했습니다');
+      }
+    } catch (error: unknown) {
+      console.error('Failed to update nickname:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * 비밀번호 변경
+   * PATCH /api/users/password
+   */
+  updatePassword: async (oldPassword: string, newPassword: string): Promise<void> => {
+    try {
+      // API 명세서에 맞춰 요청
+      const response = await api.patch<ApiResponse<void>>('/users/password', {
+        oldPassword,
+        newPassword,
       });
-    }
 
-    // 프로필 이미지 업데이트 (multipart/form-data)
-    if (profileData.profileImage && profileData.profileImage.startsWith('data:')) {
-      // Base64 이미지 데이터를 File 객체로 변환
+      if (response.data.result !== 'SUCCESS') {
+        throw new Error('비밀번호 변경에 실패했습니다');
+      }
+    } catch (error: unknown) {
+      // 서버에서 오는 오류 메시지가 있다면 그것을 사용
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      console.error('Failed to update password:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * 프로필 이미지 업로드
+   * PATCH /api/users/profile-image
+   */
+  uploadProfileImage: async (file: File): Promise<string> => {
+    try {
       const formData = new FormData();
-      const blob = await fetch(profileData.profileImage).then((r) => r.blob());
-      const file = new File([blob], 'profile-image.jpg', { type: 'image/jpeg' });
       formData.append('profileImage', file);
 
-      await axios.patch('/users/profile-image', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-    }
+      // Content-Type을 설정하지 않고 axios가 자동으로 처리하도록 함
+      const response = await api.patch<ApiResponse<ProfileImageResponse>>(
+        '/users/profile-image',
+        formData
+        // Content-Type 헤더를 명시적으로 설정하지 않음
+        // multipart/form-data 경계 문자열을 자동으로 설정하도록 함
+      );
 
-    // 업데이트된 사용자 정보 반환
-    return fetchUserProfile(userId);
-  } catch (error) {
-    console.error('Failed to update user profile:', error);
-    throw error;
-  }
+      if (response.data.result === 'SUCCESS' && response.data.data) {
+        // 서버에서 이미지 URL을 바로 반환하는 경우
+        const imageData = response.data.data as ProfileImageResponse;
+        if (imageData.profileImageUrl) {
+          return imageData.profileImageUrl;
+        }
+
+        // URL을 반환하지 않는 경우 사용자 정보를 다시 가져와야 함
+        const profileResponse = await apiImplementations.fetchUserProfile();
+        return profileResponse.avatarUrl || '';
+      } else {
+        throw new Error('Failed to upload profile image');
+      }
+    } catch (error: unknown) {
+      console.error('Failed to upload profile image:', error);
+      throw error;
+    }
+  },
 };
 
-/**
- * 비밀번호 변경
- * @param oldPassword 기존 비밀번호
- * @param newPassword 새 비밀번호
- */
-export const changePassword = async (oldPassword: string, newPassword: string): Promise<void> => {
-  if (USE_MOCK_DATA) {
-    // Mock 업데이트 시뮬레이션
+// Mock 구현 함수들
+const mockImplementations = {
+  /**
+   * Mock 버전: 사용자 프로필 조회
+   */
+  fetchUserProfile: async (): Promise<UserProfile> => {
+    // 로딩 시뮬레이션
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    return {
+      id: '1',
+      email: 'user@example.com',
+      nickname: '홍길동',
+      avatarUrl: null,
+    };
+  },
+
+  /**
+   * Mock 버전: 닉네임 변경
+   */
+  updateNickname: async (nickname: string): Promise<void> => {
+    if (!nickname.trim() || nickname.length < 2 || nickname.length > 6) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      throw new Error('닉네임은 2~6자리여야 합니다');
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  },
+
+  /**
+   * Mock 버전: 비밀번호 변경
+   */
+  updatePassword: async (oldPassword: string, newPassword: string): Promise<void> => {
+    if (!oldPassword) {
+      throw new Error('현재 비밀번호를 입력해주세요');
+    }
+
+    if (!newPassword) {
+      throw new Error('새 비밀번호를 입력해주세요');
+    }
+
+    // 비밀번호 제약 조건 검사
+    if (newPassword.length < 8) {
+      throw new Error('비밀번호는 8자 이상이어야 합니다');
+    }
+
+    // Mock에서는 'password'를 현재 비밀번호로 가정
+    if (oldPassword !== 'password') {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      throw new Error('현재 비밀번호가 일치하지 않습니다');
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  },
+
+  /**
+   * Mock 버전: 프로필 이미지 업로드
+   */
+  uploadProfileImage: async (file: File): Promise<string> => {
+    if (!file.type.startsWith('image/')) {
+      throw new Error('이미지 파일만 업로드 가능합니다');
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      throw new Error('이미지 크기는 3MB 이하여야 합니다');
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    return;
-  }
 
-  try {
-    const response = await axios.patch('/users/password', {
-      oldPassword,
-      newPassword,
-    });
+    // 임시 이미지 URL 반환
+    return URL.createObjectURL(file);
+  },
+};
 
-    if (response.data.result !== 'SUCCESS') {
-      throw new Error('Failed to change password');
-    }
-  } catch (error) {
-    console.error('Failed to change password:', error);
-    throw error;
+// 실제 내보낼 함수들 (모드에 따라 구현이 달라짐)
+export const fetchUserProfile = async (): Promise<UserProfile> => {
+  if (USE_MOCK_DATA) {
+    console.log('🧪 Mock 모드: fetchUserProfile');
+    return mockImplementations.fetchUserProfile();
+  } else {
+    return apiImplementations.fetchUserProfile();
   }
 };
 
-/**
- * Mock 사용자 프로필 데이터 생성
- * @param userId 사용자 ID
- */
-const getMockUserProfile = (userId: string): UserProfile => {
-  return {
-    id: userId,
-    name: '김개발',
-    email: 'dev.kim@example.com',
-    profileImage: 'https://randomuser.me/api/portraits/men/32.jpg',
-    role: '프론트엔드 개발자',
-    department: '개발팀',
-    position: '주니어 개발자',
-    bio: '사용자 경험을 향상시키는 프론트엔드 개발자입니다.',
-    projects: [
-      { id: 'p1', name: 'BIZKIT', role: '프론트엔드 개발자', tasksCount: 12 },
-      { id: 'p2', name: '인사관리 시스템', role: '백엔드 개발자', tasksCount: 8 },
-      { id: 'p3', name: '모바일 앱', role: '풀스택 개발자', tasksCount: 0 },
-    ],
-    activities: [
-      {
-        id: 'a1',
-        type: 'task',
-        projectId: 'p1',
-        projectName: 'BIZKIT',
-        content: '프로필 페이지 UI 개선',
-        date: '2025-05-10',
-        status: 'in_progress',
-        priority: 'high',
-      },
-      {
-        id: 'a2',
-        type: 'comment',
-        projectId: 'p1',
-        projectName: 'BIZKIT',
-        content: '로그인 화면 디자인 리뷰 진행',
-        date: '2025-05-09',
-      },
-      {
-        id: 'a3',
-        type: 'update',
-        projectId: 'p2',
-        projectName: '인사관리 시스템',
-        content: 'API 엔드포인트 문서화 완료',
-        date: '2025-05-08',
-        status: 'done',
-      },
-    ],
-    skills: ['React', 'TypeScript', 'TailwindCSS', 'Node.js'],
-  };
+export const updateNickname = async (nickname: string): Promise<void> => {
+  if (USE_MOCK_DATA) {
+    console.log('🧪 Mock 모드: updateNickname');
+    return mockImplementations.updateNickname(nickname);
+  } else {
+    return apiImplementations.updateNickname(nickname);
+  }
 };
+
+export const updatePassword = async (oldPassword: string, newPassword: string): Promise<void> => {
+  if (USE_MOCK_DATA) {
+    console.log('🧪 Mock 모드: updatePassword');
+    return mockImplementations.updatePassword(oldPassword, newPassword);
+  } else {
+    return apiImplementations.updatePassword(oldPassword, newPassword);
+  }
+};
+
+export const uploadProfileImage = async (file: File): Promise<string> => {
+  if (USE_MOCK_DATA) {
+    console.log('🧪 Mock 모드: uploadProfileImage');
+    return mockImplementations.uploadProfileImage(file);
+  } else {
+    return apiImplementations.uploadProfileImage(file);
+  }
+};
+
+// 개발 모드 안내
+if (USE_MOCK_DATA) {
+  console.log('====================================');
+  console.log('🧪 개발 모드: 서버 없이 Mock 데이터 사용 중');
+  console.log('비밀번호 변경 테스트 시 현재 비밀번호는 "password"입니다.');
+  console.log('====================================');
+}
