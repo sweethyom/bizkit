@@ -42,7 +42,7 @@ public class ProjectCoreRepository implements ProjectRepository {
   public List<Long> findUserProjectIds(User user, ProjectSort sortType) {
     Sort sort =
         switch (sortType) {
-          case RECENT_VIEW -> Sort.by(Sort.Direction.DESC, "member.lastViewedAt");
+          case RECENT_VIEW -> Sort.by(Sort.Direction.DESC, "lastAccessedAt");
         };
 
     return projectJpaRepository.findProjectIdsByUserId(user.id(), sort);

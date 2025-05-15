@@ -40,14 +40,13 @@ class ProjectControllerTest extends RestDocsTest {
     when(projectService.append(any(User.class), any(NewProject.class))).thenReturn(1L);
     given()
         .contentType(ContentType.JSON)
-        .multiPart("request", new AppendProjectRequest("프로젝트 이름1", "프로젝트 키"), "application/json")
+        .body(new AppendProjectRequest("프로젝트 이름1", "프로젝트 키"))
         .post("/projects")
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "append-project",
-            requestPartFields(
-                "request",
+            requestFields(
                 fieldWithPath("name")
                     .type(JsonFieldType.STRING)
                     .attributes(RestDocsUtils.constraints("최대 40byte (앞뒤 공백 불가)"))

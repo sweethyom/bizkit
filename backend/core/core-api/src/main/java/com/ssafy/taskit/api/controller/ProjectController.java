@@ -26,7 +26,7 @@ public class ProjectController {
 
   @PostMapping("/projects")
   public ApiResponse<DefaultIdResponse> appendProject(
-      ApiUser apiUser, @RequestPart AppendProjectRequest request) {
+      ApiUser apiUser, @RequestBody AppendProjectRequest request) {
     NewProject newProject = request.toNewProject();
 
     Long id = projectService.append(apiUser.toUser(), newProject);
