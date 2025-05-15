@@ -36,8 +36,8 @@ public class ProjectService {
   }
 
   public Long append(User user, NewProject newProject) {
+    projectValidator.isProjectExists(newProject.key());
     Project project = projectAppender.append(user, newProject);
-
     return project.id();
   }
 

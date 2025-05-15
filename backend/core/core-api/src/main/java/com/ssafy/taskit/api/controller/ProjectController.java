@@ -28,7 +28,6 @@ public class ProjectController {
   public ApiResponse<DefaultIdResponse> appendProject(
       ApiUser apiUser, @RequestPart AppendProjectRequest request) {
     NewProject newProject = request.toNewProject();
-
     Long id = projectService.append(apiUser.toUser(), newProject);
     return ApiResponse.success(new DefaultIdResponse(id));
   }
