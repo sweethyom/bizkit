@@ -19,6 +19,8 @@ import com.ssafy.taskit.domain.error.CoreException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -186,14 +188,20 @@ public class IssueCoreRepository implements IssueRepository {
   }
 
   @Override
-  public List<Object[]> countTotalIssuesByEpicIds(List<Long> epicIds) {
-    return issueJpaRepository.countTotalIssuesGroupedByEpicIds(epicIds, EntityStatus.ACTIVE);
+  public Map<Long, Long> countTotalIssuesByEpicIds(List<Long> epicIds) {
+    List<Object[]> cntTotalIssues =
+        issueJpaRepository.countTotalIssuesGroupedByEpicIds(epicIds, EntityStatus.ACTIVE);
+
+    return cntTotalIssues.stream()
+        .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
   }
 
   @Override
-  public List<Object[]> countBacklogIssuesByEpicIds(List<Long> epicIds) {
-    return issueJpaRepository.countBacklogIssuesGroupedByEpicIds(
+  public Map<Long, Long> countBacklogIssuesByEpicIds(List<Long> epicIds) {
+    List<Object[]> cntBacklogIssues = issueJpaRepository.countBacklogIssuesGroupedByEpicIds(
         epicIds, EntityStatus.ACTIVE, IssueStatus.UNASSIGNED);
+    return cntBacklogIssues.stream()
+        .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
   }
 
   @Override

@@ -3,7 +3,6 @@ package com.ssafy.taskit.domain;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,26 +35,18 @@ public class IssueService {
     if (epicIds.isEmpty()) {
       return Collections.emptyMap();
     }
-    List<Object[]> cntTotalIssues = issueRepository.countTotalIssuesByEpicIds(epicIds);
-    return cntTotalIssues.stream()
-        .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
+    return issueRepository.countTotalIssuesByEpicIds(epicIds);
   }
 
   public Map<Long, Long> countBacklogIssues(List<Long> epicIds) {
     if (epicIds.isEmpty()) {
       return Collections.emptyMap();
     }
-    List<Object[]> cntBacklogIssues = issueRepository.countBacklogIssuesByEpicIds(epicIds);
-    return cntBacklogIssues.stream()
-        .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
+    return issueRepository.countBacklogIssuesByEpicIds(epicIds);
   }
 
   public List<Issue> findEpicIssues(User user, Long epicId) {
     return issueReader.readEpicIssues(user, epicId);
-  }
-
-  public Map<Long, Assignee> generateAssigneeMap(List<Long> assigneeIds) {
-    return Map.of();
   }
 
   public void modifyIssueName(User user, Long issueId, ModifyIssueName modifyIssueName) {

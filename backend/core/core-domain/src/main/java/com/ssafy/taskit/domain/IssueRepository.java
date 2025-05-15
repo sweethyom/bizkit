@@ -1,6 +1,7 @@
 package com.ssafy.taskit.domain;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IssueRepository {
 
@@ -40,9 +41,9 @@ public interface IssueRepository {
 
   void delete(Long issueId);
 
-  List<Object[]> countTotalIssuesByEpicIds(List<Long> epicIds);
+  Map<Long, Long> countTotalIssuesByEpicIds(List<Long> epicIds);
 
-  List<Object[]> countBacklogIssuesByEpicIds(List<Long> epicIds);
+  Map<Long, Long> countBacklogIssuesByEpicIds(List<Long> epicIds);
 
   List<Issue> findByUserId(Long userId);
 }
