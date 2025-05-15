@@ -203,7 +203,7 @@ public class IssueController {
   public ApiResponse<List<MyIssuesResponse>> findMyIssues(
       ApiUser apiUser,
       @RequestParam IssueStatus issueStatus,
-      @RequestParam Long cursorId,
+      @RequestParam(required = false) Long cursorId,
       @RequestParam Integer pageSize) {
     List<Issue> issues =
         issueService.findMyIssues(apiUser.toUser(), issueStatus, cursorId, pageSize);
