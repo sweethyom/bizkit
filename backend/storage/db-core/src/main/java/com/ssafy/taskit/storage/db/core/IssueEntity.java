@@ -4,6 +4,7 @@ import com.ssafy.taskit.domain.Importance;
 import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.IssueStatus;
 import com.ssafy.taskit.domain.support.DefaultDateTime;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -17,6 +18,7 @@ public class IssueEntity extends BaseEntity {
 
   private String content;
 
+  @Column(name = "issue_key")
   private String key;
 
   private Long bizPoint;

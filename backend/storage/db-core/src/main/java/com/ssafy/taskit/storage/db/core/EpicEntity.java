@@ -2,6 +2,7 @@ package com.ssafy.taskit.storage.db.core;
 
 import com.ssafy.taskit.domain.Epic;
 import com.ssafy.taskit.domain.support.DefaultDateTime;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
@@ -10,7 +11,10 @@ import jakarta.persistence.Table;
 public class EpicEntity extends BaseEntity {
 
   private String name;
+
+  @Column(name = "epic_key")
   private String key;
+
   private Long projectId;
 
   protected EpicEntity() {}
