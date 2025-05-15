@@ -45,7 +45,7 @@ public class ProjectCoreRepository implements ProjectRepository {
           case RECENT_VIEW -> Sort.by(Sort.Direction.DESC, "member.lastViewedAt");
         };
 
-    return projectJpaRepository.findProjectIdsByUserId(user, sort);
+    return projectJpaRepository.findProjectIdsByUserId(user.id(), sort);
   }
 
   @Override
