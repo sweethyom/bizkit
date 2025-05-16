@@ -13,6 +13,8 @@ public interface InvitationRepository {
 
   boolean existsByInvitationCode(String invitationCode);
 
+  boolean existsCompletedInvitationByInvitationCode(String invitationCode);
+
   void accept(String invitationCode);
 
   void deleteInvitationMember(String invitationCode);

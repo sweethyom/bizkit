@@ -27,7 +27,7 @@ public class InvitationValidator {
   }
 
   public void isCompletedInvitation(String invitationCode) {
-    if (invitationRepository.existsByInvitationCode(invitationCode)) {
+    if (invitationRepository.existsCompletedInvitationByInvitationCode(invitationCode)) {
       throw new CoreException(CoreErrorType.INVITATION_COMPLETED);
     }
   }

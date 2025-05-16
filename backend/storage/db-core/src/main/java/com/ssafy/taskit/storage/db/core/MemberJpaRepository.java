@@ -27,7 +27,7 @@ public interface MemberJpaRepository extends JpaRepository<MemberEntity, Long> {
 
   List<MemberEntity> findByProjectId(Long projectId);
 
-  Long findByUserId(Long userId);
+  MemberEntity findByUserId(Long userId);
 
   int countByProjectId(Long projectId);
 }

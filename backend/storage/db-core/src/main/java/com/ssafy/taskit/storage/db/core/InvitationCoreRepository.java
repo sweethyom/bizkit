@@ -48,6 +48,12 @@ public class InvitationCoreRepository implements InvitationRepository {
   }
 
   @Override
+  public boolean existsCompletedInvitationByInvitationCode(String invitationCode) {
+    return invitationJpaRepository.existsByInvitationCodeAndStatus(
+        invitationCode, InvitationStatus.ACCEPTED);
+  }
+
+  @Override
   public void accept(String invitationCode) {
     InvitationEntity invitation = invitationJpaRepository.findByInvitationCode(invitationCode);
     invitation.accept();

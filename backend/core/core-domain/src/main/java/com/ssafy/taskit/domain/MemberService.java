@@ -60,7 +60,7 @@ public class MemberService {
   }
 
   public void acceptInvitation(User user, String invitationCode) {
-    invitationValidator.validateInvitationNotExists(user.id());
+    invitationValidator.isInvitedMember(user, invitationCode);
     invitationValidator.isValidInvitation(invitationCode);
     memberAppender.appendMember(user, invitationCode);
   }

@@ -16,7 +16,7 @@ public interface MemberRepository {
 
   Long deleteMember(Long memberId);
 
-  Long findByUserId(Long userId);
+  Member findByUserId(Long userId);
 
   int countMembers(Long projectId);
 

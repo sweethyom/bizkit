@@ -45,8 +45,8 @@ public class MemberDeleter {
     }
     memberValidator.validateMember(user, projectId);
 
-    Long memberId = memberRepository.findByUserId(user.id());
-    memberRepository.deleteMember(memberId);
+    Member member = memberRepository.findByUserId(user.id());
+    memberRepository.deleteMember(member.id());
   }
 
   public void deleteInvitationMember(User user, String invitationCode) {
