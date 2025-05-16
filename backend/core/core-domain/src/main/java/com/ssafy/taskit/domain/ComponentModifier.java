@@ -22,11 +22,21 @@ public class ComponentModifier {
     this.componentReader = componentReader;
   }
 
-  public void modify(User user, Long componentId, ModifyComponent modifyComponent) {
+  public void modifyComponentName(
+      User user, Long componentId, ModifyComponentName modifyComponentName) {
     componentValidator.isComponentExists(componentId);
     Component component = componentReader.findComponent(componentId);
-    componentValidator.isUniqueComponent(component.projectId(), modifyComponent.name());
+    componentValidator.isUniqueComponentNameForModify(
+        component.projectId(), componentId, modifyComponentName.name());
     memberValidator.isProjectLeader(user, component.projectId());
-    componentRepository.modifyComponent(componentId, modifyComponent);
+    componentRepository.modifyComponentName(componentId, modifyComponentName);
+  }
+
+  public void modifyComponentContent(
+      User user, Long componentId, ModifyComponentContent modifyComponentContent) {
+    componentValidator.isComponentExists(componentId);
+    Component component = componentReader.findComponent(componentId);
+    memberValidator.isProjectLeader(user, component.projectId());
+    componentRepository.modifyComponentContent(componentId, modifyComponentContent);
   }
 }

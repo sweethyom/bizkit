@@ -13,11 +13,19 @@ public class ComponentValidator {
     this.componentRepository = componentRepository;
   }
 
-  public void isUniqueComponent(Long projectId, String name) {
+  public void isUniqueComponentNameForCreate(Long projectId, String name) {
     boolean check = componentRepository.existsByProjectIdAndName(projectId, name);
     if (check) {
       throw new CoreException(CoreErrorType.DUPLICATED_COMPONENT_NAME);
     }
+  }
+
+  public void isUniqueComponentNameForModify(Long projectId, Long componentId, String name) {
+    componentRepository.findByProjectIdAndName(projectId, name).ifPresent(component -> {
+      if (!component.id().equals(componentId)) {
+        throw new CoreException(CoreErrorType.DUPLICATED_COMPONENT_NAME);
+      }
+    });
   }
 
   public void isComponentExists(Long componentId) {

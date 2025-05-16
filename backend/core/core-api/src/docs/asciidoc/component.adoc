@@ -8,9 +8,14 @@ operation::append-component[snippets='http-request,path-parameters,request-field
 
 operation::find-components[snippets='http-request,path-parameters,http-response,response-fields']
 
-=== 컴포넌트 수정
+=== 컴포넌트 이름 수정
 
-operation::modify-component[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
+operation::modify-component-name[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
+
+
+=== 컴포넌트 설명 수정
+
+operation::modify-component-contents[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
 === 컴포넌트 삭제
 

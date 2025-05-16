@@ -95,31 +95,48 @@ class ComponentControllerTest extends RestDocsTest {
   }
 
   @Test
-  void modifyComponent() {
+  void modifyComponentName() {
     given()
         .contentType(ContentType.JSON)
-        .body(new ModifyComponentRequest("컴포넌트", "컴포넌트 설명"))
-        .put("/components/{componentId}", 1L)
+        .body(new ModifyComponentNameRequest("컴포넌트"))
+        .put("/components/{componentId}/name", 1L)
         .then()
         .status(HttpStatus.OK)
         .apply(document(
-            "modify-component",
-            pathParameters(parameterWithName("componentId").description("수정하고 싶은 컴포넌트 아이디")),
-            requestFields(
-                fieldWithPath("name")
-                    .type(JsonFieldType.STRING)
-                    .description("수정할 컴포넌트 이름")
-                    .attributes(key("constraints").value("최대 20bytes (앞, 뒤 공백 불가)")),
-                fieldWithPath("content")
-                    .optional()
-                    .type(JsonFieldType.STRING)
-                    .description("수정할 컴포넌트의 설명")
-                    .attributes(key("constraints").value("최대 100bytes (앞, 뒤 공백 불가)"))),
+            "modify-component-name",
+            pathParameters(parameterWithName("componentId").description("이름을 수정하고 싶은 컴포넌트 아이디")),
+            requestFields(fieldWithPath("name")
+                .type(JsonFieldType.STRING)
+                .description("수정할 컴포넌트 이름")
+                .attributes(key("constraints").value("최대 20bytes (앞, 뒤 공백 불가)"))),
             responseFields(
                 fieldWithPath("result")
                     .type(JsonFieldType.STRING)
                     .description("성공 여부 (예: SUCCESS 혹은 ERROR"),
                 fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("수정된 컴포넌트 아이디"))));
+  }
+
+  @Test
+  void modifyComponentContent() {
+    given()
+        .contentType(ContentType.JSON)
+        .body(new ModifyComponentContentRequest("컴포넌트 설명"))
+        .put("/components/{componentId}/content", 1L)
+        .then()
+        .status(HttpStatus.OK)
+        .apply(document(
+            "modify-component-contents",
+            pathParameters(parameterWithName("componentId").description("설명을 수정하고 싶은 컴포넌트 아이디")),
+            requestFields(fieldWithPath("content")
+                .optional()
+                .type(JsonFieldType.STRING)
+                .description("수정할 컴포넌트의 설명")
+                .attributes(key("constraints").value("최대 100bytes (앞, 뒤 공백 불가)"))),
+            responseFields(
+                fieldWithPath("result")
+                    .type(JsonFieldType.STRING)
+                    .description("성공 여부 (예: SUCCESS 혹은 ERROR"),
+                fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("수정된 컴포넌트 설명"))));
   }
 
   @Test

@@ -23,7 +23,7 @@ public class ComponentAppender {
 
   public Component append(User user, Long projectId, NewComponent newComponent) {
     projectValidator.isProjectExists(projectId);
-    componentValidator.isUniqueComponent(projectId, newComponent.name());
+    componentValidator.isUniqueComponentNameForCreate(projectId, newComponent.name());
     memberValidator.isProjectLeader(user, projectId);
 
     return componentRepository.save(user, projectId, newComponent);

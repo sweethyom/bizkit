@@ -52,8 +52,14 @@ public class ComponentService {
     return componentReader.findComponents(projectId);
   }
 
-  public void modifyComponent(User user, Long componentId, ModifyComponent modifyComponent) {
-    componentModifier.modify(user, componentId, modifyComponent);
+  public void modifyComponentName(
+      User user, Long componentId, ModifyComponentName modifyComponentName) {
+    componentModifier.modifyComponentName(user, componentId, modifyComponentName);
+  }
+
+  public void modifyComponentContent(
+      User user, Long componentId, ModifyComponentContent modifyComponentContent) {
+    componentModifier.modifyComponentContent(user, componentId, modifyComponentContent);
   }
 
   public void deleteComponent(User user, Long componentId) {

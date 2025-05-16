@@ -37,12 +37,23 @@ public class ComponentController {
     return ApiResponse.success(responses);
   }
 
-  @PutMapping("/components/{componentId}")
-  public ApiResponse<DefaultIdResponse> modifyComponent(
+  @PutMapping("/components/{componentId}/name")
+  public ApiResponse<DefaultIdResponse> modifyComponentName(
       ApiUser apiUser,
       @PathVariable Long componentId,
-      @RequestBody @Validated ModifyComponentRequest request) {
-    componentService.modifyComponent(apiUser.toUser(), componentId, request.toModifyComponent());
+      @RequestBody @Validated ModifyComponentNameRequest request) {
+    componentService.modifyComponentName(
+        apiUser.toUser(), componentId, request.toModifyComponentName());
+    return ApiResponse.success(new DefaultIdResponse(componentId));
+  }
+
+  @PutMapping("/components/{componentId}/content")
+  public ApiResponse<DefaultIdResponse> modifyComponentContent(
+      ApiUser apiUser,
+      @PathVariable Long componentId,
+      @RequestBody @Validated ModifyComponentContentRequest request) {
+    componentService.modifyComponentContent(
+        apiUser.toUser(), componentId, request.toModifyComponentContent());
     return ApiResponse.success(new DefaultIdResponse(componentId));
   }
 

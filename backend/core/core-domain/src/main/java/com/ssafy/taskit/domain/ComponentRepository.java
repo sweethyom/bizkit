@@ -7,7 +7,7 @@ public interface ComponentRepository {
 
   Component save(User user, Long projectId, NewComponent component);
 
-  boolean existsByProjectIdAndName(Long projectId, String name);
+  Optional<Component> findByProjectIdAndName(Long projectId, String name);
 
   List<Component> findComponents(Long projectId);
 
@@ -21,9 +21,13 @@ public interface ComponentRepository {
 
   void deleteComponent(Long componentId);
 
-  void modifyComponent(Long componentId, ModifyComponent modifyComponent);
+  void modifyComponentName(Long componentId, ModifyComponentName modifyComponentName);
+
+  void modifyComponentContent(Long componentId, ModifyComponentContent modifyComponentContent);
 
   boolean existsByIdAndProjectId(Long componentId, Long projectId);
 
   List<Component> findAllByIds(List<Long> componentIds);
+
+  boolean existsByProjectIdAndName(Long projectId, String name);
 }
