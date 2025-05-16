@@ -1,16 +1,9 @@
 package com.ssafy.taskit.api.validation;
 
-import com.ssafy.taskit.domain.ProjectRepository;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 public class ProjectKeyValidator implements ConstraintValidator<ProjectKey, String> {
-
-  private final ProjectRepository projectRepository;
-
-  public ProjectKeyValidator(ProjectRepository projectRepository) {
-    this.projectRepository = projectRepository;
-  }
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {

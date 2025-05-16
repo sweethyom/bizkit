@@ -8,6 +8,7 @@ import com.ssafy.taskit.domain.image.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,7 +32,7 @@ public class ProjectController {
 
   @PostMapping("/projects")
   public ApiResponse<DefaultIdResponse> appendProject(
-      ApiUser apiUser, @RequestBody AppendProjectRequest request) {
+      ApiUser apiUser, @Validated @RequestBody AppendProjectRequest request) {
     NewProject newProject = request.toNewProject();
 
     Long id = projectService.append(apiUser.toUser(), newProject);
