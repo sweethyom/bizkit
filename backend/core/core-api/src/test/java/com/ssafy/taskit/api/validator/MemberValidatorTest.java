@@ -31,6 +31,6 @@ class MemberValidatorTest {
     when(memberRepository.isMember(1L, projectId)).thenReturn(true);
 
     // When & Then
-    assertDoesNotThrow(() -> memberValidator.isProjectMember(user, projectId));
+    assertDoesNotThrow(() -> memberValidator.validateMember(user, projectId));
   }
 }

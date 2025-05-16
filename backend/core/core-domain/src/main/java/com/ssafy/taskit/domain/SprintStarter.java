@@ -32,7 +32,7 @@ public class SprintStarter {
     Sprint sprint = sprintRepository
         .findSprint(sprintId)
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
-    memberValidator.isProjectMember(user, sprint.projectId());
+    memberValidator.validateMember(user, sprint.projectId());
     sprintValidator.isReadySprint(sprintId);
     List<Issue> issues = issueRepository.findSprintIssues(sprintId);
     check(issues);
