@@ -43,7 +43,7 @@ class ProjectControllerTest extends RestDocsTest {
     when(projectService.append(any(User.class), any(NewProject.class))).thenReturn(1L);
     given()
         .contentType(ContentType.JSON)
-        .body(new AppendProjectRequest("프로젝트 이름1", "프로젝트 키"))
+        .body(new AppendProjectRequest("프로젝트 이름", "PROJECTKEY"))
         .post("/projects")
         .then()
         .status(HttpStatus.OK)
