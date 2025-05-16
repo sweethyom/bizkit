@@ -45,6 +45,9 @@ public class SprintService {
   }
 
   public Sprint findSprint(Long sprintId) {
+    if (sprintId == null) {
+      return Sprint.toEmpty();
+    }
     return sprintReader.findSprint(sprintId);
   }
 }

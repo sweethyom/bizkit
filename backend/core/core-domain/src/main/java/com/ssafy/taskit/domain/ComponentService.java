@@ -74,6 +74,9 @@ public class ComponentService {
   }
 
   public Component findComponent(Long componentId) {
+    if (componentId == null) {
+      return Component.empty();
+    }
     componentValidator.isComponentExists(componentId);
     return componentReader.findComponent(componentId);
   }

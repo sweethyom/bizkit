@@ -9,4 +9,8 @@ public record Sprint(
     LocalDate startDate,
     LocalDate dueDate,
     LocalDate completedDate,
-    Long projectId) {}
+    Long projectId) {
+  public static Sprint toEmpty() {
+    return new Sprint(null, "", null, null, null, null, null);
+  }
+}
