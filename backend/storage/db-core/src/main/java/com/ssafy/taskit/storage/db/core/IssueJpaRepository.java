@@ -112,4 +112,10 @@ public interface IssueJpaRepository extends JpaRepository<IssueEntity, Long> {
       @Param("issueStatus") IssueStatus issueStatus);
 
   List<IssueEntity> findByAssigneeId(@Param("assigneeId") Long userId);
+
+  @Query("SELECT e.projectId, COUNT(i) " + "FROM IssueEntity i "
+      + "JOIN EpicEntity e ON i.epicId = e.id "
+      + "WHERE e.projectId IN :projectIds AND i.assigneeId = :userId "
+      + "GROUP BY e.projectId")
+  List<Object[]> countIssuesByProjectIdsAndUserId(List<Long> projectIds, Long userId);
 }

@@ -5,7 +5,9 @@ import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
 import com.ssafy.taskit.domain.*;
 import com.ssafy.taskit.domain.image.File;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,14 +16,17 @@ public class ProjectController {
   private final ProjectService projectService;
   private final ProjectImageFacade projectImageFacade;
   private final UserService userService;
+  private final IssueService issueService;
 
   public ProjectController(
       ProjectService projectService,
       ProjectImageFacade projectImageFacade,
-      UserService userService) {
+      UserService userService,
+      IssueService issueService) {
     this.projectService = projectService;
-    this.userService = userService;
     this.projectImageFacade = projectImageFacade;
+    this.userService = userService;
+    this.issueService = issueService;
   }
 
   @PostMapping("/projects")
@@ -39,7 +44,13 @@ public class ProjectController {
       @RequestParam(required = false) Long cursor,
       @RequestParam(required = false, defaultValue = "RECENT_VIEW") ProjectSort sort) {
     List<Project> projects = projectService.findProjects(apiUser.toUser(), sort);
-    return ApiResponse.success(ProjectResponse.of(projects));
+    if (projects.isEmpty()) {
+      return ApiResponse.success(Collections.emptyList());
+    }
+    List<Long> projectIds = projects.stream().map(Project::id).toList();
+    Map<Long, Integer> todoCountMap = issueService.getIssueCountsByProjectIdsAndUserId(
+        projectIds, apiUser.toUser().id());
+    return ApiResponse.success(ProjectResponse.of(projects, todoCountMap));
   }
 
   @GetMapping("/projects/{projectId}")

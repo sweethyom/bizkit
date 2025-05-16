@@ -48,4 +48,6 @@ public interface IssueRepository {
   List<Issue> findByUserId(Long userId);
 
   void modifyIssueSprintToBacklog(Long issueId);
+
+  List<Object[]> countIssuesByProjectIdsAndUserId(List<Long> projectIds, Long UserId);
 }

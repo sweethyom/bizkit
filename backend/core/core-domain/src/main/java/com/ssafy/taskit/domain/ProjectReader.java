@@ -1,6 +1,7 @@
 package com.ssafy.taskit.domain;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +10,6 @@ public class ProjectReader {
   private final ProjectRepository projectRepository;
   private final MemberRepository memberRepository;
   private final InvitationRepository invitationRepository;
-
   private final ProjectValidator projectValidator;
 
   public ProjectReader(
@@ -25,6 +25,12 @@ public class ProjectReader {
 
   public List<Project> readProjectsByRecentView(User user, ProjectSort sortType) {
     List<Long> projectIds = projectRepository.findUserProjectIds(user, sortType);
+    List<Project> projects = projectRepository.findAllByIds(projectIds);
+
+    if (projects.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     return projectRepository.findAllByIds(projectIds);
   }
 

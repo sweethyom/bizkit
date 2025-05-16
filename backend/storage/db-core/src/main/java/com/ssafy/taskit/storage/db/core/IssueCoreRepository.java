@@ -218,4 +218,9 @@ public class IssueCoreRepository implements IssueRepository {
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueSprintToBacklog();
   }
+
+  @Override
+  public List<Object[]> countIssuesByProjectIdsAndUserId(List<Long> projectIds, Long UserId) {
+    return issueJpaRepository.countIssuesByProjectIdsAndUserId(projectIds, UserId);
+  }
 }

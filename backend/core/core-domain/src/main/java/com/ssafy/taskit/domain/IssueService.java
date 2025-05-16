@@ -1,8 +1,10 @@
 package com.ssafy.taskit.domain;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -115,5 +117,16 @@ public class IssueService {
 
   public List<Issue> findIssuesByUserId(Long userId) {
     return issueReader.readIssuesByUserId(userId);
+  }
+
+  public Map<Long, Integer> getIssueCountsByProjectIdsAndUserId(
+      List<Long> projectIds, Long userId) {
+    if (projectIds.isEmpty()) {
+      return Collections.emptyMap();
+    }
+
+    return issueRepository.countIssuesByProjectIdsAndUserId(projectIds, userId).stream()
+        .collect(Collectors.toMap(
+            row -> (Long) row[0], row -> ((Number) row[1]).intValue(), (a, b) -> a, HashMap::new));
   }
 }

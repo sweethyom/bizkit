@@ -23,6 +23,7 @@ class ProjectControllerTest extends RestDocsTest {
   ProjectController controller;
   ProjectService projectService;
   UserService userService;
+  IssueService issueService;
 
   ProjectImageFacade projectImageFacade;
 
@@ -31,7 +32,9 @@ class ProjectControllerTest extends RestDocsTest {
     projectService = mock(ProjectService.class);
     userService = mock(UserService.class);
     projectImageFacade = mock(ProjectImageFacade.class);
-    controller = new ProjectController(projectService, projectImageFacade, userService);
+    issueService = mock(IssueService.class);
+    controller =
+        new ProjectController(projectService, projectImageFacade, userService, issueService);
     mockMvc = mockController(controller);
   }
 
