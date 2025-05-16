@@ -12,15 +12,19 @@ public class SprintService {
 
   private final SprintDeleter sprintDeleter;
 
+  private final SprintStarter sprintStarter;
+
   public SprintService(
       SprintAppender sprintAppender,
       SprintReader sprintReader,
       SprintModifier sprintModifier,
-      SprintDeleter sprintDeleter) {
+      SprintDeleter sprintDeleter,
+      SprintStarter sprintStarter) {
     this.sprintAppender = sprintAppender;
     this.sprintReader = sprintReader;
     this.sprintModifier = sprintModifier;
     this.sprintDeleter = sprintDeleter;
+    this.sprintStarter = sprintStarter;
   }
 
   public Sprint append(User user, Long projectId, NewSprint newSprint) {
@@ -42,6 +46,10 @@ public class SprintService {
 
   public void deleteSprint(User user, Long sprintId, IssueHandlingOption option) {
     sprintDeleter.deleteSprint(user, sprintId, option);
+  }
+
+  public void startSprint(User user, Long sprintId, StartSprint startSprint) {
+    sprintStarter.startSprint(user, sprintId, startSprint);
   }
 
   public Sprint findSprint(Long sprintId) {

@@ -54,4 +54,12 @@ public class SprintEntity extends BaseEntity {
   public void updateSprintDueDate(LocalDate dueDate) {
     this.dueDate = dueDate;
   }
+
+  public void updateSprintStartDate() {
+    this.startDate = LocalDate.now();
+  }
+
+  public void startSprint() {
+    this.sprintStatus = SprintStatus.ONGOING;
+  }
 }

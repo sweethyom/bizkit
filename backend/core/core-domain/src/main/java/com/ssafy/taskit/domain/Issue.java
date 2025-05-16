@@ -14,4 +14,14 @@ public record Issue(
     Long assigneeId,
     Long epicId,
     Long sprintId,
-    DefaultDateTime defaultDateTime) {}
+    DefaultDateTime defaultDateTime) {
+
+  public boolean isReadyToStart() {
+    return name != null
+        && bizPoint != null
+        && issueImportance != null
+        && componentId != null
+        && assigneeId != null
+        && epicId != null;
+  }
+}

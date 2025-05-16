@@ -17,6 +17,8 @@ public interface SprintRepository {
 
   void deleteSprint(Long sprintId);
 
+  void startSprint(Long sprintId, StartSprint startSprint);
+
   Sprint findById(Long sprintId);
 
   boolean existsById(Long sprintId);

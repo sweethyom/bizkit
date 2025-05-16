@@ -182,7 +182,7 @@ class SprintControllerTest extends RestDocsTest {
   void startSprint() {
     given()
         .contentType(ContentType.JSON)
-        .body(new StartSprintRequest(LocalDate.of(2025, 05, 02)))
+        .body(new StartSprintRequest(LocalDate.of(2025, 5, 2)))
         .patch("/sprints/{sprintId}/start", 1L)
         .then()
         .status(HttpStatus.OK)

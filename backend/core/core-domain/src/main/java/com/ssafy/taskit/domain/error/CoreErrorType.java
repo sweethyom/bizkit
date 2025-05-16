@@ -97,6 +97,9 @@ public enum CoreErrorType {
       CoreErrorCode.S007,
       "같은 스프린트에서는 이동할 수 없습니다.",
       CoreErrorLevel.INFO),
+
+  SPRINT_HAS_NOT_VALID_ISSUES(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.S008, "Null값을 가진 이슈는 {0}입니다.", CoreErrorLevel.INFO),
   LEADER_MEMBER_SAME_NOT_ALLOWED(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M001, "팀장은 자신을 삭제할 수 없습니다.", CoreErrorLevel.INFO),
 

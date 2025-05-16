@@ -5,6 +5,7 @@ import com.ssafy.taskit.domain.ModifySprintName;
 import com.ssafy.taskit.domain.NewSprint;
 import com.ssafy.taskit.domain.Sprint;
 import com.ssafy.taskit.domain.SprintRepository;
+import com.ssafy.taskit.domain.StartSprint;
 import com.ssafy.taskit.domain.User;
 import com.ssafy.taskit.domain.error.CoreErrorType;
 import com.ssafy.taskit.domain.error.CoreException;
@@ -76,6 +77,17 @@ public class SprintCoreRepository implements SprintRepository {
         .findByIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
     return sprintEntity.toSprint();
+  }
+
+  @Transactional
+  @Override
+  public void startSprint(Long sprintId, StartSprint startSprint) {
+    SprintEntity sprintEntity = sprintJpaRepository
+        .findByIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
+    sprintEntity.updateSprintStartDate();
+    sprintEntity.updateSprintDueDate(startSprint.dueDate());
+    sprintEntity.startSprint();
   }
 
   @Override

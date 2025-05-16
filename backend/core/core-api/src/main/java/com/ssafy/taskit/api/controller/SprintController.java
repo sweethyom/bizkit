@@ -7,6 +7,7 @@ import com.ssafy.taskit.domain.ModifySprintName;
 import com.ssafy.taskit.domain.NewSprint;
 import com.ssafy.taskit.domain.Sprint;
 import com.ssafy.taskit.domain.SprintService;
+import com.ssafy.taskit.domain.StartSprint;
 import java.util.List;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -68,6 +69,8 @@ public class SprintController {
   @PatchMapping("/sprints/{sprintId}/start")
   public ApiResponse<Void> startSprint(
       ApiUser apiUser, @PathVariable Long sprintId, @RequestBody StartSprintRequest request) {
+    StartSprint startSprint = request.toStartSprint();
+    sprintService.startSprint(apiUser.toUser(), sprintId, startSprint);
     return ApiResponse.success();
   }
 
