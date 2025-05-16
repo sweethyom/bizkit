@@ -103,4 +103,9 @@ public class IssueEntity extends BaseEntity {
   public void updateIssueSprint(Long targetId) {
     this.sprintId = targetId;
   }
+
+  public void updateIssueSprintToBacklog() {
+    this.sprintId = null;
+    this.issueStatus = IssueStatus.UNASSIGNED;
+  }
 }

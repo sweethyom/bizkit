@@ -62,84 +62,84 @@ public class IssueCoreRepository implements IssueRepository {
   }
 
   @Override
+  @Transactional
   public void modifyIssueName(Long issueId, ModifyIssueName modifyIssueName) {
     IssueEntity issueEntity = issueJpaRepository
         .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueName(modifyIssueName.name());
-    issueJpaRepository.save(issueEntity);
   }
 
   @Override
+  @Transactional
   public void modifyIssueContent(Long issueId, ModifyIssueContent modifyIssueContent) {
     IssueEntity issueEntity = issueJpaRepository
         .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueContent(modifyIssueContent.content());
-    issueJpaRepository.save(issueEntity);
   }
 
   @Override
+  @Transactional
   public void modifyIssueAssignee(Long issueId, ModifyIssueAssignee modifyIssueAssignee) {
     IssueEntity issueEntity = issueJpaRepository
         .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueAssignee(modifyIssueAssignee.assigneeId());
-    issueJpaRepository.save(issueEntity);
   }
 
   @Override
+  @Transactional
   public void modifyIssueComponent(Long issueId, ModifyIssueComponent modifyIssueComponent) {
     IssueEntity issueEntity = issueJpaRepository
         .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueComponent(modifyIssueComponent.componentId());
-    issueJpaRepository.save(issueEntity);
   }
 
   @Override
+  @Transactional
   public void modifyIssueBizpoint(Long issueId, ModifyIssueBizpoint modifyIssueBizpoint) {
     IssueEntity issueEntity = issueJpaRepository
         .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueBizpoint(modifyIssueBizpoint.bizPoint());
-    issueJpaRepository.save(issueEntity);
   }
 
   @Override
+  @Transactional
   public void modifyIssueImportance(Long issueId, ModifyIssueImportance modifyIssueImportance) {
     IssueEntity issueEntity = issueJpaRepository
         .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueImportance(modifyIssueImportance.issueImportance());
-    issueJpaRepository.save(issueEntity);
   }
 
   @Override
+  @Transactional
   public void modifyIssueStatus(Long issueId, ModifyIssueStatus modifyIssueStatus) {
     IssueEntity issueEntity = issueJpaRepository
         .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueStatus(modifyIssueStatus.issueStatus());
-    issueJpaRepository.save(issueEntity);
   }
 
   @Override
+  @Transactional
   public void modifyIssueEpic(Long issueId, ModifyIssueEpic modifyIssueEpic) {
     IssueEntity issueEntity = issueJpaRepository
         .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueEpic(modifyIssueEpic.epicId());
-    issueJpaRepository.save(issueEntity);
   }
 
   @Override
+  @Transactional
   public void modifyIssueSprint(Long issueId, ModifyIssueSprint modifyIssueSprint) {
     IssueEntity issueEntity = issueJpaRepository
         .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
     issueEntity.updateIssueSprint(modifyIssueSprint.targetId());
-    issueJpaRepository.save(issueEntity);
   }
 
   @Override
@@ -208,5 +208,14 @@ public class IssueCoreRepository implements IssueRepository {
   public List<Issue> findByUserId(Long userId) {
     List<IssueEntity> issueEntities = issueJpaRepository.findByAssigneeId(userId);
     return issueEntities.stream().map(IssueEntity::toIssue).toList();
+  }
+
+  @Override
+  @Transactional
+  public void modifyIssueSprintToBacklog(Long issueId) {
+    IssueEntity issueEntity = issueJpaRepository
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
+    issueEntity.updateIssueSprintToBacklog();
   }
 }
