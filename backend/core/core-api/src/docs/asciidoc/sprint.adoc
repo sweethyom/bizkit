@@ -20,7 +20,7 @@ operation::delete-sprint[snippets='http-request,path-parameters,request-fields,h
 
 operation::modify-sprint-dueDate[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
-=== [미구현] 스프린트 시작
+=== 스프린트 시작
 
 스프린트가 시작되면
 스프린트의 상태가 진행중으로 바뀜
