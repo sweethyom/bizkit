@@ -1,4 +1,5 @@
 import { HomePage } from '@/pages/home';
+import { MyWorksPage } from '@/pages/my-works';
 import { ProfilePage } from '@/pages/profile';
 import { ComponentSettingPage, SettingPage, TeamSettingPage } from '@/pages/settings';
 import { default as SignInPage } from '@/pages/signin';
@@ -17,6 +18,7 @@ export const AppRouter = () => {
         <Route path={ROUTES_MAP.signup.path} element={<SignUpPage />} />
 
         <Route element={<DefaultLayout />}>
+          <Route path={ROUTES_MAP.myWorks.path} element={<MyWorksPage />} />
           <Route path={ROUTES_MAP.projectSettings.path} element={<SettingPage />} />
           <Route path={ROUTES_MAP.teamSettings.path} element={<TeamSettingPage />} />
           <Route path={ROUTES_MAP.componentSettings.path} element={<ComponentSettingPage />} />

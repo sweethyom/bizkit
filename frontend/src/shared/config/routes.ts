@@ -11,6 +11,10 @@ export const ROUTES_MAP = {
     path: '/signup',
     name: 'SignUp',
   },
+  myWorks: {
+    path: '/my-works',
+    name: 'MyWorks',
+  },
   projectSettings: {
     path: '/projects/:projectId/settings',
     name: 'ProjectSettings',
