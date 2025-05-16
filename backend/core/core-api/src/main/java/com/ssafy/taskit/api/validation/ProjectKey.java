@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ProjectKeyValidator.class)
 public @interface ProjectKey {
-  String message() default "프로젝트 키 생성 시 앞뒤 공백 없이 최대 10자이내여야 합니다.";
+  String message() default "프로젝트 키 생성 시 앞뒤 공백없는 영문 대문자 및 숫자 최대 10자이내여야 합니다.";
 
   Class<?>[] groups() default {};
 
