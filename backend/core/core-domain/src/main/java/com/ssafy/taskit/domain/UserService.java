@@ -17,6 +17,9 @@ public class UserService {
   }
 
   public UserDetail findUserDetail(Long userId) {
+    if (userId == null) {
+      return UserDetail.toEmpty();
+    }
     return userFinder.findUserDetail(userId);
   }
 
