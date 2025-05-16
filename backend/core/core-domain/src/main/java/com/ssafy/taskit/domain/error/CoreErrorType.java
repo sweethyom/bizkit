@@ -81,10 +81,10 @@ public enum CoreErrorType {
       "해당 스프린트는 READY 상태가 아닙니다. ",
       CoreErrorLevel.INFO),
 
-  SPRINT_STATUS_IS_NOT_COMPLETED(
+  SPRINT_STATUS_IS_COMPLETED(
       CoreErrorKind.CLIENT_ERROR,
       CoreErrorCode.S005,
-      "해당 스프린트는 COMPLETED 상태가 아닙니다. ",
+      "종료된 스프린트에서는 이동할 수 없습니다.",
       CoreErrorLevel.INFO),
 
   SPRINT_NOT_IN_SAME_PROJECT(
@@ -93,7 +93,10 @@ public enum CoreErrorType {
       "스프린트들이 같은 프로젝트에 속해 있지 않습니다.",
       CoreErrorLevel.INFO),
   SPRINT_IS_EQUAL(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.S007, "같은 스프린트입니다.", CoreErrorLevel.INFO),
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.S007,
+      "같은 스프린트에서는 이동할 수 없습니다.",
+      CoreErrorLevel.INFO),
   LEADER_MEMBER_SAME_NOT_ALLOWED(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M001, "팀장은 자신을 삭제할 수 없습니다.", CoreErrorLevel.INFO),
 
@@ -123,7 +126,12 @@ public enum CoreErrorType {
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P003, "파일이 이미지가 아닙니다.", CoreErrorLevel.WARN),
   NOT_LEADER(CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P004, "팀장이 아닙니다.", CoreErrorLevel.INFO),
   PROJECT_NOT_EXIST(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P005, "존재하지 않는 프로젝트입니다.", CoreErrorLevel.INFO);
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P005, "존재하지 않는 프로젝트입니다.", CoreErrorLevel.INFO),
+  ISSUE_ALREADY_IN_BACKLOG(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.I006,
+      "이슈는 백로그에서 백로그로 이동할 수 없습니다.",
+      CoreErrorLevel.INFO);
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
   private final String message;
