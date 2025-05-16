@@ -22,7 +22,8 @@ public class MemberCoreRepository implements MemberRepository {
   @Override
   public boolean isLeader(Long userId, Long projectId) {
     return memberJpaRepository
-        .findByUserIdAndProjectIdAndMemberRole(userId, projectId, Role.LEADER)
+        .findByUserIdAndProjectIdAndMemberRoleAndEntityStatus(
+            userId, projectId, Role.LEADER, EntityStatus.ACTIVE)
         .isPresent();
   }
 
@@ -33,12 +34,14 @@ public class MemberCoreRepository implements MemberRepository {
 
   @Override
   public boolean isMember(Long userId, Long projectId) {
-    return memberJpaRepository.existsByUserIdAndProjectId(userId, projectId);
+    return memberJpaRepository.existsByUserIdAndProjectIdAndEntityStatus(
+        userId, projectId, EntityStatus.ACTIVE);
   }
 
   @Override
   public List<Member> findMembers(Long projectId) {
-    List<MemberEntity> memberEntities = memberJpaRepository.findByProjectId(projectId);
+    List<MemberEntity> memberEntities =
+        memberJpaRepository.findByProjectIdAndEntityStatus(projectId, EntityStatus.ACTIVE);
     return memberEntities.stream().map(MemberEntity::toMember).toList();
   }
 
@@ -52,25 +55,27 @@ public class MemberCoreRepository implements MemberRepository {
 
   @Transactional
   @Override
-  public Long deleteMember(Long memberId) {
-    Optional<MemberEntity> optionalEntity = memberJpaRepository.findById(memberId);
+  public void deleteMember(Long memberId) {
+    Optional<MemberEntity> optionalEntity =
+        memberJpaRepository.findByIdAndEntityStatus(memberId, EntityStatus.ACTIVE);
     if (optionalEntity.isEmpty()) {
-      return -1L;
+      return;
     }
 
     MemberEntity memberEntity = optionalEntity.get();
     memberEntity.delete();
-    return memberEntity.getId();
   }
 
   @Override
-  public Member findByUserId(Long userId) {
-    return memberJpaRepository.findByUserId(userId).toMember();
+  public Member findByUserIdAndProjectId(Long userId, Long projectId) {
+    return memberJpaRepository
+        .findByUserIdAndAndProjectIdAndEntityStatus(userId, projectId, EntityStatus.ACTIVE)
+        .toMember();
   }
 
   @Override
   public int countMembers(Long projectId) {
-    return memberJpaRepository.countByProjectId(projectId);
+    return memberJpaRepository.countByProjectIdAndEntityStatus(projectId, EntityStatus.ACTIVE);
   }
 
   @Override

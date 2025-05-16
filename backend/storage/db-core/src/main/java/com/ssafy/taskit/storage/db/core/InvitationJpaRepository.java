@@ -5,11 +5,14 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InvitationJpaRepository extends JpaRepository<InvitationEntity, Long> {
-  boolean existsByUserId(Long userId);
+  boolean existsByUserIdAndProjectIdAndEntityStatus(
+      Long userId, Long projectId, EntityStatus entityStatus);
 
-  List<InvitationEntity> findByProjectId(Long projectId);
+  List<InvitationEntity> findByProjectIdAndStatusAndEntityStatus(
+      Long projectId, InvitationStatus invitationstatus, EntityStatus entityStatus);
 
-  InvitationEntity findByInvitationCode(String invitationCode);
+  InvitationEntity findByInvitationCodeAndEntityStatus(
+      String invitationCode, EntityStatus entityStatus);
 
   boolean existsByInvitationCodeAndStatus(String invitationCode, InvitationStatus status);
 

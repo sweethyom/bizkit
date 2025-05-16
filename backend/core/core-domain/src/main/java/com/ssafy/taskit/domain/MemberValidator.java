@@ -42,8 +42,8 @@ public class MemberValidator {
   }
 
   public void validateMember(Long userId, Long projectId) {
-    if (memberRepository.isMember(userId, projectId)) {
-      throw new CoreException(CoreErrorType.ALREADY_MEMBER);
+    if (!memberRepository.isMember(userId, projectId)) {
+      throw new CoreException(CoreErrorType.MEMBER_NOT_FOUND);
     }
   }
 

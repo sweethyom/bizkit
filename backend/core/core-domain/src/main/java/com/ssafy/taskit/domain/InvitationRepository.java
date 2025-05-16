@@ -3,7 +3,7 @@ package com.ssafy.taskit.domain;
 import java.util.List;
 
 public interface InvitationRepository {
-  boolean isInvitationExists(Long userId);
+  boolean isInvitationExists(Long userId, Long projectId);
 
   Invitation save(Long userId, NewInvitation newInvitation, Long projectId, String invitationCode);
 

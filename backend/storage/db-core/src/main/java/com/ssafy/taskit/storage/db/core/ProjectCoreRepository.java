@@ -45,13 +45,14 @@ public class ProjectCoreRepository implements ProjectRepository {
           case RECENT_VIEW -> Sort.by(Sort.Direction.DESC, "lastAccessedAt");
         };
 
-    return projectJpaRepository.findProjectIdsByUserId(user.id(), sort);
+    return projectJpaRepository.findProjectIdsByUserIdAndMemberStatusAndProjectStatus(
+        user.id(), EntityStatus.ACTIVE, EntityStatus.ACTIVE, sort);
   }
 
   @Override
   public ProjectDetail findProject(User user, Long id, boolean isLeader) {
     ProjectEntity projectEntity = projectJpaRepository
-        .findById(id)
+        .findByIdAndEntityStatus(id, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.PROJECT_NOT_EXIST));
     return projectEntity.toProjectDetail(isLeader);
   }
@@ -68,7 +69,7 @@ public class ProjectCoreRepository implements ProjectRepository {
   @Transactional
   public void update(Project project) {
     ProjectEntity projectEntity = projectJpaRepository
-        .findById(project.id())
+        .findByIdAndEntityStatus(project.id(), EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
     projectEntity.updateSequence(project.currentSequence());
   }
@@ -76,7 +77,7 @@ public class ProjectCoreRepository implements ProjectRepository {
   @Override
   public ProjectDetail modifyProjectName(Long projectId, String name, boolean isLeader) {
     ProjectEntity projectEntity = projectJpaRepository
-        .findById(projectId)
+        .findByIdAndEntityStatus(projectId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
     projectEntity.changeName(name);
     projectJpaRepository.save(projectEntity);
@@ -86,7 +87,7 @@ public class ProjectCoreRepository implements ProjectRepository {
   @Override
   public void modifyProjectImage(Long projectId, String imageUrl, boolean isLeader) {
     ProjectEntity projectEntity = projectJpaRepository
-        .findById(projectId)
+        .findByIdAndEntityStatus(projectId, EntityStatus.ACTIVE)
         .orElseThrow(() -> new CoreException(CoreErrorType.DATA_NOT_FOUND));
     projectEntity.changeImageUrl(imageUrl);
     projectJpaRepository.save(projectEntity);
@@ -96,11 +97,17 @@ public class ProjectCoreRepository implements ProjectRepository {
   @Transactional
   @Override
   public void deleteProject(Long projectId) {
-    Optional<ProjectEntity> optionalEntity = projectJpaRepository.findById(projectId);
+    Optional<ProjectEntity> optionalEntity =
+        projectJpaRepository.findByIdAndEntityStatus(projectId, EntityStatus.ACTIVE);
     if (optionalEntity.isEmpty()) {
       throw new CoreException(CoreErrorType.PROJECT_NOT_EXIST);
     }
     ProjectEntity projectEntity = optionalEntity.get();
     projectEntity.delete();
+  }
+
+  @Override
+  public boolean existProject(Long projectId) {
+    return projectJpaRepository.existsByIdAndEntityStatus(projectId, EntityStatus.ACTIVE);
   }
 }

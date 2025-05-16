@@ -48,6 +48,7 @@ public class ProjectService {
   }
 
   public ProjectDetail findProject(User user, Long projectId) {
+    memberValidator.validateMember(user.id(), projectId);
     boolean isLeader = memberValidator.checkProjectLeader(user, projectId);
     return projectReader.readProject(user, projectId, isLeader);
   }

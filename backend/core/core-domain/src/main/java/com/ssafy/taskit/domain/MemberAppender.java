@@ -32,7 +32,7 @@ public class MemberAppender {
   public Invitation appendInvitation(Long projectId, NewInvitation newInvitation) {
 
     User user = userRepository.findByEmail(newInvitation.email());
-    invitationValidator.validateInvitationNotExists(user.id());
+    invitationValidator.validateInvitationNotExists(user.id(), projectId);
     memberValidator.validateNotMember(user, projectId);
     memberValidator.isProjectFull(projectId);
 

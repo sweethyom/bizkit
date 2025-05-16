@@ -51,7 +51,7 @@ public enum CoreErrorType {
       "현재 프로젝트에 존재하는 에픽으로만 변경할 수 있습니다.",
       CoreErrorLevel.INFO),
   MEMBER_NOT_FOUND(
-      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M000, "해당 팀원을 찾을 수 없습니다.", CoreErrorLevel.INFO),
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M000, "프로젝트에 소속된 팀원이 아닙니다.", CoreErrorLevel.INFO),
   USER_NOT_FOUND(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.I005, "해당 사용자를 찾을 수 없습니다.", CoreErrorLevel.INFO),
   SPRINT_NOT_FOUND(

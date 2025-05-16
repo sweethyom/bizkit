@@ -17,8 +17,9 @@ public class InvitationCoreRepository implements InvitationRepository {
   }
 
   @Override
-  public boolean isInvitationExists(Long userId) {
-    return invitationJpaRepository.existsByUserId(userId);
+  public boolean isInvitationExists(Long userId, Long projectId) {
+    return invitationJpaRepository.existsByUserIdAndProjectIdAndEntityStatus(
+        userId, projectId, EntityStatus.ACTIVE);
   }
 
   @Override
@@ -31,13 +32,16 @@ public class InvitationCoreRepository implements InvitationRepository {
 
   @Override
   public List<Invitation> findInvitationMembers(Long projectId) {
-    List<InvitationEntity> invitationEntities = invitationJpaRepository.findByProjectId(projectId);
+    List<InvitationEntity> invitationEntities =
+        invitationJpaRepository.findByProjectIdAndStatusAndEntityStatus(
+            projectId, InvitationStatus.PENDING, EntityStatus.ACTIVE);
     return invitationEntities.stream().map(InvitationEntity::toInvitation).toList();
   }
 
   @Override
   public Invitation findByInvitationCode(String invitationCode) {
-    InvitationEntity invitation = invitationJpaRepository.findByInvitationCode(invitationCode);
+    InvitationEntity invitation = invitationJpaRepository.findByInvitationCodeAndEntityStatus(
+        invitationCode, EntityStatus.ACTIVE);
     return invitation.toInvitation();
   }
 
@@ -55,7 +59,8 @@ public class InvitationCoreRepository implements InvitationRepository {
 
   @Override
   public void accept(String invitationCode) {
-    InvitationEntity invitation = invitationJpaRepository.findByInvitationCode(invitationCode);
+    InvitationEntity invitation = invitationJpaRepository.findByInvitationCodeAndEntityStatus(
+        invitationCode, EntityStatus.ACTIVE);
     invitation.accept();
     invitationJpaRepository.save(invitation);
   }
@@ -63,8 +68,8 @@ public class InvitationCoreRepository implements InvitationRepository {
   @Transactional
   @Override
   public void deleteInvitationMember(String invitationCode) {
-    InvitationEntity byInvitationCode =
-        invitationJpaRepository.findByInvitationCode(invitationCode);
+    InvitationEntity byInvitationCode = invitationJpaRepository.findByInvitationCodeAndEntityStatus(
+        invitationCode, EntityStatus.ACTIVE);
     byInvitationCode.delete();
     invitationJpaRepository.save(byInvitationCode);
   }

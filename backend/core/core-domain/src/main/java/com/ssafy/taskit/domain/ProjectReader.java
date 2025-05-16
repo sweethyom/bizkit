@@ -10,13 +10,17 @@ public class ProjectReader {
   private final MemberRepository memberRepository;
   private final InvitationRepository invitationRepository;
 
+  private final ProjectValidator projectValidator;
+
   public ProjectReader(
       ProjectRepository projectRepository,
       MemberRepository memberRepository,
-      InvitationRepository invitationRepository) {
+      InvitationRepository invitationRepository,
+      ProjectValidator projectValidator) {
     this.projectRepository = projectRepository;
     this.memberRepository = memberRepository;
     this.invitationRepository = invitationRepository;
+    this.projectValidator = projectValidator;
   }
 
   public List<Project> readProjectsByRecentView(User user, ProjectSort sortType) {

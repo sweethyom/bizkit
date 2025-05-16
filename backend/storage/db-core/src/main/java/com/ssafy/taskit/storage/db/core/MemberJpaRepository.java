@@ -11,8 +11,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface MemberJpaRepository extends JpaRepository<MemberEntity, Long> {
-  Optional<MemberEntity> findByUserIdAndProjectIdAndMemberRole(
-      Long userId, Long projectId, Role memberRole);
+  Optional<MemberEntity> findByUserIdAndProjectIdAndMemberRoleAndEntityStatus(
+      Long userId, Long projectId, Role memberRole, EntityStatus entityStatus);
 
   @Modifying
   @Transactional
@@ -23,11 +23,15 @@ public interface MemberJpaRepository extends JpaRepository<MemberEntity, Long> {
       @Param("projectId") Long projectId,
       @Param("lastAccessedAt") LocalDateTime lastAccessedAt);
 
-  boolean existsByUserIdAndProjectId(Long userId, Long ProjectId);
+  boolean existsByUserIdAndProjectIdAndEntityStatus(
+      Long userId, Long ProjectId, EntityStatus entityStatus);
 
-  List<MemberEntity> findByProjectId(Long projectId);
+  List<MemberEntity> findByProjectIdAndEntityStatus(Long projectId, EntityStatus entityStatus);
 
-  MemberEntity findByUserId(Long userId);
+  MemberEntity findByUserIdAndAndProjectIdAndEntityStatus(
+      Long userId, Long projectId, EntityStatus entityStatus);
 
-  int countByProjectId(Long projectId);
+  int countByProjectIdAndEntityStatus(Long projectId, EntityStatus entityStatus);
+
+  Optional<MemberEntity> findByIdAndEntityStatus(Long id, EntityStatus entityStatus);
 }

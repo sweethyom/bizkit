@@ -43,9 +43,9 @@ public class MemberDeleter {
     if (memberValidator.checkProjectLeader(user, projectId)) {
       throw new CoreException(CoreErrorType.LEADER_IS_NOT_ALLOWED);
     }
-    memberValidator.validateMember(user, projectId);
+    memberValidator.validateMember(user.id(), projectId);
 
-    Member member = memberRepository.findByUserId(user.id());
+    Member member = memberRepository.findByUserIdAndProjectId(user.id(), projectId);
     memberRepository.deleteMember(member.id());
   }
 
@@ -53,7 +53,7 @@ public class MemberDeleter {
     Invitation invitation = invitationRepository.findByInvitationCode(invitationCode);
     Long projectId = invitation.projectId();
     memberValidator.isProjectLeader(user, projectId);
-    invitationValidator.validateInvitationNotExists(user.id());
+    invitationValidator.validateInvitationNotExists(user.id(), projectId);
     invitationValidator.isCompletedInvitation(invitationCode);
     invitationRepository.deleteInvitationMember(invitationCode);
   }

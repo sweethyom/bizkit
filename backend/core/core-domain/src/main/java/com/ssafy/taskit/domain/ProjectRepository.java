@@ -24,4 +24,6 @@ public interface ProjectRepository {
   void modifyProjectImage(Long projectId, String imageUrl, boolean isLeader);
 
   void deleteProject(Long projectId);
+
+  boolean existProject(Long projectId);
 }
