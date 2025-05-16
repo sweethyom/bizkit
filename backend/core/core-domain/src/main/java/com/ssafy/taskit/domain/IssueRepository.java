@@ -46,4 +46,6 @@ public interface IssueRepository {
   Map<Long, Long> countBacklogIssuesByEpicIds(List<Long> epicIds);
 
   List<Issue> findByUserId(Long userId);
+
+  void modifyIssueSprintToBacklog(Long issueId);
 }

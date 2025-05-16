@@ -1,5 +1,7 @@
 package com.ssafy.taskit.domain;
 
+import com.ssafy.taskit.domain.error.CoreErrorType;
+import com.ssafy.taskit.domain.error.CoreException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -107,10 +109,36 @@ public class IssueModifier {
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
     memberValidator.validateMember(user, epic.projectId());
-    sprintValidator.isCompletedSprint(issue.sprintId());
-    sprintValidator.isSprintExists(modifyIssueSprint.targetId());
-    sprintValidator.isSprintsEquals(issue.sprintId(), modifyIssueSprint.targetId());
-    sprintValidator.isSprintsInSameProject(issue.sprintId(), modifyIssueSprint.targetId());
-    issueRepository.modifyIssueSprint(issueId, modifyIssueSprint);
+    Long currentSprintId = issue.sprintId();
+    Long targetSprintId = modifyIssueSprint.targetId();
+
+    if (currentSprintId != null && targetSprintId == 0L) {
+      // 조건 1: 기존 스프린트 → 백로그 이동
+      sprintValidator.isCompletedSprint(currentSprintId);
+      issueRepository.modifyIssueSprintToBacklog(issueId);
+      return;
+    }
+
+    if (currentSprintId != null && targetSprintId != 0L) {
+      // 조건 2: 기존 스프린트 → 다른 스프린트 이동
+      sprintValidator.isCompletedSprint(currentSprintId);
+      sprintValidator.isSprintsEquals(currentSprintId, targetSprintId);
+      sprintValidator.isSprintsInSameProject(currentSprintId, targetSprintId);
+      sprintValidator.isSprintExists(targetSprintId);
+      issueRepository.modifyIssueSprint(issueId, modifyIssueSprint);
+      return;
+    }
+
+    if (currentSprintId == null && targetSprintId != 0L) {
+      // 조건 3: 백로그 상태 → 스프린트 할당
+      sprintValidator.isSprintExists(targetSprintId);
+      issueRepository.modifyIssueSprint(issueId, modifyIssueSprint);
+      return;
+    }
+
+    if (currentSprintId == null && targetSprintId == 0L) {
+      // 조건 4: 백로그 상태에서 또 백로그 → 예외
+      throw new CoreException(CoreErrorType.ISSUE_ALREADY_IN_BACKLOG);
+    }
   }
 }
