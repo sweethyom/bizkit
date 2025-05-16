@@ -34,6 +34,10 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    if (originalRequest.url === '/api/auth/reissue') {
+      return Promise.reject(error);
+    }
+
     // 토큰 만료 에러 처리
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -78,7 +82,7 @@ api.interceptors.response.use(
             // 재발급도 실패한 경우 로그아웃 처리
             tokenStorage.remove();
             useUserStore.getState().clearUser();
-            window.location.href = '/signin';
+            // window.location.href = '/signin';
             return Promise.reject(reissueError);
           }
           return Promise.reject(renewError);
@@ -87,7 +91,7 @@ api.interceptors.response.use(
         // 리프레시 토큰이 없는 경우 로그아웃 처리
         tokenStorage.remove();
         useUserStore.getState().clearUser();
-        window.location.href = '/signin';
+        // window.location.href = '/signin';
         return Promise.reject(error);
       }
     }

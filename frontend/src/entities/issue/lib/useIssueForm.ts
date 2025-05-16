@@ -1,6 +1,8 @@
-import { getByteSize } from '@/shared/lib/byteUtils';
+import { createIssue } from '@/entities/issue/api/issueApi';
+
+import { getByteSize } from '@/shared/lib';
+
 import { ChangeEvent, FormEvent, useState } from 'react';
-import { createIssue } from '../api/issueApi';
 
 export const useIssueForm = (epicId: number) => {
   const [issueName, setIssueName] = useState('');

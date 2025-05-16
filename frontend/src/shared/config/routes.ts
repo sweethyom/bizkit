@@ -15,6 +15,10 @@ export const ROUTES_MAP = {
     path: '/my-works',
     name: 'MyWorks',
   },
+  backlog: {
+    path: '/projects/:projectId/backlog',
+    name: 'Backlog',
+  },
   projectSettings: {
     path: '/projects/:projectId/settings',
     name: 'ProjectSettings',
