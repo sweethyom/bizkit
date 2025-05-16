@@ -14,10 +14,15 @@ public interface IssueJpaRepository extends JpaRepository<IssueEntity, Long> {
 
   List<IssueEntity> findByEpicIdAndEntityStatus(Long epicId, EntityStatus entityStatus);
 
-  @Query("SELECT i FROM IssueEntity i " + "WHERE i.epicId = :epicId "
-      + "AND i.entityStatus = :entityStatus "
-      + "AND i.issueStatus = :issueStatus "
-      + "ORDER BY i.createdAt ASC")
+  @Query(
+      """
+      SELECT i FROM IssueEntity i
+      WHERE i.epicId = :epicId
+      AND i.entityStatus = :entityStatus
+      AND i.issueStatus = :issueStatus
+      AND i.sprintId IS NULL
+      ORDER BY i.createdAt ASC
+      """)
   List<IssueEntity> findAllByEpicIdAndEntityStatus(
       @Param("epicId") Long epicId,
       @Param("entityStatus") EntityStatus entityStatus,
@@ -98,6 +103,7 @@ public interface IssueJpaRepository extends JpaRepository<IssueEntity, Long> {
   WHERE i.epicId in :epicIds
   AND i.entityStatus = :entityStatus
   AND i.issueStatus = :issueStatus
+  AND i.sprintId IS NULL
   GROUP BY i.epicId
   """)
   List<Object[]> countBacklogIssuesGroupedByEpicIds(

@@ -18,4 +18,6 @@ public interface SprintRepository {
   void deleteSprint(Long sprintId);
 
   Sprint findById(Long sprintId);
+
+  boolean existsById(Long sprintId);
 }

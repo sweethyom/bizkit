@@ -14,8 +14,11 @@ public class SprintValidator {
   }
 
   public void isSprintExists(Long sprintId) {
-    boolean check = sprintRepository.findSprint(sprintId).isPresent();
-    if (!check) {
+    //    boolean check = sprintRepository.findSprint(sprintId).isPresent();
+    //    if (!check) {
+    //      throw new CoreException(CoreErrorType.SPRINT_NOT_FOUND);
+    //    }
+    if (!sprintRepository.existsById(sprintId)) {
       throw new CoreException(CoreErrorType.SPRINT_NOT_FOUND);
     }
   }
@@ -26,7 +29,7 @@ public class SprintValidator {
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
 
     if (sprint.sprintStatus() != SprintStatus.ONGOING) {
-      throw new CoreException(CoreErrorType.SPRINT_STATUS_IS_ONGOING);
+      throw new CoreException(CoreErrorType.SPRINT_STATUS_IS_NOT_ONGOING);
     }
   }
 
@@ -36,7 +39,7 @@ public class SprintValidator {
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
 
     if (sprint.sprintStatus() == SprintStatus.ONGOING) {
-      throw new CoreException(CoreErrorType.SPRINT_STATUS_IS_NOT_ONGOING);
+      throw new CoreException(CoreErrorType.SPRINT_STATUS_IS_ONGOING);
     }
   }
 
@@ -55,8 +58,8 @@ public class SprintValidator {
         .findSprint(sprintId)
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
 
-    if (sprint.sprintStatus() != SprintStatus.COMPLETED) {
-      throw new CoreException(CoreErrorType.SPRINT_STATUS_IS_NOT_COMPLETED);
+    if (sprint.sprintStatus() == SprintStatus.COMPLETED) {
+      throw new CoreException(CoreErrorType.SPRINT_STATUS_IS_COMPLETED);
     }
   }
 

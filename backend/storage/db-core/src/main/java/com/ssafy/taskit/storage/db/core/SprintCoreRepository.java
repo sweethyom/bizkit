@@ -77,4 +77,9 @@ public class SprintCoreRepository implements SprintRepository {
         .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
     return sprintEntity.toSprint();
   }
+
+  @Override
+  public boolean existsById(Long sprintId) {
+    return sprintJpaRepository.existsByIdAndEntityStatus(sprintId, EntityStatus.ACTIVE);
+  }
 }

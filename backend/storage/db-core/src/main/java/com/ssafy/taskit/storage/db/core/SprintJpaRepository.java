@@ -9,4 +9,6 @@ public interface SprintJpaRepository extends JpaRepository<SprintEntity, Long> {
   List<SprintEntity> findAllByProjectIdAndEntityStatus(Long projectId, EntityStatus entityStatus);
 
   Optional<SprintEntity> findByIdAndEntityStatus(Long id, EntityStatus entityStatus);
+
+  boolean existsByIdAndEntityStatus(Long id, EntityStatus entityStatus);
 }
