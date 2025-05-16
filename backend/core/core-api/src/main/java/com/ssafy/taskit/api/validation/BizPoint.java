@@ -7,7 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.PARAMETER})
+@Target({ElementType.FIELD, ElementType.PARAMETER}) // ← 둘 다 포함
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = BizPointValidator.class)
 public @interface BizPoint {
