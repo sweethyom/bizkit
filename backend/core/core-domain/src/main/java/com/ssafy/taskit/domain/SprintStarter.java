@@ -49,7 +49,9 @@ public class SprintStarter {
         .toList();
 
     if (!invalidIssues.isEmpty()) {
-      throw new CoreException(CoreErrorType.SPRINT_HAS_NOT_VALID_ISSUES, invalidIssues);
+      throw new CoreException(
+          CoreErrorType.SPRINT_HAS_NOT_VALID_ISSUES,
+          invalidIssues.stream().map(InvalidIssue::issueId).toList());
     }
   }
 
