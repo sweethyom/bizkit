@@ -660,12 +660,14 @@ class IssueControllerTest extends RestDocsTest {
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
     given()
         .contentType(ContentType.JSON)
-        .get("components/{componentId}/issues", 1L)
+        .queryParam("componentId", 1L)
+        .get("sprints/ongoing/components/issues", 1L)
         .then()
         .status(HttpStatus.OK)
         .apply(document(
             "find-component-issues",
-            pathParameters(parameterWithName("componentId").description("조회할 컴포넌트 id")),
+            queryParameters(
+                parameterWithName("componentId").description("조회할 컴포넌트 id").optional()),
             responseFields(
                 fieldWithPath("result")
                     .type(JsonFieldType.STRING)
