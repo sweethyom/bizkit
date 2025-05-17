@@ -1,10 +1,12 @@
 package com.ssafy.taskit.storage.db.core;
 
+import com.ssafy.taskit.domain.CompleteSprint;
 import com.ssafy.taskit.domain.ModifySprintDueDate;
 import com.ssafy.taskit.domain.ModifySprintName;
 import com.ssafy.taskit.domain.NewSprint;
 import com.ssafy.taskit.domain.Sprint;
 import com.ssafy.taskit.domain.SprintRepository;
+import com.ssafy.taskit.domain.SprintStatus;
 import com.ssafy.taskit.domain.StartSprint;
 import com.ssafy.taskit.domain.User;
 import com.ssafy.taskit.domain.error.CoreErrorType;
@@ -93,5 +95,20 @@ public class SprintCoreRepository implements SprintRepository {
   @Override
   public boolean existsById(Long sprintId) {
     return sprintJpaRepository.existsByIdAndEntityStatus(sprintId, EntityStatus.ACTIVE);
+  }
+
+  @Override
+  public boolean existsOngoingSprint(Long projectId) {
+    return sprintJpaRepository.existsByProjectIdAndEntityStatusAndSprintStatus(
+        projectId, EntityStatus.ACTIVE, SprintStatus.ONGOING);
+  }
+
+  @Transactional
+  @Override
+  public void completeSprint(Long sprintId, CompleteSprint completeSprint) {
+    SprintEntity sprintEntity = sprintJpaRepository
+        .findByIdAndEntityStatus(sprintId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.SPRINT_NOT_FOUND));
+    sprintEntity.completeSprint();
   }
 }

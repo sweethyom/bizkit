@@ -62,4 +62,9 @@ public class SprintEntity extends BaseEntity {
   public void startSprint() {
     this.sprintStatus = SprintStatus.ONGOING;
   }
+
+  public void completeSprint() {
+    this.completedDate = LocalDate.now();
+    this.sprintStatus = SprintStatus.COMPLETED;
+  }
 }

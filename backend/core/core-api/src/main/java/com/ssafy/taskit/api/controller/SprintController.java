@@ -2,6 +2,7 @@ package com.ssafy.taskit.api.controller;
 
 import com.ssafy.taskit.api.response.ApiResponse;
 import com.ssafy.taskit.api.response.DefaultIdResponse;
+import com.ssafy.taskit.domain.CompleteSprint;
 import com.ssafy.taskit.domain.ModifySprintDueDate;
 import com.ssafy.taskit.domain.ModifySprintName;
 import com.ssafy.taskit.domain.NewSprint;
@@ -77,6 +78,8 @@ public class SprintController {
   @PatchMapping("/sprints/{sprintId}/complete")
   public ApiResponse<Void> completeSprint(
       ApiUser apiUser, @PathVariable Long sprintId, @RequestBody CompleteSprintRequest request) {
+    CompleteSprint completeSprint = request.toCompleteSprint();
+    sprintService.completeSprint(apiUser.toUser(), sprintId, completeSprint);
     return ApiResponse.success();
   }
 

@@ -22,4 +22,8 @@ public interface SprintRepository {
   Sprint findById(Long sprintId);
 
   boolean existsById(Long sprintId);
+
+  boolean existsOngoingSprint(Long projectId);
+
+  void completeSprint(Long sprintId, CompleteSprint completeSprint);
 }
