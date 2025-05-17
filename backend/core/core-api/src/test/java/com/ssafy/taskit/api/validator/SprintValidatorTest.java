@@ -42,4 +42,56 @@ class SprintValidatorTest {
 
     assertDoesNotThrow(() -> sprintValidator.isOngoingSprintAlreadyExist(projectId));
   }
+
+  @Test
+  void isSprintExists_whenSprintExists_doesNotThrow() {
+
+    Long sprintId = 1L;
+    when(sprintRepository.existsById(sprintId)).thenReturn(true);
+
+    assertDoesNotThrow(() -> sprintValidator.isSprintExists(sprintId));
+  }
+
+  @Test
+  void isSprintsInSameProject_whenSprintsInSameProject_doesNotThrow() {
+
+    Long fromSprintId = 1L;
+    Long toSprintId = 2L;
+    Sprint fromSprint = mock(Sprint.class);
+    Sprint toSprint = mock(Sprint.class);
+
+    when(fromSprint.projectId()).thenReturn(1L);
+    when(toSprint.projectId()).thenReturn(1L);
+    //    when(toSprint.projectId()).thenReturn(2L);
+
+    when(sprintRepository.findSprint(fromSprintId)).thenReturn(Optional.of(fromSprint));
+    when(sprintRepository.findSprint(toSprintId)).thenReturn(Optional.of(toSprint));
+    //    when(sprintRepository.findSprint(toSprintId)).thenReturn(Optional.empty());
+
+    assertDoesNotThrow(() -> sprintValidator.isSprintsInSameProject(fromSprintId, toSprintId));
+  }
+
+  @Test
+  void isSprintsEquals_whenIdsAreDifferent_doesNotThrow() {
+
+    Long fromId = 1L;
+    Long toId = 2L;
+    //    Long toId = 1L;
+
+    assertDoesNotThrow(() -> sprintValidator.isSprintsEquals(fromId, toId));
+  }
+
+  @Test
+  void isOngoingSprint_whenSprintStatusIsOngoing_doesNotThrow() {
+
+    Long sprintId = 1L;
+    Sprint sprint = mock(Sprint.class);
+    //    when(sprint.sprintStatus()).thenReturn(SprintStatus.READY);
+    when(sprint.sprintStatus()).thenReturn(SprintStatus.ONGOING);
+    //    when(sprint.sprintStatus()).thenReturn(SprintStatus.COMPLETED);
+    when(sprintRepository.findSprint(sprintId)).thenReturn(Optional.of(sprint));
+    //    when(sprintRepository.findSprint(sprintId)).thenReturn(Optional.empty());
+
+    assertDoesNotThrow(() -> sprintValidator.isOngoingSprint(sprintId));
+  }
 }
