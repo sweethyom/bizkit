@@ -110,8 +110,7 @@ class SprintStarterTest {
 
     // 예외 메시지에서 'args'를 확인하여 InvalidIssue 데이터가 포함되어 있는지 검증
     String message = exception.getMessage();
-    assertTrue(message.contains("KEY-123")); // 이슈의 키를 포함하고 있는지 확인
-    assertTrue(message.contains("Issue Name")); // 이슈의 이름을 포함하고 있는지 확인
+    assertTrue(message.contains(List.of(notReadyIssue.id()).toString())); // 이슈의 키를 포함하고 있는지 확인
   }
 
   @Test
