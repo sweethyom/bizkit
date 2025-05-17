@@ -5,8 +5,6 @@ import com.ssafy.taskit.domain.Epic;
 import com.ssafy.taskit.domain.Importance;
 import com.ssafy.taskit.domain.Issue;
 import com.ssafy.taskit.domain.UserDetail;
-import com.ssafy.taskit.domain.support.DefaultDateTime;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -26,14 +24,9 @@ public record ComponentIssueResponse(
       Map<Long, Epic> epicMap) {
     return issues.stream()
         .map(issue -> {
-          Component component =
-              componentMap.getOrDefault(issue.componentId(), new Component(0L, 0L, 0L, "", ""));
-          UserDetail user =
-              userMap.getOrDefault(issue.assigneeId(), new UserDetail(0L, "", "", ""));
-          Epic epic = epicMap.getOrDefault(
-              issue.epicId(),
-              new Epic(
-                  0L, "", "", 0L, new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())));
+          Component component = componentMap.getOrDefault(issue.componentId(), Component.empty());
+          UserDetail user = userMap.getOrDefault(issue.assigneeId(), UserDetail.empty());
+          Epic epic = epicMap.getOrDefault(issue.epicId(), Epic.empty());
 
           return new ComponentIssueResponse(
               issue.id(),
