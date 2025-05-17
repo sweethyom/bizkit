@@ -24,4 +24,6 @@ public interface SprintRepository {
   boolean existsById(Long sprintId);
 
   boolean existsOngoingSprint(Long projectId);
+
+  void completeSprint(Long sprintId, CompleteSprint completeSprint);
 }
