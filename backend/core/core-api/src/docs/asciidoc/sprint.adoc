@@ -27,12 +27,12 @@ operation::modify-sprint-dueDate[snippets='http-request,path-parameters,request-
 
 operation::start-sprint[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
-=== [미구현] 스프린트 종료
+=== 스프린트 종료
 
 스프린트가 종료되면
 
-1. 스프린트의 상태가 complete로 바뀌고
-2. 스프린트의 종료일에 종료 당일 날짜가 업데이트 됨.
+1. 스프린트의 종료일에 종료 당일 날짜가 업데이트 되고
+2. 스프린트의 상태가 complete로 변경
 
 operation::complete-sprint[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
