@@ -35,6 +35,9 @@ public class SprintCompleter {
 
   public void completeSprint(User user, Long sprintId, CompleteSprint completeSprint) {
     Sprint sprint = sprintReader.findSprint(sprintId);
+    if (completeSprint.id() == null) {
+      completeSprint = new CompleteSprint(0L);
+    }
     sprintValidator.isSprintsInSameProject(sprintId, completeSprint.id());
     sprintValidator.isSprintsEquals(sprintId, completeSprint.id());
     memberValidator.validateMember(user, sprint.projectId());

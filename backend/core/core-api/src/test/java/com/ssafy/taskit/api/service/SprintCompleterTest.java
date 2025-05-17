@@ -91,4 +91,44 @@ class SprintCompleterTest {
     verify(issueModifier, never()).modifyIssueSprint(eq(user), eq(103L), any());
     //    verify(issueModifier).modifyIssueSprint(eq(user), eq(103L), any(ModifyIssueSprint.class));
   }
+
+  @Test
+  void completeSprint_TargetIdIsNull_movesIssuesToBacklog() {
+    Long sprintId = 1L;
+    User user = mock(User.class);
+    when(user.id()).thenReturn(10L);
+
+    Sprint sprint = mock(Sprint.class);
+    when(sprint.projectId()).thenReturn(99L);
+    when(sprintReader.findSprint(sprintId)).thenReturn(sprint);
+
+    Issue todoIssue = mock(Issue.class);
+    when(todoIssue.issueStatus()).thenReturn(IssueStatus.TODO);
+    //    when(todoIssue.issueStatus()).thenReturn(IssueStatus.DONE);
+    when(todoIssue.id()).thenReturn(101L);
+
+    Issue inProgressIssue = mock(Issue.class);
+    when(inProgressIssue.issueStatus()).thenReturn(IssueStatus.IN_PROGRESS);
+    //    when(inProgressIssue.issueStatus()).thenReturn(IssueStatus.DONE);
+    when(inProgressIssue.id()).thenReturn(102L);
+
+    Issue doneIssue = mock(Issue.class);
+    //    when(doneIssue.issueStatus()).thenReturn(IssueStatus.IN_PROGRESS);
+    when(doneIssue.issueStatus()).thenReturn(IssueStatus.DONE);
+    when(doneIssue.id()).thenReturn(103L);
+
+    when(issueReader.readSprintIssues(user, sprintId))
+        .thenReturn(List.of(todoIssue, inProgressIssue, doneIssue));
+
+    CompleteSprint completeSprint = new CompleteSprint(null);
+    //    CompleteSprint completeSprint = new CompleteSprint(1L);
+
+    sprintCompleter.completeSprint(user, sprintId, completeSprint);
+
+    verify(issueModifier)
+        .modifyIssueSprint(eq(user), eq(101L), argThat(arg -> arg.targetId().equals(0L)));
+    verify(issueModifier)
+        .modifyIssueSprint(eq(user), eq(102L), argThat(arg -> arg.targetId().equals(0L)));
+    verify(issueModifier, never()).modifyIssueSprint(eq(user), eq(103L), any());
+  }
 }

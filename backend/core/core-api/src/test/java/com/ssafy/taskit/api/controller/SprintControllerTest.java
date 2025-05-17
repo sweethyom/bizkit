@@ -224,6 +224,7 @@ class SprintControllerTest extends RestDocsTest {
             pathParameters(parameterWithName("sprintId").description("종료하고 싶은 스프린트의 아이디")),
             requestFields(fieldWithPath("id")
                 .type(JsonFieldType.NUMBER)
+                .optional()
                 .attributes(constraints("종료하고 싶은 스프린트의 아이디가 이슈를 옮길 스프린트의 아이디와 같으면 안됨"))
                 .description("이슈를 옮길 스프린트의 아이디")),
             responseFields(fieldWithPath("result")
