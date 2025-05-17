@@ -100,6 +100,12 @@ public enum CoreErrorType {
 
   SPRINT_HAS_NOT_VALID_ISSUES(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.S008, "Null값을 가진 이슈는 {0}입니다.", CoreErrorLevel.INFO),
+
+  ONGOING_SPRINT_ALREADY_EXIST(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.S009,
+      "스프린트는 1개만 활성화 할 수 있습니다.",
+      CoreErrorLevel.INFO),
   LEADER_MEMBER_SAME_NOT_ALLOWED(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M001, "팀장은 자신을 삭제할 수 없습니다.", CoreErrorLevel.INFO),
 

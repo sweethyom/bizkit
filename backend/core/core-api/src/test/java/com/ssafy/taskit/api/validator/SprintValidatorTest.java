@@ -33,4 +33,13 @@ class SprintValidatorTest {
     // then
     assertDoesNotThrow(() -> sprintValidator.isReadySprint(1L));
   }
+
+  @Test
+  void isOngoingSprintAlreadyExist_whenOngoingSprintNotExist_doesNotThrow() {
+
+    Long projectId = 1L;
+    when(sprintRepository.existsOngoingSprint(projectId)).thenReturn(false);
+
+    assertDoesNotThrow(() -> sprintValidator.isOngoingSprintAlreadyExist(projectId));
+  }
 }
