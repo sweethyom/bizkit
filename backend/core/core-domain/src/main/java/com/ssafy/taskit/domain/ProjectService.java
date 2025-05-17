@@ -43,8 +43,12 @@ public class ProjectService {
     return project.id();
   }
 
-  public List<Project> findProjects(User user, ProjectSort sortType) {
-    return projectReader.readProjectsByRecentView(user, sortType);
+  public List<Project> findProjects(
+      User user, ProjectSort sortType, Long cursorId, Integer pageSize) {
+    if (cursorId == null) {
+      return projectReader.readProjectsFirstPageByRecentView(user, sortType, pageSize);
+    }
+    return projectReader.readProjectsByRecentView(user, sortType, cursorId, pageSize);
   }
 
   public ProjectDetail findProject(User user, Long projectId) {

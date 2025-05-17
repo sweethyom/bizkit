@@ -42,9 +42,11 @@ public class ProjectController {
   @GetMapping("/projects")
   public ApiResponse<List<ProjectResponse>> findProjects(
       ApiUser apiUser,
-      @RequestParam(required = false) Long cursor,
+      @RequestParam(required = false) Long cursorId,
+      @RequestParam Integer pageSize,
       @RequestParam(required = false, defaultValue = "RECENT_VIEW") ProjectSort sort) {
-    List<Project> projects = projectService.findProjects(apiUser.toUser(), sort);
+    List<Project> projects =
+        projectService.findProjects(apiUser.toUser(), sort, cursorId, pageSize);
     if (projects.isEmpty()) {
       return ApiResponse.success(Collections.emptyList());
     }

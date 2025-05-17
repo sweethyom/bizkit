@@ -4,8 +4,11 @@ import com.ssafy.taskit.domain.*;
 import com.ssafy.taskit.domain.error.CoreErrorType;
 import com.ssafy.taskit.domain.error.CoreException;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
@@ -53,7 +56,7 @@ public class ProjectCoreRepository implements ProjectRepository {
   public ProjectDetail findProject(User user, Long id, boolean isLeader) {
     ProjectEntity projectEntity = projectJpaRepository
         .findByIdAndEntityStatus(id, EntityStatus.ACTIVE)
-        .orElseThrow(() -> new CoreException(CoreErrorType.PROJECT_NOT_EXIST));
+        .orElseThrow(() -> new CoreException(CoreErrorType.PROJECT_NOT_FOUND));
     return projectEntity.toProjectDetail(isLeader);
   }
 
@@ -100,7 +103,7 @@ public class ProjectCoreRepository implements ProjectRepository {
     Optional<ProjectEntity> optionalEntity =
         projectJpaRepository.findByIdAndEntityStatus(projectId, EntityStatus.ACTIVE);
     if (optionalEntity.isEmpty()) {
-      throw new CoreException(CoreErrorType.PROJECT_NOT_EXIST);
+      throw new CoreException(CoreErrorType.PROJECT_NOT_FOUND);
     }
     ProjectEntity projectEntity = optionalEntity.get();
     projectEntity.delete();
@@ -109,5 +112,28 @@ public class ProjectCoreRepository implements ProjectRepository {
   @Override
   public boolean existProject(Long projectId) {
     return projectJpaRepository.existsByIdAndEntityStatus(projectId, EntityStatus.ACTIVE);
+  }
+
+  @Override
+  public List<Project> findProjectsNextPage(
+      List<Long> projectIds, Long cursorId, Integer pageSize) {
+    ProjectEntity lastProject = projectJpaRepository
+        .findById(cursorId)
+        .orElseThrow(() -> new CoreException(CoreErrorType.PROJECT_NOT_FOUND));
+    LocalDateTime cursorUpdatedAt = lastProject.getUpdatedAt();
+
+    Pageable pageable = PageRequest.of(0, pageSize);
+    List<ProjectEntity> projectEntities = projectJpaRepository.findMyProjectsAfterCursor(
+        projectIds, EntityStatus.ACTIVE, cursorUpdatedAt, cursorId, pageable);
+    return projectEntities.stream().map(ProjectEntity::toProject).toList();
+  }
+
+  @Override
+  public List<Project> findProjectsFirstPage(List<Long> projectIds, Integer pageSize) {
+    Pageable pageable =
+        PageRequest.of(0, pageSize, Sort.by(Sort.Direction.DESC, "updatedAt", "id"));
+    List<ProjectEntity> entities =
+        projectJpaRepository.findMyProjectsFirstPage(projectIds, pageable);
+    return entities.stream().map(ProjectEntity::toProject).toList();
   }
 }

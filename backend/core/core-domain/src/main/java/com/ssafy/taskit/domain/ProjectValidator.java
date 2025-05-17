@@ -14,7 +14,7 @@ public class ProjectValidator {
 
   public boolean isProjectExists(Long projectId) {
     if (!projectRepository.existProject(projectId)) {
-      throw new CoreException(CoreErrorType.PROJECT_NOT_EXIST);
+      throw new CoreException(CoreErrorType.PROJECT_NOT_FOUND);
     }
     return true;
   }

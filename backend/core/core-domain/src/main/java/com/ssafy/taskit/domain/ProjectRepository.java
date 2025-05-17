@@ -26,4 +26,8 @@ public interface ProjectRepository {
   void deleteProject(Long projectId);
 
   boolean existProject(Long projectId);
+
+  List<Project> findProjectsNextPage(List<Long> projectIds, Long cursorId, Integer PageSize);
+
+  List<Project> findProjectsFirstPage(List<Long> projectIds, Integer pageSize);
 }

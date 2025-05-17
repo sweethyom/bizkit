@@ -128,7 +128,7 @@ public enum CoreErrorType {
   INVALID_IMAGE(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P003, "파일이 이미지가 아닙니다.", CoreErrorLevel.WARN),
   NOT_LEADER(CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P004, "팀장이 아닙니다.", CoreErrorLevel.INFO),
-  PROJECT_NOT_EXIST(
+  PROJECT_NOT_FOUND(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.P005, "존재하지 않는 프로젝트입니다.", CoreErrorLevel.INFO),
   ISSUE_ALREADY_IN_BACKLOG(
       CoreErrorKind.CLIENT_ERROR,

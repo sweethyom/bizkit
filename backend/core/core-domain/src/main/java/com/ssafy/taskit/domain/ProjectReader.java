@@ -1,7 +1,6 @@
 package com.ssafy.taskit.domain;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -23,15 +22,16 @@ public class ProjectReader {
     this.projectValidator = projectValidator;
   }
 
-  public List<Project> readProjectsByRecentView(User user, ProjectSort sortType) {
+  public List<Project> readProjectsByRecentView(
+      User user, ProjectSort sortType, Long cursorId, Integer pageSize) {
     List<Long> projectIds = projectRepository.findUserProjectIds(user, sortType);
-    List<Project> projects = projectRepository.findAllByIds(projectIds);
+    return projectRepository.findProjectsNextPage(projectIds, cursorId, pageSize);
+  }
 
-    if (projects.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    return projectRepository.findAllByIds(projectIds);
+  public List<Project> readProjectsFirstPageByRecentView(
+      User user, ProjectSort sortType, Integer pageSize) {
+    List<Long> projectIds = projectRepository.findUserProjectIds(user, sortType);
+    return projectRepository.findProjectsFirstPage(projectIds, pageSize);
   }
 
   public ProjectDetail readProject(User user, Long id, boolean isLeader) {
