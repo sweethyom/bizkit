@@ -1,5 +1,6 @@
 import { BacklogPage } from '@/pages/backlog';
 import { HomePage } from '@/pages/home';
+import { InvitationPage } from '@/pages/invitation';
 import { MyWorksPage } from '@/pages/my-works';
 import { ProfilePage } from '@/pages/profile';
 import { ComponentSettingPage, SettingPage, TeamSettingPage } from '@/pages/settings';
@@ -17,6 +18,7 @@ export const AppRouter = () => {
         <Route path={ROUTES_MAP.main.path} element={<HomePage />} />
         <Route path={ROUTES_MAP.signin.path} element={<SignInPage />} />
         <Route path={ROUTES_MAP.signup.path} element={<SignUpPage />} />
+        <Route path={ROUTES_MAP.invitation.path} element={<InvitationPage />} />
 
         <Route element={<DefaultLayout />}>
           <Route path={ROUTES_MAP.myWorks.path} element={<MyWorksPage />} />

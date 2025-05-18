@@ -6,6 +6,7 @@ import {
   uploadProfileImage,
 } from '@/pages/profile/api/profile';
 import { UserProfile } from '@/pages/profile/model/types';
+import axios from 'axios';
 import { AlertCircle, Camera, CheckCircle, ChevronLeft, Loader, User } from 'lucide-react';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 
@@ -160,15 +161,21 @@ export default function ProfilePage() {
       setIsUpdatingAvatar(true);
       setGeneralError(null);
 
-      // 파일 미리보기 URL 생성
+      // 파일 미리보기 URL 생성 (로컬 미리보기용)
       const reader = new FileReader();
       reader.onload = () => {
+        // 임시 미리보기 이미지 설정
         setAvatarUrl(reader.result as string);
       };
       reader.readAsDataURL(file);
 
       // 서버에 이미지 업로드
+      // API 명세에 따르면 이미지 URL을 바로 반환하지 않고 처리 결과만 리턴
+      // uploadProfileImage 함수는 내부적으로 사용자 정보를 다시 조회하여 URL을 반환
       const imageUrl = await uploadProfileImage(file);
+
+      // 성공적으로 업로드 후 받아온 URL 설정
+      setAvatarUrl(imageUrl);
 
       // 프로필 상태 업데이트
       if (profile) {
@@ -176,8 +183,25 @@ export default function ProfilePage() {
       }
       setSuccessMessage('프로필 이미지가 변경되었습니다');
     } catch (err: any) {
-      console.error(err);
-      setGeneralError(err.message || '이미지 업로드에 실패했습니다');
+      console.error('Profile image upload error:', err);
+      
+      // 서버 오류 응답에서 오류 정보 추출
+      let errorMessage = '이미지 업로드에 실패했습니다';
+      
+      if (err.message) {
+        errorMessage = err.message;
+      } else if (axios.isAxiosError(err) && err.response?.data?.error) {
+        // Axios 오류의 경우 서버 응답에서 오류 메시지 추출
+        const serverError = err.response.data.error;
+        if (typeof serverError === 'object' && serverError.message) {
+          errorMessage = serverError.message;
+        } else if (typeof serverError === 'string') {
+          errorMessage = serverError;
+        }
+      }
+      
+      setGeneralError(errorMessage);
+      
       // 에러 발생 시 기존 아바타로 되돌림
       setAvatarUrl(profile?.avatarUrl || null);
     } finally {

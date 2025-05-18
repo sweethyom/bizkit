@@ -1,5 +1,5 @@
 // settings/ui/ModifyComponentModal.tsx
-import { updateComponent } from '@/pages/settings/api/settingsApi';
+import { updateComponent, updateComponentContent, updateComponentName } from '@/pages/settings/api/settingsApi';
 import { Component } from '@/pages/settings/model/types';
 import { clsx } from 'clsx';
 import { AlertCircle, Save, X } from 'lucide-react';
@@ -26,14 +26,14 @@ const ModifyComponentModal: React.FC<ModifyComponentModalProps> = ({
 
   useEffect(() => {
     setName(component.name);
-    setDescription(component.description || '');
+    setDescription(component.content || '');
     setIsDirty(false);
   }, [component]);
 
   // 폼 변경 감지
   useEffect(() => {
     const isNameChanged = name !== component.name;
-    const isDescChanged = description !== (component.description || '');
+    const isDescChanged = description !== (component.content || '');
     setIsDirty(isNameChanged || isDescChanged);
   }, [name, description, component]);
 
@@ -49,11 +49,27 @@ const ModifyComponentModal: React.FC<ModifyComponentModalProps> = ({
     setError(null);
 
     try {
-      const updatedComponent = await updateComponent(projectId, {
+      // 수정된 API 함수 시그니처에 따라 이름과 설명 변경 모두 별도 호출
+      const componentId = typeof component.id === 'string' ? parseInt(component.id) : component.id;
+      
+      // 이름 변경했는지 확인
+      if (name.trim() !== component.name) {
+        console.log('이름 변경 시도: ', name.trim());
+        await updateComponentName(componentId, name.trim());
+      }
+      
+      // 설명 변경했는지 확인
+      if (description.trim() !== (component.content || '')) {
+        console.log('설명 변경 시도: ', description.trim());
+        await updateComponentContent(componentId, description.trim());
+      }
+
+      // 업데이트된 컴포넌트 객체 생성
+      const updatedComponent = {
         ...component,
         name: name.trim(),
-        description: description.trim() || undefined,
-      });
+        content: description.trim() || undefined
+      };
 
       onUpdate(updatedComponent);
       onClose();

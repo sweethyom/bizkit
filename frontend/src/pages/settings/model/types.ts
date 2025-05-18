@@ -2,20 +2,23 @@
 export interface ProjectSettings {
   id: string;
   name: string;
+  key?: string;
+  image?: string | null;
   imageUrl?: string;
+  leader?: boolean;
 }
 
 export interface TeamMember {
   id: string;
+  userId?: string;
   nickname: string;
   email: string;
-  role: 'LEADER' | 'MEMBER';
   profileImage?: string;
-  leader?: boolean; // API 응답과 호환을 위해 추가
+  leader: boolean;
 }
 
 export interface InvitedMember {
-  invitationId: string;
+  invitationCode: string; // API 명세와 일치하도록 변경 (invitationId -> invitationCode)
   id: string;
   nickname: string;
   email: string;

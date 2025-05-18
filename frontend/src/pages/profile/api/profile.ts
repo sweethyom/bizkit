@@ -1,9 +1,5 @@
 // profile/api/profile.ts
-import {
-  ProfileImageResponse,
-  UserProfile,
-  UserProfileResponse,
-} from '@/pages/profile/model/types';
+import { UserProfile, UserProfileResponse } from '@/pages/profile/model/types';
 import { api, ApiResponse } from '@/shared/api';
 import axios from 'axios';
 
@@ -15,7 +11,7 @@ const USE_MOCK_DATA = false;
 const apiImplementations = {
   fetchUserProfile: async (): Promise<UserProfile> => {
     try {
-      const response = await api.get<ApiResponse<UserProfileResponse>>('/users/me');
+      const response = await api.get<ApiResponse<UserProfileResponse>>('users/me');
 
       if (response.data.result === 'SUCCESS' && response.data.data) {
         // 타입을 명시적으로 지정하여 오류 해결
@@ -44,7 +40,7 @@ const apiImplementations = {
   updateNickname: async (nickname: string): Promise<void> => {
     try {
       // API 명세서에 맞춰 요청
-      const response = await api.patch<ApiResponse<void>>('/users/nickname', { nickname });
+      const response = await api.patch<ApiResponse<void>>('users/nickname', { nickname });
 
       if (response.data.result !== 'SUCCESS') {
         throw new Error('닉네임 변경에 실패했습니다');
@@ -62,7 +58,7 @@ const apiImplementations = {
   updatePassword: async (oldPassword: string, newPassword: string): Promise<void> => {
     try {
       // API 명세서에 맞춰 요청
-      const response = await api.patch<ApiResponse<void>>('/users/password', {
+      const response = await api.patch<ApiResponse<void>>('users/password', {
         oldPassword,
         newPassword,
       });
@@ -83,36 +79,86 @@ const apiImplementations = {
   /**
    * 프로필 이미지 업로드
    * PATCH /api/users/profile-image
+   * API 명세: 프로필 이미지를 multipart/form-data 형식으로 업로드
    */
   uploadProfileImage: async (file: File): Promise<string> => {
     try {
+      // ProfileImageRequest 타입에 맞게 FormData 생성
       const formData = new FormData();
-      formData.append('profileImage', file);
+      formData.append('profileImage', file); // API 명세에 지정된 파라미터 이름 'profileImage' 사용
 
-      // Content-Type을 설정하지 않고 axios가 자동으로 처리하도록 함
-      const response = await api.patch<ApiResponse<ProfileImageResponse>>(
-        '/users/profile-image',
-        formData
-        // Content-Type 헤더를 명시적으로 설정하지 않음
-        // multipart/form-data 경계 문자열을 자동으로 설정하도록 함
+      // API 명세에서는 Content-Type을 application/x-www-form-urlencoded로 지정했지만
+      // 파일 업로드의 경우 multipart/form-data를 사용해야 함
+      // axios가 FormData 객체를 감지하면 자동으로 multipart/form-data로 설정
+      const response = await api.patch<ApiResponse<void>>(
+        'users/profile-image',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+        // Content-Type 헤더를 명시적으로 설정하지 않는 것이 좋음
+        // axios가 알아서 boundary 정보를 포함한 multipart/form-data 헤더를 만들어줌
       );
 
-      if (response.data.result === 'SUCCESS' && response.data.data) {
-        // 서버에서 이미지 URL을 바로 반환하는 경우
-        const imageData = response.data.data as ProfileImageResponse;
-        if (imageData.profileImageUrl) {
-          return imageData.profileImageUrl;
-        }
-
-        // URL을 반환하지 않는 경우 사용자 정보를 다시 가져와야 함
+      if (response.data.result === 'SUCCESS') {
+        // API 명세에 따르면 응답에 이미지 URL이 포함되지 않음
+        // 프로필 이미지 URL을 얻기 위해 사용자 정보를 다시 조회해야 함
         const profileResponse = await apiImplementations.fetchUserProfile();
         return profileResponse.avatarUrl || '';
       } else {
-        throw new Error('Failed to upload profile image');
+        // 오류 응답일 경우 서버에서 제공한 오류 메시지 포함
+        console.error('Server response error:', response.data);
+
+        // 서버에서 오류 메시지를 제공하는 경우 해당 메시지 사용
+        if (response.data.error && typeof response.data.error === 'object') {
+          // 서버 오류 객체의 형식에 따라 적절히 처리
+          const errorObj = response.data.error;
+          if (errorObj.message) {
+            throw new Error(errorObj.message);
+          } else if (errorObj.code) {
+            throw new Error(`Error code: ${errorObj.code}`);
+          }
+        }
+
+        throw new Error('Failed to upload profile image: Server returned an error');
       }
     } catch (error: unknown) {
       console.error('Failed to upload profile image:', error);
-      throw error;
+
+      // AxiosError의 경우 서버 응답 데이터에서 오류 정보 추출
+      if (axios.isAxiosError(error) && error.response) {
+        console.error('Server error response:', error.response.data);
+
+        // 서버에서 오류 데이터를 제공하는 경우
+        if (error.response.data && error.response.data.error) {
+          const serverError = error.response.data.error;
+          if (typeof serverError === 'object' && serverError.message) {
+            throw new Error(serverError.message);
+          } else if (typeof serverError === 'string') {
+            throw new Error(serverError);
+          }
+        }
+
+        // HTTP 상태 코드에 따른 오류 메시지
+        if (error.response.status === 413) {
+          throw new Error('이미지 파일이 너무 큽니다. 더 작은 파일을 업로드해 주세요.');
+        } else if (error.response.status === 415) {
+          throw new Error('지원되지 않는 파일 형식입니다. 이미지 파일만 업로드 가능합니다.');
+        } else if (error.response.status === 400) {
+          throw new Error('잘못된 요청입니다. 이미지 파일을 올바르게 선택해 주세요.');
+        } else if (error.response.status === 500) {
+          throw new Error('서버 오류가 발생했습니다. 다시 시도하거나 관리자에게 문의해 주세요.');
+        }
+      }
+
+      // 기본 오류 메시지 처리
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('이미지 업로드 중 알 수 없는 오류가 발생했습니다.');
+      }
     }
   },
 };

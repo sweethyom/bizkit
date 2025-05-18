@@ -39,4 +39,12 @@ export const ROUTES_MAP = {
     path: '/profile',
     name: 'Profile',
   },
+  invitation: {
+    path: '/invitation/:invitationId',
+    name: 'Invitation',
+  },
+  invitationAccept: {
+    path: '/invitation/accept/:invitationId',
+    name: 'InvitationAccept',
+  },
 };

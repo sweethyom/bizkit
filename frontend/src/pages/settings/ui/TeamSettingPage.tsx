@@ -47,7 +47,7 @@ const TeamSettingPage: React.FC = () => {
   const [isLoadingInvites, setIsLoadingInvites] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null); // 멤버 ID 저장
-  const [isDeletingInvite, setIsDeletingInvite] = useState<string | null>(null); // 초대 ID 저장
+  const [isDeletingInvite, setIsDeletingInvite] = useState<string | null>(null); // 초대 코드 저장
   const [isLeaving, setIsLeaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -83,7 +83,7 @@ const TeamSettingPage: React.FC = () => {
           id: '1', // 임의의 ID
           nickname: 'test2', // 임의의 닉네임
           email: 'test2@test.com', // 임의의 이메일
-          role: 'LEADER', // 프로젝트 생성자는 팀장으로 가정
+          leader: true, // 프로젝트 생성자는 팀장으로 가정
         };
 
         setMembers([currentUser]);
@@ -113,7 +113,23 @@ const TeamSettingPage: React.FC = () => {
     try {
       const data = await getInvitedMembers(projectId);
       console.log('초대 팀원 목록 데이터:', data);
-      setInvitedMembers(data);
+      
+      // 초대 멤버 데이터 유효성 검사
+      const validData = data.map(member => {
+        if (!member.invitationCode) {
+          console.warn('초대 코드가 없는 멤버 발견:', member);
+          // invitationCode가 없는 경우 간단한 코드 부여
+          // 주의: 실제 사용에서는 초대 코드 전달 문제를 백엔드에서 해결하는 것이 좋습니다.
+          // 이는 임시 조치입니다.
+          return {
+            ...member,
+            invitationCode: `temp-${member.id || member.email}`
+          };
+        }
+        return member;
+      });
+      
+      setInvitedMembers(validData);
     } catch (error) {
       console.error('Failed to fetch invited members:', error);
       // 초대 멤버를 가져오는 API가 구현되지 않은 경우, 사용자에게 보이는 오류 메시지는 표시하지 않음
@@ -140,6 +156,12 @@ const TeamSettingPage: React.FC = () => {
       setFilteredMembers(filtered);
     }
   }, [searchQuery, members]);
+
+  // 현재 사용자가 팀장인지 검사
+  const currentUserEmail = localStorage.getItem('userEmail') || '';
+  const isCurrentUserLeader = members.some(
+    (member) => member.email === currentUserEmail && member.leader
+  );
 
   // 이메일 유효성 검사
   const validateEmail = (email: string): boolean => {
@@ -223,6 +245,8 @@ const TeamSettingPage: React.FC = () => {
 
   // 초대 팀원 삭제 모달 열기
   const openDeleteInviteConfirmModal = (invite: InvitedMember) => {
+    console.log('초대 취소할 멤버:', invite);
+    console.log('초대 코드:', invite.invitationCode);
     setInviteToDelete(invite);
     setShowConfirmModal(true);
   };
@@ -231,13 +255,23 @@ const TeamSettingPage: React.FC = () => {
   const handleRemoveInvitedMember = async () => {
     if (!inviteToDelete) return;
 
-    setIsDeletingInvite(inviteToDelete.invitationId);
+    // 초대 코드 로깅 및 유효성 검사
+    console.log('삭제 처리할 초대 코드:', inviteToDelete.invitationCode);
+    
+    if (!inviteToDelete.invitationCode) {
+      console.error('초대 코드가 없습니다.');
+      setError('초대 코드 정보가 없어 초대 취소가 불가합니다.');
+      setShowConfirmModal(false);
+      return;
+    }
+
+    setIsDeletingInvite(inviteToDelete.invitationCode);
     setError(null);
     try {
-      const success = await removeInvitedMember(inviteToDelete.invitationId);
+      const success = await removeInvitedMember(inviteToDelete.invitationCode);
       if (success) {
         setInvitedMembers(
-          invitedMembers.filter((invite) => invite.invitationId !== inviteToDelete.invitationId),
+          invitedMembers.filter((invite) => invite.invitationCode !== inviteToDelete.invitationCode),
         );
         setSuccess('초대가 성공적으로 취소되었습니다.');
         setTimeout(() => {
@@ -263,6 +297,17 @@ const TeamSettingPage: React.FC = () => {
   const handleLeaveTeam = async () => {
     if (!projectId) return;
 
+    // 현재 사용자가 팀장인지 확인
+    const isLeader = members.some(member => 
+      member.email === localStorage.getItem('userEmail') && member.leader
+    );
+
+    if (isLeader) {
+      setError('팀장은 프로젝트를 나갈 수 없습니다. 프로젝트를 삭제하거나 팀장 권한을 다른 사용자에게 이전해주세요.');
+      setShowLeaveConfirmModal(false);
+      return;
+    }
+
     setIsLeaving(true);
     setError(null);
     try {
@@ -276,7 +321,20 @@ const TeamSettingPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to leave team:', error);
-      setError('팀 나가기에 실패했습니다.');
+      
+      // Axios 오류인 경우 더 자세한 오류 처리
+      if (axios.isAxiosError(error) && error.response) {
+        // 오류 응답에 메시지가 있는 경우 해당 메시지 표시
+        if (error.response.data && error.response.data.message) {
+          setError(error.response.data.message);
+        } else if (error.response.status === 401) {
+          setError('팀장은 프로젝트를 나갈 수 없습니다.');
+        } else {
+          setError('팀 나가기에 실패했습니다.');
+        }
+      } else {
+        setError('팀 나가기에 실패했습니다.');
+      }
     } finally {
       setIsLeaving(false);
       setShowLeaveConfirmModal(false);
@@ -293,15 +351,28 @@ const TeamSettingPage: React.FC = () => {
           </h1>
 
           <div className={clsx('flex space-x-3')}>
-            <button
-              type='button'
-              onClick={openLeaveTeamConfirmModal}
-              className={clsx(
-                'flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none',
-              )}
-            >
-              <LogOut size={18} className={clsx('mr-2')} />팀 나가기
-            </button>
+            {/* 현재 사용자가 팀장인지 확인 */}
+            {isCurrentUserLeader ? (
+              <button
+                type='button'
+                onClick={() => setError('팀장은 프로젝트를 나갈 수 없습니다. 프로젝트를 삭제하거나 팀장 권한을 다른 사용자에게 이전해주세요.')}
+                className={clsx(
+                  'flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 transition-colors cursor-not-allowed opacity-60 focus:outline-none',
+                )}
+              >
+                <LogOut size={18} className={clsx('mr-2')} />팀장은 나가기 불가
+              </button>
+            ) : (
+              <button
+                type='button'
+                onClick={openLeaveTeamConfirmModal}
+                className={clsx(
+                  'flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none',
+                )}
+              >
+                <LogOut size={18} className={clsx('mr-2')} />팀 나가기
+              </button>
+            )}
 
             <button
               type='button'
@@ -477,12 +548,12 @@ const TeamSettingPage: React.FC = () => {
                             <span
                               className={clsx(
                                 'inline-flex rounded-full px-3 py-1 text-xs leading-5 font-semibold',
-                                member.role === 'LEADER'
+                                member.leader
                                   ? 'bg-green-100 text-green-800'
                                   : 'bg-blue-100 text-blue-800',
                               )}
                             >
-                              {member.role === 'LEADER' ? '팀장' : '팀원'}
+                              {member.leader ? '팀장' : '팀원'}
                             </span>
                           </td>
                           <td
@@ -490,7 +561,7 @@ const TeamSettingPage: React.FC = () => {
                               'px-6 py-4 text-right text-sm font-medium whitespace-nowrap',
                             )}
                           >
-                            {member.role !== 'LEADER' ? (
+                            {!member.leader ? (
                               <button
                                 onClick={() => openDeleteConfirmModal(member)}
                                 disabled={isDeleting === member.id}
@@ -614,77 +685,90 @@ const TeamSettingPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className={clsx('divide-y divide-gray-200 bg-white')}>
-                      {invitedMembers.map((invite) => (
-                        <tr
-                          key={invite.invitationId}
-                          className={clsx('transition-colors hover:bg-gray-50')}
-                        >
-                          <td className={clsx('px-6 py-4 whitespace-nowrap')}>
-                            <div className={clsx('flex items-center')}>
-                              <div
-                                className={clsx(
-                                  'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-xl font-semibold text-orange-600',
-                                )}
-                              >
-                                {invite.nickname.charAt(0).toUpperCase()}
-                              </div>
-                              <div className={clsx('ml-4')}>
-                                <div className={clsx('text-sm font-medium text-gray-900')}>
-                                  {invite.nickname}
+                      {invitedMembers.map((invite) => {
+                        // 초대 코드가 없는 경우 처리
+                        const hasValidCode = !!invite.invitationCode;
+                        
+                        return (
+                          <tr
+                            key={invite.invitationCode || invite.id || invite.email}
+                            className={clsx('transition-colors hover:bg-gray-50', {
+                              'opacity-70': !hasValidCode
+                            })}
+                          >
+                            <td className={clsx('px-6 py-4 whitespace-nowrap')}>
+                              <div className={clsx('flex items-center')}>
+                                <div
+                                  className={clsx(
+                                    'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-xl font-semibold text-orange-600',
+                                  )}
+                                >
+                                  {invite.nickname.charAt(0).toUpperCase()}
+                                </div>
+                                <div className={clsx('ml-4')}>
+                                  <div className={clsx('text-sm font-medium text-gray-900')}>
+                                    {invite.nickname}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </td>
-                          <td className={clsx('px-6 py-4 whitespace-nowrap')}>
-                            <div className={clsx('flex items-center text-sm text-gray-500')}>
-                              <Mail size={16} className={clsx('mr-2 text-gray-400')} />
-                              {invite.email}
-                            </div>
-                          </td>
-                          <td className={clsx('px-6 py-4 whitespace-nowrap')}>
-                            <span
+                            </td>
+                            <td className={clsx('px-6 py-4 whitespace-nowrap')}>
+                              <div className={clsx('flex items-center text-sm text-gray-500')}>
+                                <Mail size={16} className={clsx('mr-2 text-gray-400')} />
+                                {invite.email}
+                              </div>
+                            </td>
+                            <td className={clsx('px-6 py-4 whitespace-nowrap')}>
+                              <span
+                                className={clsx(
+                                  'inline-flex rounded-full bg-yellow-100 px-3 py-1 text-xs leading-5 font-semibold text-yellow-800',
+                                )}
+                              >
+                                초대됨
+                              </span>
+                            </td>
+                            <td
                               className={clsx(
-                                'inline-flex rounded-full bg-yellow-100 px-3 py-1 text-xs leading-5 font-semibold text-yellow-800',
+                                'px-6 py-4 text-right text-sm font-medium whitespace-nowrap',
                               )}
                             >
-                              초대됨
-                            </span>
-                          </td>
-                          <td
-                            className={clsx(
-                              'px-6 py-4 text-right text-sm font-medium whitespace-nowrap',
-                            )}
-                          >
-                            <button
-                              onClick={() => openDeleteInviteConfirmModal(invite)}
-                              disabled={isDeletingInvite === invite.invitationId}
-                              className={clsx(
-                                'ml-auto flex items-center text-red-600 transition-colors hover:text-red-800',
-                                {
-                                  'cursor-not-allowed opacity-50':
-                                    isDeletingInvite === invite.invitationId,
-                                },
-                              )}
-                            >
-                              {isDeletingInvite === invite.invitationId ? (
-                                <>
-                                  <div
-                                    className={clsx(
-                                      'mr-2 h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-red-600',
-                                    )}
-                                  ></div>
-                                  처리중...
-                                </>
+                              {hasValidCode ? (
+                                <button
+                                  onClick={() => openDeleteInviteConfirmModal(invite)}
+                                  disabled={isDeletingInvite === invite.invitationCode}
+                                  className={clsx(
+                                    'ml-auto flex items-center text-red-600 transition-colors hover:text-red-800',
+                                    {
+                                      'cursor-not-allowed opacity-50':
+                                        isDeletingInvite === invite.invitationCode,
+                                    },
+                                  )}
+                                >
+                                  {isDeletingInvite === invite.invitationCode ? (
+                                    <>
+                                      <div
+                                        className={clsx(
+                                          'mr-2 h-4 w-4 animate-spin rounded-full border-t-2 border-b-2 border-red-600',
+                                        )}
+                                      ></div>
+                                      처리중...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <UserMinus size={16} className={clsx('mr-1')} />
+                                      초대 취소
+                                    </>
+                                  )}
+                                </button>
                               ) : (
-                                <>
-                                  <UserMinus size={16} className={clsx('mr-1')} />
-                                  초대 취소
-                                </>
+                                <span className={clsx('text-xs text-gray-400')}>
+                                  코드 정보 없음
+                                </span>
                               )}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 ) : (

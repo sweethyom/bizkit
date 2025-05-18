@@ -3,6 +3,7 @@ import {
   deleteProject,
   getProjectSettings,
   updateProjectSettings,
+  updateProjectImage,
 } from '@/pages/settings/api/settingsApi';
 import { ProjectSettings } from '@/pages/settings/model/types';
 import { clsx } from 'clsx';
@@ -66,18 +67,51 @@ const SettingPage: React.FC = () => {
         name: projectName.trim(),
       };
 
-      // 이미지 처리 (실제 구현에서는 이미지 업로드 API를 호출해야 함)
+      // 설정 먼저 업데이트
+      let updatedSettings = await updateProjectSettings(updatedSettingsData);
+
+      // 이미지 업로드 실패 플래그
+      let imageUploadFailed = false;
+      
+      // 이미지 파일이 있으면 별도로 이미지 업로드 API 호출
       if (imageFile) {
-        // 가상의 이미지 URL 생성 (실제 구현에서는 업로드 후 반환된 URL 사용)
-        updatedSettingsData.imageUrl = previewUrl || settings.imageUrl;
+        try {
+          console.log('이미지 파일 업로드 시작:', imageFile.name);
+          const imageUploadSuccess = await updateProjectImage(projectId, imageFile);
+
+          if (imageUploadSuccess) {
+            console.log('이미지 업로드 성공');
+            // 이미지 업로드 성공 시 설정 다시 불러오기
+            updatedSettings = await getProjectSettings(projectId);
+          } else {
+            console.error('이미지 업로드 실패 - 응답은 성공이지만 결과가 SUCCESS가 아님');
+            imageUploadFailed = true;
+          }
+        } catch (imageError) {
+          console.error('이미지 업로드 중 오류 발생:', imageError);
+          imageUploadFailed = true;
+        }
       }
 
-      const updatedSettings = await updateProjectSettings(updatedSettingsData);
-      setSettings(updatedSettings);
-      setSuccessMessage('프로젝트 설정이 저장되었습니다.');
+      // 이미지 업로드 실패 시 메시지 표시
+      if (imageUploadFailed) {
+        setFormError('이미지 업로드는 실패했으나 다른 설정은 저장되었습니다.');
+        setTimeout(() => setFormError(null), 5000);
+      } else {
+        setSuccessMessage('프로젝트 설정이 저장되었습니다.');
+        setTimeout(() => setSuccessMessage(null), 3000);
+      }
 
-      // 3초 후 성공 메시지 숨기기
-      setTimeout(() => setSuccessMessage(null), 3000);
+      setSettings(updatedSettings);
+      
+      // 이미지 상태 초기화
+      if (!imageUploadFailed) {
+        setImageFile(null);
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl); // 메모리 누수 방지
+          setPreviewUrl(null);
+        }
+      }
     } catch (error) {
       console.error('Failed to update project settings:', error);
       setFormError('프로젝트 설정 저장에 실패했습니다.');
@@ -138,7 +172,7 @@ const SettingPage: React.FC = () => {
   };
 
   // 이미지 URL 결정 (미리보기 또는 저장된 이미지)
-  const imageUrl = previewUrl || settings?.imageUrl || '';
+  const imageUrl = previewUrl || settings?.imageUrl || settings?.image || '';
 
   if (isLoading || !settings) {
     return (

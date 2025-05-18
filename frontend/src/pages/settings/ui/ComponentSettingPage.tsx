@@ -4,6 +4,8 @@ import {
   deleteComponent,
   getComponents,
   updateComponent,
+  updateComponentContent,
+  updateComponentName,
 } from '@/pages/settings/api/settingsApi';
 import { Component } from '@/pages/settings/model/types';
 import { clsx } from 'clsx';
@@ -99,11 +101,27 @@ const ComponentSettingPage: React.FC = () => {
     setError(null);
 
     try {
-      const updatedComponent = await updateComponent(projectId, {
+      // 수정된 API 함수 시그니처에 따라 이름과 설명 변경을 별도로 호출
+      const componentId = typeof selectedComponent.id === 'string' 
+        ? parseInt(selectedComponent.id) 
+        : selectedComponent.id;
+      
+      // 이름이 변경되었는지 확인
+      if (componentName.trim() !== selectedComponent.name) {
+        await updateComponentName(componentId, componentName.trim());
+      }
+      
+      // 설명이 변경되었는지 확인
+      if (componentContent.trim() !== (selectedComponent.content || '')) {
+        await updateComponentContent(componentId, componentContent.trim());
+      }
+
+      // 업데이트된 컴포넌트 객체 생성
+      const updatedComponent = {
         ...selectedComponent,
         name: componentName.trim(),
         content: componentContent.trim() || undefined,
-      });
+      };
 
       const updatedComponents = components.map((comp) =>
         comp.id === updatedComponent.id ? updatedComponent : comp,
@@ -136,7 +154,8 @@ const ComponentSettingPage: React.FC = () => {
     setError(null);
 
     try {
-      const success = await deleteComponent(projectId, parseInt(selectedComponent.id));
+      // 수정된 API 함수 시그니처에 따라 projectId 제외
+      const success = await deleteComponent(parseInt(selectedComponent.id));
       if (success) {
         const updatedComponents = components.filter((comp) => comp.id !== selectedComponent.id);
         setComponents(updatedComponents);
