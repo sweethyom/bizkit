@@ -1,8 +1,8 @@
 export type TokenInfo = {
   tokenType: string;
   accessToken: string;
-  accessTokenExpiresIn: number;
+  accessTokenExpiresAt: number;
   refreshToken: string;
-  refreshTokenExpiresIn: number;
-  refreshTokenRenewAvailableSeconds: number;
+  refreshTokenExpiresAt: number;
+  refreshTokenRenewableAt: number;
 };

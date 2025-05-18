@@ -1,9 +1,10 @@
 // signin/ui/SignInPage.tsx
 import { signInUser } from '@/pages/signin/api/signInApi';
 import { SignInCredentials } from '@/pages/signin/model/types';
-import { fetchUserProfile } from '@/shared/api';
 import SignInForm from '@/pages/signin/ui/SignInForm';
+import { fetchUserProfile } from '@/shared/api';
 import { tokenStorage, useUserStore } from '@/shared/lib';
+import { tokenResponseToTokenInfo } from '@/shared/lib/authToken';
 import { FC, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -21,21 +22,31 @@ const SignInPage: FC = () => {
     try {
       // 로그인 및 토큰 저장
       const tokenInfo = await signInUser(credentials);
-      tokenStorage.set(tokenInfo);
+
+      const newTokenInfo = {
+        ...tokenInfo,
+        accessTokenExpiresAt: new Date(Date.now() + tokenInfo.accessTokenExpiresIn * 1000),
+        refreshTokenExpiresAt: new Date(Date.now() + tokenInfo.refreshTokenExpiresIn * 1000),
+        refreshTokenRenewableAt: new Date(
+          Date.now() + tokenInfo.refreshTokenRenewAvailableSeconds * 1000,
+        ),
+      };
+
+      tokenStorage.set(tokenResponseToTokenInfo(newTokenInfo));
 
       // 사용자 정보 가져오기
       try {
         const userProfile = await fetchUserProfile();
-        
+
         // useUserStore에 사용자 정보 저장
         const setUser = useUserStore.getState().setUser;
         setUser({
           id: userProfile.id,
           nickname: userProfile.nickname,
           email: userProfile.email,
-          profileImageUrl: userProfile.avatarUrl || undefined
+          profileImageUrl: userProfile.avatarUrl || undefined,
         });
-        
+
         console.log('사용자 정보가 useUserStore에 저장되었습니다:', userProfile);
       } catch (profileError) {
         console.error('사용자 정보를 가져오는 중 오류 발생:', profileError);

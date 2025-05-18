@@ -1,5 +1,4 @@
-import { TokenInfo } from '@/shared/model/types';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { ApiResponse } from './types';
 
 const authInstance = axios.create({
@@ -9,16 +8,26 @@ const authInstance = axios.create({
   },
 });
 
-export const authApi = {
-  reissueToken: (refreshToken: string) => {
-    return authInstance.post<ApiResponse<TokenInfo>>('/auth/token/reissue', {
-      refreshToken,
-    });
-  },
+export type ReissueData = {
+  tokenType: string;
+  accessToken: string;
+  accessTokenExpiresIn: number;
+};
 
-  renewToken: (refreshToken: string) => {
-    return authInstance.post<ApiResponse<TokenInfo>>('/auth/token/renew', {
-      refreshToken,
-    });
+export type TokenData = {
+  tokenType: string;
+  accessToken: string;
+  accessTokenExpiresIn: number;
+  refreshToken: string;
+  refreshTokenExpiresIn: number;
+  refreshTokenRenewAvailableSeconds: number;
+};
+
+export const authApi = {
+  reissueToken: (refreshToken: string): Promise<AxiosResponse<ApiResponse<ReissueData>>> => {
+    return authInstance.post<ApiResponse<ReissueData>>('/auth/token/reissue', { refreshToken });
+  },
+  renewToken: (refreshToken: string): Promise<AxiosResponse<ApiResponse<TokenData>>> => {
+    return authInstance.post<ApiResponse<TokenData>>('/auth/token/renew', { refreshToken });
   },
 };
