@@ -75,11 +75,13 @@ class ProjectControllerTest extends RestDocsTest {
     Project project1 = new Project(1L, 1L, "프로젝트1", "SFE213FE", 0, null, now);
     Project project2 = new Project(2L, 1L, "프로젝트1", "SFE213FE", 0, null, oldest);
     Project project3 = new Project(3L, 1L, "프로젝트2", "SFE213FEFE", 0, null, older);
-    when(projectService.findProjects(any(User.class), eq(ProjectSort.RECENT_VIEW)))
+    when(projectService.findProjects(
+            any(User.class), eq(ProjectSort.RECENT_VIEW), anyLong(), anyInt()))
         .thenReturn(List.of(project1, project3, project2));
     given()
         .contentType(ContentType.JSON)
-        .queryParam("cursor", "2")
+        .queryParam("cursorId", 1L)
+        .queryParam("pageSize", 5)
         .queryParam("sort", "RECENT_VIEW")
         .get("/projects")
         .then()
@@ -87,9 +89,10 @@ class ProjectControllerTest extends RestDocsTest {
         .apply(document(
             "find-projects",
             queryParameters(
-                parameterWithName("cursor")
+                parameterWithName("cursorId")
                     .optional()
                     .description("페이지네이션 커서, 이전 페이지의 마지막 프로젝트 ID를 입력.첫 페이지 요청 시 생략하거나 빈값으로 요청)"),
+                parameterWithName("pageSize").description("페이지에 띄울 프로젝트 수"),
                 parameterWithName("sort") // sort 파라미터 문서화 추가
                     .optional()
                     .description(
