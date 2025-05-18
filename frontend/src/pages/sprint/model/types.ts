@@ -12,9 +12,16 @@ export interface Issue {
   sprint?: string; // 스프린트 정보
 }
 
+// GET /components/{componentId}/issues API 응답을 위한 인터페이스
+export interface ComponentIssueGroup {
+  issueStatus: string; // 'TODO', 'IN_PROGRESS', 'DONE'
+  issues: Issue[];
+}
+
 export interface IssueDetailModalProps {
   isOpen: boolean;
   issue: Issue | null;
+  projectId: string; // 프로젝트 ID 추가
   onClose: () => void;
   onDelete?: (issueId: string) => void;
   onUpdate?: (issue: Issue) => void;

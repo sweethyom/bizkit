@@ -1,12 +1,100 @@
 import { mockSprintData } from '@/pages/sprint/model/mock';
-import { Issue, SprintData } from '@/pages/sprint/model/types';
+import { ComponentIssueGroup, Issue, SprintData } from '@/pages/sprint/model/types';
 import { api, ApiResponse } from '@/shared/api';
 
 // 목업 데이터 사용 여부 (개발 시에만 true, 실제 서버 연동 시 false로 설정)
 const USE_MOCK = false;
 
+// 프로젝트의 스프린트 목록 조회 - API 명세: GET /projects/{projectId}/sprints
+export const getProjectSprints = async (projectId: string): Promise<any[]> => {
+  if (USE_MOCK) {
+    // 목업 데이터 사용
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([
+          {
+            id: 1,
+            name: '활성하기 전 스프린트 이름',
+            status: 'READY',
+            startDate: '2025-04-30',
+            dueDate: '2025-05-01',
+            completedDate: null
+          },
+          {
+            id: 2,
+            name: '활성화 된 스프린트 이름',
+            status: 'ONGOING',
+            startDate: '2025-04-30',
+            dueDate: '2025-05-01',
+            completedDate: null
+          },
+          {
+            id: 3,
+            name: '종료된 스프린트 이름',
+            status: 'COMPLETED',
+            startDate: '2025-04-29',
+            dueDate: '2025-05-01',
+            completedDate: '2025-04-30'
+          }
+        ]);
+      }, 500);
+    });
+  } else {
+    // 실제 API 호출
+    const response = await api.get<ApiResponse<any>>(`/projects/${projectId}/sprints`);
+    
+    if (response.data.result === 'SUCCESS' && response.data.data) {
+      return response.data.data;
+    } else {
+      throw new Error(`Failed to fetch sprints for project ${projectId}`);
+    }
+  }
+};
+
+// 현재 활성 스프린트의 ID를 찾는 함수 (활성 스프린트가 없을 경우 대체 스프린트 찾기)
+export const findActiveSprintId = async (projectId: string): Promise<string | null> => {
+  try {
+    const sprints = await getProjectSprints(projectId);
+    
+    if (sprints.length === 0) {
+      return null; // 스프린트가 없는 경우
+    }
+    
+    // 1. 활성 스프린트 찾기 (ONGOING)
+    const activeSprint = sprints.find(sprint => sprint.status === 'ONGOING');
+    if (activeSprint) {
+      return activeSprint.id.toString();
+    }
+    
+    // 2. 활성 스프린트가 없는 경우, 준비 상태(READY)의 스프린트 찾기
+    const readySprint = sprints.find(sprint => sprint.status === 'READY');
+    if (readySprint) {
+      return readySprint.id.toString();
+    }
+    
+    // 3. 준비 상태의 스프린트도 없는 경우, 마지막에 종료된 스프린트 사용
+    // 일반적으로 가장 최근에 종료된 스프린트가 더 관련성이 높음
+    const completedSprints = sprints.filter(sprint => sprint.status === 'COMPLETED');
+    if (completedSprints.length > 0) {
+      // completedDate가 가장 최근인 스프린트 찾기
+      completedSprints.sort((a, b) => {
+        const dateA = a.completedDate ? new Date(a.completedDate).getTime() : 0;
+        const dateB = b.completedDate ? new Date(b.completedDate).getTime() : 0;
+        return dateB - dateA; // 내림차순 정렬 (가장 최근 종료된 것이 먼저)
+      });
+      return completedSprints[0].id.toString();
+    }
+    
+    // 4. 전부 실패한 경우, 그냥 처음 스프린트를 사용
+    return sprints[0].id.toString();
+  } catch (error) {
+    console.error('Failed to find active sprint:', error);
+    return null;
+  }
+};
+
 // 스프린트의 이슈 데이터 조회
-export const getSprintData = async (sprintId?: string): Promise<SprintData> => {
+export const getSprintData = async (sprintId?: string, projectId?: string): Promise<SprintData> => {
   if (USE_MOCK) {
     // 목업 데이터 사용
     return new Promise((resolve) => {
@@ -16,9 +104,22 @@ export const getSprintData = async (sprintId?: string): Promise<SprintData> => {
     });
   } else {
     // 실제 API 호출
-    // sprintId가 없는 경우 현재 활성 스프린트 또는 기본 스프린트를 가져오도록 처리
-    const url = sprintId ? `/sprints/${sprintId}/issues` : '/sprints/active/issues';
-    const response = await api.get<ApiResponse<any>>(url);
+    // sprintId가 없는 경우, 프로젝트의 활성 스프린트를 찾아서 그 스프린트의 이슈를 가져옴
+    let targetSprintId = sprintId;
+    
+    if (!targetSprintId && projectId) {
+      targetSprintId = await findActiveSprintId(projectId);
+      if (!targetSprintId) {
+        // 프로젝트에 스프린트가 없는 경우
+        throw new Error('No sprint found for this project');
+      }
+    }
+    
+    if (!targetSprintId) {
+      throw new Error('No sprint ID specified or found');
+    }
+    
+    const response = await api.get<ApiResponse<any>>(`/sprints/${targetSprintId}/issues`);
     
     // API 응답 변환: 백엔드 API 형식을 프론트엔드 모델로 변환
     // API 응답이 result: "SUCCESS", data: [...] 형식이므로 data 필드를 추출
@@ -167,7 +268,7 @@ export const getIssueDetail = async (issueId: string): Promise<Issue> => {
   }
 };
 
-// 이슈 상태 업데이트 - API 명세: PATCH /issues/{issueId}/status
+// 이슈 진행 상태 수정 - API 명세: PATCH /issues/{issueId}/status
 export const updateIssueStatus = async (
   issueId: string,
   newStatus: 'todo' | 'inProgress' | 'done',
@@ -196,7 +297,7 @@ export const updateIssueStatus = async (
 };
 
 // 이슈 컴포넌트 수정 - API 명세: PATCH /issues/{issueId}/component
-export const updateIssueComponent = async (issueId: string, componentId: string): Promise<void> => {
+export const updateIssueComponent = async (issueId: string, componentId: string | null): Promise<void> => {
   if (USE_MOCK) {
     // 목업 응답
     return new Promise((resolve) => {
@@ -226,7 +327,7 @@ export const deleteIssue = async (issueId: string): Promise<void> => {
       }, 300);
     });
   } else {
-    // 실제 API 호출
+    // 실제 API 호출 - API 명세에 맞게 DELETE 메서드 사용
     const response = await api.delete<ApiResponse<void>>(`/issues/${issueId}`);
     
     if (response.data.result !== 'SUCCESS') {
@@ -246,7 +347,7 @@ export const updateIssueName = async (issueId: string, name: string): Promise<vo
       }, 300);
     });
   } else {
-    // 실제 API 호출
+    // 실제 API 호출 - API 명세에 맞게 name 키로 전송
     const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/name`, { name });
     
     if (response.data.result !== 'SUCCESS') {
@@ -266,7 +367,7 @@ export const updateIssueContent = async (issueId: string, content: string): Prom
       }, 300);
     });
   } else {
-    // 실제 API 호출
+    // 실제 API 호출 - API 명세에 맞게 content 키로 전송
     const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/content`, { content });
     
     if (response.data.result !== 'SUCCESS') {
@@ -276,7 +377,7 @@ export const updateIssueContent = async (issueId: string, content: string): Prom
 };
 
 // 이슈 담당자 수정 - API 명세: PATCH /issues/{issueId}/assignee
-export const updateIssueAssignee = async (issueId: string, assigneeId: string): Promise<void> => {
+export const updateIssueAssignee = async (issueId: string, assigneeId: string | null): Promise<void> => {
   if (USE_MOCK) {
     // 목업 응답
     return new Promise((resolve) => {
@@ -334,11 +435,127 @@ export const updateIssueBizpoint = async (issueId: string, bizpoint: number): Pr
       }, 300);
     });
   } else {
-    // 실제 API 호출
+    // 실제 API 호출 - API 명세에 맞게 bizPoint 로 키를 지정
     const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/bizPoint`, { bizPoint: bizpoint });
     
     if (response.data.result !== 'SUCCESS') {
       throw new Error(`Failed to update issue bizpoint to ${bizpoint}`);
+    }
+  }
+};
+
+// 프로젝트의 에픽 목록 조회 - API 명세: GET /projects/{projectId}/epics
+export const getProjectEpics = async (projectId: string): Promise<any[]> => {
+  if (USE_MOCK) {
+    // 목업 데이터 사용
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([
+          { id: 1, name: '로그인 기능' },
+          { id: 2, name: '게시판 기능' },
+          { id: 3, name: '알림 기능' },
+        ]);
+      }, 300);
+    });
+  } else {
+    // 실제 API 호출
+    const response = await api.get<ApiResponse<any>>(`/projects/${projectId}/epics`);
+    
+    if (response.data.result === 'SUCCESS' && response.data.data) {
+      return response.data.data;
+    } else {
+      throw new Error(`Failed to fetch epics for project ${projectId}`);
+    }
+  }
+};
+
+// 프로젝트의 컴포넌트 목록 조회 - API 명세: GET /projects/{projectId}/components
+export const getProjectComponents = async (projectId: string): Promise<any[]> => {
+  if (USE_MOCK) {
+    // 목업 데이터 사용
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([
+          { id: 1, name: '프론트엔드' },
+          { id: 2, name: '백엔드' },
+          { id: 3, name: '데이터베이스' },
+          { id: 4, name: 'UI/UX' }
+        ]);
+      }, 300);
+    });
+  } else {
+    // 실제 API 호출
+    const response = await api.get<ApiResponse<any>>(`/projects/${projectId}/components`);
+    
+    if (response.data.result === 'SUCCESS' && response.data.data) {
+      return response.data.data;
+    } else {
+      throw new Error(`Failed to fetch components for project ${projectId}`);
+    }
+  }
+};
+
+// 프로젝트의 멤버 목록 조회 - API 명세: GET /projects/{projectId}/members
+export const getProjectMembers = async (projectId: string): Promise<any[]> => {
+  if (USE_MOCK) {
+    // 목업 데이터 사용
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([
+          { id: 1, nickname: '홍길동', email: 'hong@test.com' },
+          { id: 2, nickname: '김철수', email: 'kim@test.com' },
+          { id: 3, nickname: '이영희', email: 'lee@test.com' }
+        ]);
+      }, 300);
+    });
+  } else {
+    // 실제 API 호출
+    const response = await api.get<ApiResponse<any>>(`/projects/${projectId}/members`);
+    
+    if (response.data.result === 'SUCCESS' && response.data.data) {
+      return response.data.data;
+    } else {
+      throw new Error(`Failed to fetch members for project ${projectId}`);
+    }
+  }
+};
+
+// 이슈의 스프린트 변경 - API 명세: PATCH /issues/{issueId}/sprint
+export const updateIssueSprint = async (issueId: string, sprintId: string | null): Promise<void> => {
+  if (USE_MOCK) {
+    // 목업 응답
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log(`Issue ${issueId} sprint updated to ${sprintId}`);
+        resolve();
+      }, 300);
+    });
+  } else {
+    // 실제 API 호출
+    const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/sprint`, { sprintId });
+    
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(`Failed to update issue sprint to ${sprintId}`);
+    }
+  }
+};
+
+// 이슈의 에픽 변경 - API 명세: PATCH /issues/{issueId}/epic
+export const updateIssueEpic = async (issueId: string, epicId: string | null): Promise<void> => {
+  if (USE_MOCK) {
+    // 목업 응답
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log(`Issue ${issueId} epic updated to ${epicId}`);
+        resolve();
+      }, 300);
+    });
+  } else {
+    // 실제 API 호출
+    const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/epic`, { epicId });
+    
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(`Failed to update issue epic to ${epicId}`);
     }
   }
 };
@@ -431,20 +648,37 @@ export const getSprintIssues = async (sprintId: string): Promise<Issue[]> => {
 };
 
 // 컴포넌트별 이슈 목록 조회 - API 명세: GET /components/{componentId}/issues
-export const getComponentIssues = async (componentId: string): Promise<Issue[]> => {
+// API 명세에 따라 이슈는 상태(TODO, IN_PROGRESS, DONE)별로 그룹화되어야 함
+export const getComponentIssues = async (componentId: string): Promise<ComponentIssueGroup[]> => {
   if (USE_MOCK) {
-    // 목업 응답: componentId에 해당하는 이슈들만 필터링
+    // 목업 응답: componentId에 해당하는 이슈들을 상태별로 그룹화
     return new Promise((resolve) => {
       setTimeout(() => {
-        const issuesList: Issue[] = [];
+        const issuesByStatus: { [key: string]: Issue[] } = {
+          TODO: [],
+          IN_PROGRESS: [],
+          DONE: []
+        };
+        
         mockSprintData.statusGroups.forEach((statusGroup) => {
           statusGroup.componentGroups.forEach((componentGroup) => {
             if (componentGroup.id === componentId) {
-              issuesList.push(...componentGroup.issues);
+              componentGroup.issues.forEach(issue => {
+                const apiStatus = issue.status === 'todo' ? 'TODO' : 
+                                 issue.status === 'inProgress' ? 'IN_PROGRESS' : 'DONE';
+                issuesByStatus[apiStatus].push(issue);
+              });
             }
           });
         });
-        resolve(issuesList);
+        
+        // 결과를 API 명세 형식으로 변환
+        const result = Object.entries(issuesByStatus).map(([status, issues]) => ({
+          issueStatus: status,
+          issues: issues
+        }));
+        
+        resolve(result);
       }, 300);
     });
   } else {
@@ -453,21 +687,25 @@ export const getComponentIssues = async (componentId: string): Promise<Issue[]> 
     
     if (response.data.result === 'SUCCESS' && response.data.data) {
       // API 응답 데이터를 프론트엔드 모델로 변환
-      return response.data.data.map((issueData: any) => ({
-        id: issueData.id.toString(),
-        key: issueData.key,
-        title: issueData.name,
-        epic: issueData.epic?.name || '',
-        component: issueData.component?.name || '',
-        assignee: issueData.assignee?.nickname || '',
-        storyPoints: issueData.bizPoint || 0,
-        priority: (issueData.issueImportance === 'HIGH' ? 'high' : 
-                  issueData.issueImportance === 'MEDIUM' ? 'medium' : 'low') as 'low' | 'medium' | 'high',
-        status: (issueData.issueStatus === 'TODO' ? 'todo' :
-                issueData.issueStatus === 'IN_PROGRESS' ? 'inProgress' :
-                'done') as 'todo' | 'inProgress' | 'done',
-        description: issueData.content || '',
-        sprint: issueData.sprint?.name || '',
+      // 명세에 따르면 이미 상태별로 그룹화된 형태로 응답이 오는 것으로 예상
+      return response.data.data.map((group: any) => ({
+        issueStatus: group.issueStatus,
+        issues: group.issues.map((issueData: any) => ({
+          id: issueData.id.toString(),
+          key: issueData.key,
+          title: issueData.name,
+          epic: issueData.epic?.name || '',
+          component: issueData.component?.name || '',
+          assignee: issueData.assignee?.nickname || '',
+          storyPoints: issueData.bizPoint || 0,
+          priority: (issueData.issueImportance === 'HIGH' ? 'high' : 
+                    issueData.issueImportance === 'MEDIUM' ? 'medium' : 'low') as 'low' | 'medium' | 'high',
+          status: (issueData.issueStatus === 'TODO' ? 'todo' :
+                  issueData.issueStatus === 'IN_PROGRESS' ? 'inProgress' :
+                  'done') as 'todo' | 'inProgress' | 'done',
+          description: issueData.content || '',
+          sprint: issueData.sprint?.name || '',
+        }))
       }));
     } else {
       throw new Error(`Failed to fetch issues for component ${componentId}`);
