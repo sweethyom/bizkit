@@ -64,7 +64,9 @@ public class IssueModifier {
     Issue issue = issueRepository.findById(issueId);
     Epic epic = epicRepository.findById(issue.epicId());
     memberValidator.validateMember(user, epic.projectId());
-    componentValidator.isComponentInProject(modifyIssueComponent.componentId(), epic.projectId());
+    if (modifyIssueComponent.componentId() != null) {
+      componentValidator.isComponentInProject(modifyIssueComponent.componentId(), epic.projectId());
+    }
     issueRepository.modifyIssueComponent(issueId, modifyIssueComponent);
   }
 

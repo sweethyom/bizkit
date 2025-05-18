@@ -82,4 +82,11 @@ public class SprintValidator {
       throw new CoreException(CoreErrorType.SPRINT_IS_EQUAL);
     }
   }
+
+  public void isOngoingSprintAlreadyExist(Long projectId) {
+    boolean check = sprintRepository.existsOngoingSprint(projectId);
+    if (check) {
+      throw new CoreException(CoreErrorType.ONGOING_SPRINT_ALREADY_EXIST);
+    }
+  }
 }

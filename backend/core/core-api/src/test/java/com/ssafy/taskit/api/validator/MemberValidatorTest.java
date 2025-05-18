@@ -33,4 +33,16 @@ class MemberValidatorTest {
     // When & Then
     assertDoesNotThrow(() -> memberValidator.validateMember(user, projectId));
   }
+
+  @Test
+  void validateMember_whenUserIsMember_doesNotThrow() {
+
+    User user = mock(User.class);
+    Long projectId = 1L;
+    when(user.id()).thenReturn(100L);
+    when(memberRepository.isMember(100L, projectId)).thenReturn(true);
+    //    when(memberRepository.isMember(100L, projectId)).thenReturn(false);
+
+    assertDoesNotThrow(() -> memberValidator.validateMember(user, projectId));
+  }
 }

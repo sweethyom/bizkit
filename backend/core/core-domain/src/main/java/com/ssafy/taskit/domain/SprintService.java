@@ -14,17 +14,21 @@ public class SprintService {
 
   private final SprintStarter sprintStarter;
 
+  private final SprintCompleter sprintCompleter;
+
   public SprintService(
       SprintAppender sprintAppender,
       SprintReader sprintReader,
       SprintModifier sprintModifier,
       SprintDeleter sprintDeleter,
-      SprintStarter sprintStarter) {
+      SprintStarter sprintStarter,
+      SprintCompleter sprintCompleter) {
     this.sprintAppender = sprintAppender;
     this.sprintReader = sprintReader;
     this.sprintModifier = sprintModifier;
     this.sprintDeleter = sprintDeleter;
     this.sprintStarter = sprintStarter;
+    this.sprintCompleter = sprintCompleter;
   }
 
   public Sprint append(User user, Long projectId, NewSprint newSprint) {
@@ -57,5 +61,9 @@ public class SprintService {
       return Sprint.toEmpty();
     }
     return sprintReader.findSprint(sprintId);
+  }
+
+  public void completeSprint(User user, Long sprintId, CompleteSprint completeSprint) {
+    sprintCompleter.completeSprint(user, sprintId, completeSprint);
   }
 }
