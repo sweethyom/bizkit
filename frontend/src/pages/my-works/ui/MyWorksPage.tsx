@@ -1,70 +1,22 @@
 import { useIssues } from '@/pages/my-works/model/useIssues';
-import { useProjects } from '@/pages/my-works/model/useProjects';
 
 import { IssueCard } from '@/entities/issue';
-
-import { isOverByteSize } from '@/shared/lib/byteUtils';
+import { ProjectForm, useProject } from '@/entities/project';
 
 import { Plus } from 'lucide-react';
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 export const MyWorksPage = () => {
-  const { projects, createProject, error, setError } = useProjects();
-  const [showAddForm, setShowAddForm] = useState(false);
-
-  const [newProjectName, setNewProjectName] = useState('');
-  const [newProjectKey, setNewProjectKey] = useState('');
-
+  const { projects } = useProject();
   const { todo, inProgress } = useIssues();
+
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleCancel = () => {
-    setShowAddForm(false);
-    setNewProjectName('');
-    setError('');
-  };
-
-  const handleProjectNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (isOverByteSize(value, 20)) {
-      setError('프로젝트 이름은 20자 이하여야 합니다.');
-      return;
-    }
-
-    setNewProjectName(value.trim());
-  };
-
-  const handleProjectKeyChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.trim().replace(/ /g, '');
-    const regex = /^[a-zA-Z0-9]+$/;
-
-    if (isOverByteSize(value, 20)) {
-      setError('프로젝트 키는 영문 20자 이하여야 합니다.');
-      return;
-    }
-
-    if (value !== '' && !regex.test(value)) {
-      setError('프로젝트 키는 영문 소문자와 대문자, 숫자만 사용할 수 있습니다.');
-      return;
-    }
-
-    setError('');
-    setNewProjectKey(value);
-  };
-
   const handleProjectClick = (projectId: number) => {
     navigate(`/projects/${projectId}/backlog`);
-  };
-
-  const handleCreateProject = async () => {
-    if (newProjectName === '' || newProjectKey === '') {
-      setError('프로젝트 이름과 키를 입력해주세요.');
-      return;
-    }
-
-    createProject(newProjectName, newProjectKey);
   };
 
   return (
@@ -73,39 +25,7 @@ export const MyWorksPage = () => {
 
       <div className='mb-8 flex gap-4 overflow-x-auto'>
         {showAddForm ? (
-          <div className='border-primary flex min-w-[180px] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed bg-white p-6'>
-            <input
-              className='border-gray-2 focus:ring-primary w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none'
-              placeholder='프로젝트 이름'
-              value={newProjectName}
-              onChange={handleProjectNameChange}
-              maxLength={20}
-              autoFocus
-            />
-            <input
-              className='border-gray-2 focus:ring-primary w-full rounded border px-2 py-1 text-sm focus:ring-2 focus:outline-none'
-              placeholder='프로젝트 키'
-              value={newProjectKey}
-              onChange={handleProjectKeyChange}
-            />
-
-            {error && <span className='text-warning max-w-[200px] text-xs'>{error}</span>}
-            <div className='mt-2 flex w-full gap-2'>
-              <button
-                className='bg-primary hover:bg-primary-sub flex-1 cursor-pointer rounded py-1 text-sm font-semibold text-white transition'
-                onClick={handleCreateProject}
-              >
-                생성
-              </button>
-              <button
-                className='border-gray-3 text-gray-4 hover:bg-gray-1 flex-1 cursor-pointer rounded border bg-white py-1 text-sm font-semibold transition'
-                onClick={handleCancel}
-                type='button'
-              >
-                취소
-              </button>
-            </div>
-          </div>
+          <ProjectForm handleVisibility={() => setShowAddForm(false)} />
         ) : (
           <button
             className='border-primary bg-background-secondary text-primary hover:bg-primary-sub flex min-w-[180px] cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 transition'

@@ -3,17 +3,21 @@ import { useIssueForm } from '../lib/useIssueForm';
 
 interface IssueFormProps {
   epicId: number;
-  onCancel: () => void;
+  handleVisibility: () => void;
 }
 
-export const IssueForm = ({ epicId, onCancel }: IssueFormProps) => {
-  const { issueName, byteLength, handleIssueNameChange, handleCreateIssue, isError } =
+export const IssueForm = ({ epicId, handleVisibility }: IssueFormProps) => {
+  const { issueName, byteLength, handleIssueNameChange, handleSubmit, isError } =
     useIssueForm(epicId);
 
   return (
     <form
       className='border-gray-2 bg-background-secondary flex min-w-[280px] flex-col gap-3 rounded-xl border px-4 py-3 shadow-sm'
-      onSubmit={handleCreateIssue}
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit();
+        handleVisibility();
+      }}
     >
       <label className='text-label-sm text-gray-4 mb-1 ml-1'>이슈 이름</label>
       <div className='flex items-center gap-2'>
@@ -32,10 +36,7 @@ export const IssueForm = ({ epicId, onCancel }: IssueFormProps) => {
           color='warning'
           variant='outline'
           size='sm'
-          onClick={(e) => {
-            e.stopPropagation();
-            onCancel();
-          }}
+          onClick={handleVisibility}
         >
           취소
         </Button>

@@ -1,8 +1,9 @@
 import { cn } from '@/shared/lib';
 import { DynamicIcon } from 'lucide-react/dynamic';
-import { MouseEvent } from 'react';
+import { MouseEvent, RefObject } from 'react';
 
 interface IconButtonProps {
+  ref?: RefObject<HTMLButtonElement | null>;
   icon: string;
   onClick: () => void;
   size?: number;
@@ -13,6 +14,7 @@ interface IconButtonProps {
 }
 
 export const IconButton = ({
+  ref,
   icon,
   onClick,
   size = 24,
@@ -22,6 +24,7 @@ export const IconButton = ({
 }: IconButtonProps) => {
   return (
     <button
+      ref={ref}
       type='button'
       className={cn(
         'hover:bg-gray-2/40 text-gray-4 cursor-pointer rounded-full p-2',

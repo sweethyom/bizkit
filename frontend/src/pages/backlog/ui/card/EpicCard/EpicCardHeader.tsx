@@ -6,6 +6,9 @@ interface EpicCardHeaderProps {
 }
 
 export const EpicCardHeader = ({ epic }: EpicCardHeaderProps) => {
+  const remainIssueCount = epic.cntRemainIssues || 0;
+  const totalIssueCount = epic.cntTotalIssues || 0;
+
   return (
     <>
       <div className='flex flex-col'>
@@ -16,7 +19,7 @@ export const EpicCardHeader = ({ epic }: EpicCardHeaderProps) => {
       </div>
 
       <EpicCardProgressBar
-        progress={((epic.cntRemainIssues || 0) / (epic.cntTotalIssues || 1)) * 100}
+        progress={((totalIssueCount - remainIssueCount || 0) / (totalIssueCount || 1)) * 100}
       />
     </>
   );

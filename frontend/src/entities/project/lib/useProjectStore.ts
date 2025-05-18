@@ -1,13 +1,14 @@
-import { ProjectDetail, ProjectList } from '@/shared/model';
+import { Project, ProjectList } from '@/entities/project';
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 type ProjectStore = {
   projects: ProjectList | null;
-  project: ProjectDetail;
+  project: Project;
   setProjects: (projects: ProjectList) => void;
-  setProject: (project: ProjectDetail) => void;
+  setProject: (project: Project) => void;
+  addProject: (project: Project) => void;
 };
 
 export const useProjectStore = create<ProjectStore>()(
@@ -22,7 +23,11 @@ export const useProjectStore = create<ProjectStore>()(
         leader: false,
       },
       setProjects: (projects: ProjectList) => set({ projects }),
-      setProject: (project: ProjectDetail) => set({ project }),
+      setProject: (project: Project) => set({ project }),
+      addProject: (project: Project) =>
+        set((state) => ({
+          projects: [{ ...project, todoCount: 0 }, ...(state.projects || [])],
+        })),
     }),
     {
       name: 'project-store',

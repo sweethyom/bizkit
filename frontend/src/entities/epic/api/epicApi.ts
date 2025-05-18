@@ -29,3 +29,13 @@ export const getEpicList = async (projectId: number) => {
     throw error;
   }
 };
+
+export const deleteEpic = async (epicId: number) => {
+  try {
+    const response = await api.delete<ApiResponse<void>>(`/epics/${epicId}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

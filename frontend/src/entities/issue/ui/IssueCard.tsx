@@ -1,15 +1,15 @@
-import { useIssueModalStore } from '@/entities/issue/lib/useIssueModalStore';
-import { Issue } from '@/entities/issue/model/issue';
+import { Issue } from '@/entities/issue';
 
-import { IconButton, TooltipSection } from '@/shared/ui';
+import { DropDownSection, IconButton, TooltipSection } from '@/shared/ui';
 
 import { clsx } from 'clsx';
 
 interface IssueCardProps {
-  issue: Issue;
+  issue: Issue | null;
   view?: 'compact' | 'detail';
   showMenuButton?: boolean;
   onClick?: () => void;
+  onDelete?: () => void;
 }
 
 export const IssueCard = ({
@@ -17,8 +17,11 @@ export const IssueCard = ({
   view = 'detail',
   showMenuButton = true,
   onClick,
+  onDelete,
 }: IssueCardProps) => {
-  const { openModal } = useIssueModalStore();
+  if (issue === null) {
+    return <div className='bg-gray-2 h-full w-full' />;
+  }
 
   if (view === 'compact') {
     return (
@@ -27,8 +30,6 @@ export const IssueCard = ({
         onClick={() => {
           if (onClick) {
             onClick();
-          } else {
-            openModal(issue);
           }
         }}
       >
@@ -90,7 +91,11 @@ export const IssueCard = ({
   return (
     <div
       className='border-gray-2 hover:border-primary/60 flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4'
-      onClick={() => openModal(issue)}
+      onClick={() => {
+        if (onClick) {
+          onClick();
+        }
+      }}
     >
       <div className='flex flex-col gap-2'>
         <div className='flex w-full items-center justify-between gap-2'>
@@ -112,11 +117,26 @@ export const IssueCard = ({
             <p className='text-label-sm text-gray-4'>{issue.key}</p>
           </div>
 
-          {showMenuButton && (
-            <div className='relative'>
-              <IconButton icon='ellipsis' onClick={() => {}} />
-            </div>
-          )}
+          <DropDownSection
+            items={[
+              {
+                children: '이슈 삭제',
+                onClick: () => {
+                  if (onDelete) {
+                    onDelete();
+                  }
+                },
+              },
+            ]}
+            button={(toggleVisibility) => (
+              <IconButton
+                icon='ellipsis'
+                onClick={() => {
+                  toggleVisibility();
+                }}
+              />
+            )}
+          />
         </div>
 
         <TooltipSection info='에픽'>
@@ -140,14 +160,18 @@ export const IssueCard = ({
             </TooltipSection>
           </div>
 
-          <TooltipSection info={['담당자', issue.assignee?.nickname || '없음'].join(': ')}>
-            <div className='bg-gray-3 size-7 shrink-0 overflow-hidden rounded-full'>
-              {issue.assignee?.profileImageUrl && (
+          <TooltipSection
+            info={['담당자', issue.assignee?.nickname || issue.user?.nickname || '없음'].join(': ')}
+          >
+            <div className='size-7 shrink-0 overflow-hidden rounded-full'>
+              {issue.assignee?.id || issue.user?.id ? (
                 <img
                   className='size-full object-cover'
-                  src={issue.assignee.profileImageUrl}
+                  src={issue.assignee?.profileImageUrl || '/images/default-profile.png'}
                   alt='이슈 담당자 프로필 이미지'
                 />
+              ) : (
+                <div className='bg-gray-2 size-full' />
               )}
             </div>
           </TooltipSection>

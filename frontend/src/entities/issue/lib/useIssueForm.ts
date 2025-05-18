@@ -1,10 +1,16 @@
+import { Issue } from '@/entities/issue';
 import { createIssue } from '@/entities/issue/api/issueApi';
 
 import { getByteSize } from '@/shared/lib';
 
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
+import { useParams } from 'react-router';
+import { useIssueStore } from './useIssueStore';
 
 export const useIssueForm = (epicId: number) => {
+  const { projectId } = useParams();
+  const { addIssue } = useIssueStore();
+
   const [issueName, setIssueName] = useState('');
   const byteLength = getByteSize(issueName);
   const [isError, setIsError] = useState(false);
@@ -15,9 +21,7 @@ export const useIssueForm = (epicId: number) => {
     setIssueName(e.target.value);
   };
 
-  const handleCreateIssue = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     if (issueName.length === 0) {
       setIsError(true);
       return;
@@ -25,13 +29,44 @@ export const useIssueForm = (epicId: number) => {
 
     try {
       const issue = await createIssue(epicId, issueName);
-      console.log(issue);
+
+      if (!issue.data) {
+        throw new Error('Failed to create issue');
+      }
+
+      const newIssue: Issue = {
+        id: issue.data.id,
+        name: issueName,
+        content: '',
+        key: '생성 시 응답 키',
+        bizPoint: 0,
+        issueImportance: null,
+        issueStatus: 'UNASSIGNED',
+        project: {
+          id: Number(projectId),
+          name: '',
+        },
+        component: {
+          id: null,
+          name: '',
+        },
+        assignee: {
+          id: null,
+          nickname: '',
+          profileImageUrl: '',
+        },
+        epic: {
+          id: epicId,
+          name: '',
+          key: '',
+        },
+      };
+
+      addIssue(newIssue);
     } catch (error) {
       console.error(error);
     }
-
-    console.log(epicId, issueName);
   };
 
-  return { issueName, byteLength, isError, handleIssueNameChange, handleCreateIssue };
+  return { issueName, byteLength, isError, handleIssueNameChange, handleSubmit };
 };

@@ -1,6 +1,4 @@
-import { sprintApi } from '@/pages/backlog/api/sprintApi';
-
-import { DropDownMenu, IconButton } from '@/shared/ui';
+import { DropDownSection, IconButton } from '@/shared/ui';
 
 import { clsx } from 'clsx';
 import { ChevronRight } from 'lucide-react';
@@ -13,19 +11,22 @@ interface SectionCardProps {
   children: ReactNode;
   expanded?: boolean;
   toggleExpanded: () => void;
+  moreActions: {
+    children: ReactNode;
+    onClick: () => void;
+  }[];
 }
 
 export const SectionCard = ({
   cardType,
-  cardId,
   header,
   children,
   expanded = false,
   toggleExpanded,
+  moreActions,
 }: SectionCardProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [maxHeight, setMaxHeight] = useState('0px');
-  const [showDropdown, setShowDropdown] = useState(false);
 
   useLayoutEffect(() => {
     if (expanded && contentRef.current) {
@@ -62,27 +63,17 @@ export const SectionCard = ({
 
         {header}
 
-        <div className='relative'>
-          <IconButton icon='ellipsis' onClick={() => setShowDropdown(!showDropdown)} />
-          {showDropdown && (
-            <DropDownMenu>
-              <div className='flex flex-col gap-2'>
-                <button
-                  onClick={() => {
-                    sprintApi.startSprint(cardId);
-                    setShowDropdown(false);
-                  }}
-                  className='w-full cursor-pointer p-2 text-left text-nowrap'
-                >
-                  스프린트 시작
-                </button>
-                <button className='w-full cursor-pointer p-2 text-left text-nowrap'>
-                  스프린트 삭제
-                </button>
-              </div>
-            </DropDownMenu>
+        <DropDownSection
+          items={moreActions}
+          button={(toggleVisibility) => (
+            <IconButton
+              icon='ellipsis'
+              onClick={() => {
+                toggleVisibility();
+              }}
+            />
           )}
-        </div>
+        />
       </div>
 
       <div

@@ -1,10 +1,14 @@
-import { projectApi } from '@/shared/api';
-import { useProjectStore, useUserStore } from '@/shared/lib';
-import { clsx } from 'clsx';
-import { Layers, User } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
-import { NavLink, useParams } from 'react-router';
+import { getProjectDetail, getProjectList, useProjectStore } from '@/entities/project';
+
+import { useUserStore } from '@/shared/lib';
+
+import { ProfileMenu } from './PorfileMenu';
 import { ProjectsMenu } from './ProjectsMenu';
+
+import { clsx } from 'clsx';
+import { Layers } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { NavLink, useParams } from 'react-router';
 
 const StyledNavLink = ({
   to,
@@ -32,20 +36,35 @@ export const TopNavBar = () => {
   const { projectId } = useParams();
   const { user } = useUserStore();
   const { projects, setProjects } = useProjectStore();
+
   const [isProfileHovered, setIsProfileHovered] = useState(false);
+  const profileIconRef = useRef<HTMLDivElement>(null);
 
   const getProjects = useCallback(async () => {
-    const response = await projectApi.getMyProjectList();
+    const response = await getProjectList();
     if (response?.result === 'SUCCESS') {
       setProjects(response.data || []);
     }
   }, [setProjects]);
 
+  const getProject = useCallback(async () => {
+    await getProjectDetail(Number(projectId));
+    // if (response?.result === 'SUCCESS') {
+    // setProject(response.data);
+    // }
+  }, [projectId]);
+
   useEffect(() => {
     if (projects === null) {
       getProjects();
     }
-  }, [getProjects, projects]);
+  }, [getProjects, projects, getProject]);
+
+  useEffect(() => {
+    if (projectId) {
+      getProject();
+    }
+  }, [projectId, getProject]);
 
   return (
     <nav className='bg-background-primary border-gray-2 text-label-lg flex w-full items-center justify-between border-b px-4 py-2 drop-shadow-sm'>
@@ -84,45 +103,29 @@ export const TopNavBar = () => {
 
       <div className='flex items-center gap-2'>
         {user ? (
-          <span
-            className='relative'
+          <div
+            className='relative z-[99999]'
             onMouseEnter={() => setIsProfileHovered(true)}
-            onMouseLeave={() => setIsProfileHovered(false)}
+            ref={profileIconRef}
           >
             <StyledNavLink
-              className='bg-gray-2 border-gray-3 flex size-8 shrink-0 items-center justify-center rounded-full border'
-              to='/'
+              className='bg-gray-2 flex size-8 shrink-0 items-center justify-center rounded-full'
+              to='/profile'
             >
-              {user.profileImageUrl ? (
-                <img
-                  src={user.profileImageUrl}
-                  alt='profile'
-                  className='size-full rounded-full object-cover'
-                />
-              ) : (
-                <User size={24} />
-              )}
+              <img
+                src={user.profileImageUrl ?? '/images/default-profile.png'}
+                alt='profile'
+                className='size-full rounded-full object-cover'
+              />
             </StyledNavLink>
+
             {isProfileHovered && (
-              <div className='border-gray-2 absolute right-0 z-50 mt-2 w-48 rounded-lg border bg-white p-4 shadow-lg'>
-                <div className='flex items-center gap-3'>
-                  {user.profileImageUrl ? (
-                    <img
-                      src={user.profileImageUrl ?? '/images/default-profile.png'}
-                      alt='profile'
-                      className='h-10 w-10 rounded-full object-cover'
-                    />
-                  ) : (
-                    <User size={40} />
-                  )}
-                  <div>
-                    <div className='font-bold'>{user.nickname}</div>
-                    <div className='text-sm text-gray-500'>{user.email}</div>
-                  </div>
-                </div>
-              </div>
+              <ProfileMenu
+                setIsProfileMenuHovered={setIsProfileHovered}
+                anchorRef={profileIconRef}
+              />
             )}
-          </span>
+          </div>
         ) : (
           <>
             <StyledNavLink to='/signup'>회원가입</StyledNavLink>

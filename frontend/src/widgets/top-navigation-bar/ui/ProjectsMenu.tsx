@@ -1,4 +1,4 @@
-import { useProjectStore } from '@/shared/lib';
+import { useProjectStore } from '@/entities/project';
 
 import { clsx } from 'clsx';
 import { ChevronDown } from 'lucide-react';

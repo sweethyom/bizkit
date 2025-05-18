@@ -1,7 +1,7 @@
-import { useIssueStore } from '@/pages/backlog/model/useIssueStore';
+import { IssueDetailModal, useIssueModalStore } from '@/widgets/issue-detail-modal';
 
-import { EpicForm, useEpic } from '@/entities/epic';
-import { IssueDetailModal } from '@/entities/issue';
+import { EpicForm, useEpic, useEpicStore } from '@/entities/epic';
+import { moveIssueToSprint, useIssueStore } from '@/entities/issue';
 import { SprintForm, SprintStatus, useSprint } from '@/entities/sprint';
 
 import { Button } from '@/shared/ui';
@@ -11,32 +11,78 @@ import { EpicCard } from './card/EpicCard';
 import { SkeletonCard } from './card/SkeletonCard';
 import { SprintCard } from './card/SprintCard';
 
-import { DragDropContext, DropResult } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 export const BacklogPage = () => {
   const { projectId } = useParams();
 
-  const { sprints, isLoading: isLoadingSprints } = useSprint(Number(projectId));
-  const { epics, isLoading: isLoadingEpics } = useEpic(Number(projectId));
+  const {
+    sprints,
+    isLoading: isLoadingSprints,
+    startSprint,
+    completeSprint,
+  } = useSprint(Number(projectId));
+  const { epics, getEpics, isLoading: isLoadingEpics, onDeleteIssue } = useEpic(Number(projectId));
+
+  useEffect(() => {
+    getEpics();
+  }, [getEpics]);
 
   const [isCreateEpicFormOpen, setIsCreateEpicFormOpen] = useState(false);
   const [isCreateSprintFormOpen, setIsCreateSprintFormOpen] = useState(false);
 
-  const { moveIssue } = useIssueStore();
+  const { isOpen: isIssueModalOpened } = useIssueModalStore();
 
-  const handleMoveIssue = (result: DropResult) => {
+  const { issues, moveIssue } = useIssueStore();
+
+  const { setEpics } = useEpicStore();
+
+  const [dragSource, setDragSource] = useState<string | null>(null);
+
+  const handleMoveIssue = async (result: DropResult) => {
     if (result.destination === null) return;
 
     const issueId = Number(result.draggableId.split('-').pop());
 
     const from = {
-      type: result.source.droppableId.split('-')[0] as 'sprint' | 'epic',
-      id: Number(result.source.droppableId.split('-')[1]),
+      type: result.draggableId.split('-')[0] as 'sprint' | 'epic',
+      id: Number(result.draggableId.split('-')[1]),
       index: result.source.index,
     };
+
+    if (result.destination.droppableId === 'epic-backlog') {
+      const targetIssue = issues.sprint[from.id][from.index];
+
+      const to = {
+        type: 'epic' as 'sprint' | 'epic',
+        id: targetIssue.epic!.id,
+        index: result.destination.index,
+      };
+
+      moveIssue(issueId, from, to);
+
+      try {
+        await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : 0);
+        setEpics(
+          epics.map((epic) => {
+            if (epic.id === to.id) {
+              return { ...epic, cntRemainIssues: epic.cntRemainIssues + 1 };
+            }
+            if (epic.id === from.id) {
+              return { ...epic, cntRemainIssues: epic.cntRemainIssues - 1 };
+            }
+            return epic;
+          }),
+        );
+      } catch (error) {
+        console.error(error);
+      }
+
+      return;
+    }
 
     const to = {
       type: result.destination.droppableId.split('-')[0] as 'sprint' | 'epic',
@@ -45,10 +91,33 @@ export const BacklogPage = () => {
     };
 
     moveIssue(issueId, from, to);
+
+    try {
+      await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : 0);
+      setEpics(
+        epics.map((epic) => {
+          if (epic.id === to.id) {
+            return { ...epic, cntRemainIssues: epic.cntRemainIssues + 1 };
+          }
+          if (epic.id === from.id) {
+            return { ...epic, cntRemainIssues: epic.cntRemainIssues - 1 };
+          }
+          return epic;
+        }),
+      );
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
-    <DragDropContext onDragEnd={handleMoveIssue}>
+    <DragDropContext
+      onDragStart={(start) => setDragSource(start.source.droppableId)}
+      onDragEnd={(result) => {
+        setDragSource(null);
+        handleMoveIssue(result);
+      }}
+    >
       <div className='flex flex-col gap-4'>
         <div className='bg-background-secondary flex items-center justify-between p-4'>
           <div className='flex flex-col gap-2'>
@@ -76,8 +145,7 @@ export const BacklogPage = () => {
               {isCreateSprintFormOpen && (
                 <SprintForm
                   projectId={Number(projectId)}
-                  onSubmit={() => setIsCreateSprintFormOpen(false)}
-                  onCancel={() => setIsCreateSprintFormOpen(false)}
+                  handleVisibility={() => setIsCreateSprintFormOpen(false)}
                 />
               )}
 
@@ -105,7 +173,21 @@ export const BacklogPage = () => {
 
                     return statusOrder[a.sprintStatus] - statusOrder[b.sprintStatus];
                   })
-                  .map((sprint) => <SprintCard key={sprint.id} sprint={sprint} />)
+                  .map((sprint) => (
+                    <SprintCard
+                      key={sprint.id}
+                      sprint={sprint}
+                      onStartSprint={() => {
+                        console.log('startSprint', sprint.id);
+                        startSprint(sprint.id);
+                      }}
+                      onCompleteSprint={() => {
+                        console.log('completeSprint', sprint.id);
+                        completeSprint(sprint.id, 4);
+                      }}
+                      dragSource={dragSource}
+                    />
+                  ))
               )}
             </div>
           </section>
@@ -131,34 +213,47 @@ export const BacklogPage = () => {
               )}
             </div>
 
-            <div className='flex flex-col gap-3'>
-              {isCreateEpicFormOpen && (
-                <EpicForm
-                  projectId={Number(projectId)}
-                  onSubmit={() => setIsCreateEpicFormOpen(false)}
-                  onCancel={() => setIsCreateEpicFormOpen(false)}
-                />
-              )}
+            <Droppable droppableId='epic-backlog'>
+              {(provided, snapshot) => (
+                <div
+                  className={`relative flex h-full flex-col gap-3 transition-colors duration-200 ${snapshot.isDraggingOver ? 'bg-point/10' : ''}`}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  {isCreateEpicFormOpen && (
+                    <EpicForm
+                      projectId={Number(projectId)}
+                      handleVisibility={() => setIsCreateEpicFormOpen(false)}
+                    />
+                  )}
 
-              {isLoadingEpics ? (
-                Array.from({ length: 5 }).map((_, index) => <SkeletonCard key={index} for='epic' />)
-              ) : epics.length === 0 && !isCreateEpicFormOpen ? (
-                <EmptyCard
-                  type='epic'
-                  title='에픽이 비어있습니다'
-                  description='새로운 에픽을 추가해 시작해보세요.'
-                  actionText='새 에픽'
-                  onActionClick={() => setIsCreateEpicFormOpen(true)}
-                />
-              ) : (
-                epics.map((epic) => <EpicCard key={epic.id} epic={epic} />)
+                  {isLoadingEpics ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <SkeletonCard key={index} for='epic' />
+                    ))
+                  ) : epics.length === 0 && !isCreateEpicFormOpen ? (
+                    <EmptyCard
+                      type='epic'
+                      title='에픽이 비어있습니다'
+                      description='새로운 에픽을 추가해 시작해보세요.'
+                      actionText='새 에픽'
+                      onActionClick={() => setIsCreateEpicFormOpen(true)}
+                    />
+                  ) : (
+                    epics.map((epic) => (
+                      <EpicCard key={epic.id} epic={epic} onDeleteIssue={onDeleteIssue} />
+                    ))
+                  )}
+
+                  {provided.placeholder}
+                </div>
               )}
-            </div>
+            </Droppable>
           </section>
         </section>
       </div>
 
-      <IssueDetailModal />
+      {isIssueModalOpened && <IssueDetailModal />}
     </DragDropContext>
   );
 };

@@ -4,12 +4,11 @@ import { useEpicForm } from '../lib/useEpicForm';
 
 interface EpicFormProps {
   projectId: number;
-  onCancel: () => void;
-  onSubmit: () => void;
+  handleVisibility: () => void;
 }
 
-export const EpicForm = ({ projectId, onCancel, onSubmit }: EpicFormProps) => {
-  const { name, byteLength, isValid, handleNameChange, handleSubmit } = useEpicForm(projectId);
+export const EpicForm = ({ projectId, handleVisibility }: EpicFormProps) => {
+  const { name, byteLength, isValid, handleNameChange, onCreate } = useEpicForm(projectId);
 
   return (
     <form
@@ -17,8 +16,8 @@ export const EpicForm = ({ projectId, onCancel, onSubmit }: EpicFormProps) => {
         'border-gray-3 border-l-point flex flex-col rounded-lg border border-l-6 shadow-sm',
       )}
       onSubmit={(e) => {
-        handleSubmit(e);
-        onSubmit();
+        onCreate(e);
+        handleVisibility();
       }}
     >
       <div className={cn('flex justify-between gap-4 p-4')}>
@@ -36,7 +35,13 @@ export const EpicForm = ({ projectId, onCancel, onSubmit }: EpicFormProps) => {
           <Button size='sm' variant='solid' color='point' type='submit' disabled={!isValid}>
             생성
           </Button>
-          <Button type='button' size='sm' variant='outline' color='warning' onClick={onCancel}>
+          <Button
+            type='button'
+            size='sm'
+            variant='outline'
+            color='warning'
+            onClick={handleVisibility}
+          >
             취소
           </Button>
         </div>

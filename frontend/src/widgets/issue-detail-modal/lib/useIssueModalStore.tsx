@@ -1,5 +1,4 @@
 import { Issue } from '@/entities/issue';
-
 import { create } from 'zustand';
 
 interface IssueModalStore {

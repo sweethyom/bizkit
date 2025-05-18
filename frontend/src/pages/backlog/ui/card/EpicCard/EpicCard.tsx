@@ -1,23 +1,27 @@
-import { useIssue } from '@/pages/backlog/lib/useIssue';
 import { SectionCard } from '@/pages/backlog/ui/card/SectionCard';
 
-import { Epic } from '@/entities/epic';
-import { IssueCard, IssueForm } from '@/entities/issue';
+import { deleteEpic, Epic } from '@/entities/epic';
+import { IssueCard, IssueForm, useIssue } from '@/entities/issue';
 
+import { api, ApiResponse } from '@/shared/api';
 import { Button } from '@/shared/ui';
 
 import { EpicCardHeader } from './EpicCardHeader';
 
-import { Draggable, Droppable } from '@hello-pangea/dnd';
+import { useIssueModalStore } from '@/widgets/issue-detail-modal';
+import { Draggable } from '@hello-pangea/dnd';
 import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface EpicCardProps {
   epic: Epic;
+  onDeleteIssue: (epicId: number) => void;
 }
 
-export const EpicCard = ({ epic }: EpicCardProps) => {
-  const { issues, getIssues } = useIssue({ type: 'epic', typeId: epic.id });
+export const EpicCard = ({ epic, onDeleteIssue }: EpicCardProps) => {
+  const { issues, getIssues, removeIssue } = useIssue({ type: 'epic', typeId: epic.id });
+  const { openModal } = useIssueModalStore();
+
   const [expanded, setExpanded] = useState(false);
 
   const [showIssueForm, setShowIssueForm] = useState(false);
@@ -35,10 +39,28 @@ export const EpicCard = ({ epic }: EpicCardProps) => {
       expanded={expanded}
       toggleExpanded={() => setExpanded((prev) => !prev)}
       header={<EpicCardHeader epic={epic} />}
+      moreActions={[
+        {
+          children: '에픽 수정',
+          onClick: async () => {
+            const response = await api.patch<ApiResponse<void>>(`/epics/${epic.id}/name`, {
+              name: 'epic 2',
+            });
+            console.log(response.data);
+          },
+        },
+        {
+          children: '에픽 삭제',
+          onClick: async () => {
+            const response = await deleteEpic(epic.id);
+            console.log(response);
+          },
+        },
+      ]}
     >
       <>
         {showIssueForm ? (
-          <IssueForm epicId={epic.id} onCancel={() => setShowIssueForm(false)} />
+          <IssueForm epicId={epic.id} handleVisibility={() => setShowIssueForm(false)} />
         ) : (
           <Button variant='dotted' onClick={() => setShowIssueForm(true)}>
             <Plus size={20} />
@@ -46,32 +68,42 @@ export const EpicCard = ({ epic }: EpicCardProps) => {
           </Button>
         )}
 
-        <Droppable droppableId={`epic-${epic.id}`}>
-          {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
-              {issues &&
-                issues.map((issue, index) => (
-                  <Draggable
-                    key={issue.id}
-                    draggableId={`epic-${epic.id}-issue-${issue.id}`}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                      >
-                        <IssueCard issue={issue} />
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
+        <div className='flex flex-col gap-2'>
+          {issues &&
+            issues.map((issue, index) => {
+              issue.epic = epic;
+              issue.assignee = issue.user;
 
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+              return (
+                <Draggable
+                  key={issue.id}
+                  draggableId={`epic-${epic.id}-issue-${issue.id}`}
+                  index={index}
+                >
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className=''
+                      style={{ ...provided.draggableProps.style }}
+                    >
+                      <IssueCard
+                        issue={issue}
+                        onClick={() => {
+                          openModal(issue);
+                        }}
+                        onDelete={() => {
+                          removeIssue(issue.id);
+                          onDeleteIssue(epic.id);
+                        }}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              );
+            })}
+        </div>
       </>
     </SectionCard>
   );

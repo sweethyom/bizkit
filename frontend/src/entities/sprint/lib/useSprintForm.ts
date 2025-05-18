@@ -1,14 +1,14 @@
 import { getByteSize } from '@/shared/lib/byteUtils';
 import { useState } from 'react';
-import { createSprint } from '../api/sprintApi';
+import { sprintApi } from '../api/sprintApi';
+import { Sprint, SprintStatus } from '../model/sprint';
+import { useSprintStore } from './useSprintStore';
+export const useSprintForm = (projectId: number, initialName?: string) => {
+  const { addSprint, updateSprintName } = useSprintStore();
 
-export const useSprintForm = (projectId: number) => {
-  const [name, setName] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-
+  const [name, setName] = useState(initialName || '');
   const byteLength = getByteSize(name);
-  const isValid = name.trim() !== '' && byteLength <= 40;
+  const isValid = name.trim() !== '' && byteLength <= 40 && name !== initialName;
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (getByteSize(e.target.value) > 40) return;
@@ -16,29 +16,58 @@ export const useSprintForm = (projectId: number) => {
     setName(e.target.value);
   };
 
-  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStartDate(e.target.value);
+  const initName = () => {
+    setName(initialName || '');
   };
 
-  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEndDate(e.target.value);
+  const onCreate = async () => {
+    if (name.trim() === '' || name === initialName) return;
+
+    try {
+      const response = await sprintApi.createSprint(projectId, name.trim());
+
+      if (!response.data) {
+        throw new Error('Failed to create sprint');
+      }
+
+      console.log(response);
+
+      const newSprint: Sprint = {
+        id: response.data.id,
+        name,
+        startDate: null,
+        dueDate: null,
+        completedDate: null,
+        sprintStatus: SprintStatus.READY,
+        cntRemainIssues: 0,
+      };
+
+      addSprint(newSprint);
+
+      setName('');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const response = await createSprint(projectId, name);
-    console.log(response);
+  const onUpdate = async (sprintId: number) => {
+    if (name.trim() === '' || name === initialName) return;
+
+    try {
+      await sprintApi.updateSprint(sprintId, name.trim());
+      updateSprintName(sprintId, name.trim());
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return {
     name,
-    startDate,
-    endDate,
     byteLength,
     isValid,
     handleNameChange,
-    handleStartDateChange,
-    handleEndDateChange,
-    handleSubmit,
+    initName,
+    onCreate,
+    onUpdate,
   };
 };

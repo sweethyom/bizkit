@@ -1,13 +1,14 @@
 import { cn } from '@/shared/lib';
 import { clsx } from 'clsx';
-import { InputHTMLAttributes, useState } from 'react';
+import { InputHTMLAttributes, RefObject, useState } from 'react';
 
 interface UnderlineInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  ref?: RefObject<HTMLInputElement | null>;
   classNames?: string;
   label?: string;
 }
 
-export const UnderlineInput = ({ label, classNames, ...props }: UnderlineInputProps) => {
+export const UnderlineInput = ({ label, classNames, ref, ...props }: UnderlineInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
@@ -33,14 +34,11 @@ export const UnderlineInput = ({ label, classNames, ...props }: UnderlineInputPr
 
       <input
         id='underline-input'
+        ref={ref}
         type='text'
-        className={cn(
-          'text-label-md w-full outline-none',
-          {
-            'mt-[20px]': Boolean(label),
-          },
-          classNames,
-        )}
+        className={cn(classNames, 'text-label-md w-full border-none outline-none', {
+          'mt-[20px]': Boolean(label),
+        })}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         {...props}
