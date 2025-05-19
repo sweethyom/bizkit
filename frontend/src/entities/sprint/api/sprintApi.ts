@@ -1,6 +1,5 @@
-import { Issue } from '@/entities/issue/model/issue';
-import { Sprint } from '@/entities/sprint';
 import { ApiResponse, api } from '@/shared/api';
+import { Issue, Sprint } from '@/shared/model';
 
 interface CreateSprintResponse {
   id: number;

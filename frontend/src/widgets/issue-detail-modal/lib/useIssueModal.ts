@@ -1,4 +1,5 @@
 import { getIssueDetail, IssueImportance, IssueStatus, useIssueStore } from '@/entities/issue';
+import { useMemberStore } from '@/entities/member';
 
 import {
   updateIssueAssignee,
@@ -13,7 +14,6 @@ import {
 
 import { useIssueModalStore } from './useIssueModalStore';
 
-import { useMemberStore } from '@/entities/member/lib/useMemeberStore';
 import { useCallback, useEffect, useState } from 'react';
 
 export const useIssueModal = () => {
