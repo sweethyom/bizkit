@@ -16,9 +16,10 @@ import { useEffect, useRef, useState } from 'react';
 interface EpicCardProps {
   epic: Epic;
   onDeleteIssue: (epicId: number) => void;
+  onDeleteEpic: (epicId: number) => void;
 }
 
-export const EpicCard = ({ epic, onDeleteIssue }: EpicCardProps) => {
+export const EpicCard = ({ epic, onDeleteIssue, onDeleteEpic }: EpicCardProps) => {
   const { issues, getIssues, removeIssue } = useIssue({ type: 'epic', typeId: epic.id });
   const { openModal } = useIssueModalStore();
 
@@ -119,6 +120,7 @@ export const EpicCard = ({ epic, onDeleteIssue }: EpicCardProps) => {
           onClick: async () => {
             const response = await deleteEpic(epic.id);
             console.log(response);
+            onDeleteEpic(epic.id);
           },
         },
       ]}

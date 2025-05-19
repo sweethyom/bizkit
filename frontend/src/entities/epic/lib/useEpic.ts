@@ -36,5 +36,5 @@ export const useEpic = (projectId: number) => {
     );
   };
 
-  return { epics, getEpics, isLoading, onDeleteIssue };
+  return { epics, getEpics, isLoading, onDeleteIssue, setEpics };
 };

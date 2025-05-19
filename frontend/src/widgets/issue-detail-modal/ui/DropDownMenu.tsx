@@ -65,12 +65,17 @@ export const DropDownMenu = ({
       }}
       className='border-gray-2 animate-fadein rounded-md border bg-white shadow-2xl'
     >
+      {options.length === 0 && (
+        <div className='text-label-md flex h-full items-center justify-center p-4'>
+          선택 가능한 옵션이 없습니다.
+        </div>
+      )}
+
       {options.map((opt, idx) => {
         const isSelected = opt.label === value;
         return (
-          <>
+          <div key={opt.value}>
             <div
-              key={opt.value}
               className='group hover:bg-primary/10 hover:text-primary active:bg-primary/20 text-label-md flex cursor-pointer items-center gap-2 px-4 py-2 text-base transition-colors duration-150'
               style={{
                 fontWeight: isSelected ? 700 : 500,
@@ -83,7 +88,7 @@ export const DropDownMenu = ({
               {isSelected && <Check size={16} />}
             </div>
             {idx < options.length - 1 && <div className='mx-3 h-px bg-gray-100' />}
-          </>
+          </div>
         );
       })}
     </div>,

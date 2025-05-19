@@ -3,7 +3,6 @@ import { Issue } from '@/entities/issue';
 import { DropDownSection, IconButton, TooltipSection } from '@/shared/ui';
 
 import { clsx } from 'clsx';
-import { useEffect } from 'react';
 
 interface IssueCardProps {
   issue: Issue | null;
@@ -20,10 +19,6 @@ export const IssueCard = ({
   onClick,
   onDelete,
 }: IssueCardProps) => {
-  useEffect(() => {
-    console.log(issue);
-  }, [issue]);
-
   if (issue === null) {
     return <div className='bg-gray-2 h-full w-full' />;
   }
@@ -31,7 +26,7 @@ export const IssueCard = ({
   if (view === 'compact') {
     return (
       <div
-        className='border-gray-2 hover:border-gray-3 flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4'
+        className='border-gray-2 hover:border-primary/30 flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4'
         onClick={() => {
           if (onClick) {
             onClick();
@@ -95,7 +90,7 @@ export const IssueCard = ({
 
   return (
     <div
-      className='border-gray-2 hover:border-primary/60 flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4'
+      className='border-gray-2 hover:border-primary/30 flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4'
       onClick={() => {
         if (onClick) {
           onClick();

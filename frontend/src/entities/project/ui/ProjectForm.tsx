@@ -13,10 +13,14 @@ export const ProjectForm = ({ handleVisibility }: { handleVisibility: () => void
     resetForm,
   } = useProjectForm();
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    handleSubmit();
-    handleVisibility();
+    try {
+      await handleSubmit();
+      handleVisibility();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleCancel = () => {

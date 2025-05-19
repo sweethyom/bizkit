@@ -26,7 +26,7 @@ export const useSprint = (projectId: number) => {
   }, [loadSprints]);
 
   const startSprint = useCallback(
-    async (sprintId: number) => {
+    async (sprintId: number, dueDate?: string) => {
       try {
         // 1. 스프린트 이슈 목록 조회
         const { data: issues } = await sprintApi.getSprintIssues(sprintId);
@@ -56,7 +56,7 @@ export const useSprint = (projectId: number) => {
           return;
         }
         // 3. 정상일 때만 스프린트 시작
-        await sprintApi.startSprint(sprintId);
+        await sprintApi.startSprint(sprintId, dueDate);
         updateSprintStatus(sprintId, SprintStatus.ONGOING);
       } catch (error) {
         console.error(error);
@@ -77,5 +77,5 @@ export const useSprint = (projectId: number) => {
     [updateSprintStatus],
   );
 
-  return { sprints, isLoading, startSprint, completeSprint };
+  return { sprints, isLoading, startSprint, completeSprint, setSprints };
 };

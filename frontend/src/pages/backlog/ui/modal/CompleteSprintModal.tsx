@@ -70,11 +70,11 @@ export const CompleteSprintModal = ({
   const handleMoveAllIssues = async (targetSprintId: number) => {
     if (loading) return;
     setLoading(true);
+
     try {
       await Promise.all(
         incompleteIssues.map((issue) => moveIssueToSprint(issue.id, targetSprintId)),
       );
-      // 상태 갱신 (프론트)
       incompleteIssues.forEach((issue) => {
         moveIssue(
           issue.id,
@@ -97,9 +97,8 @@ export const CompleteSprintModal = ({
   return createPortal(
     <div className='animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black/50'>
       <div ref={containerRef} className='relative w-full max-w-sm rounded-lg bg-white p-4'>
-        {/* 닫기 버튼 */}
         <button
-          className='absolute top-3 right-3 rounded p-1 transition-colors hover:bg-gray-100'
+          className='absolute top-3 right-3 cursor-pointer rounded-full p-1 transition-colors hover:bg-gray-100'
           onClick={closeModal}
           aria-label='닫기'
         >

@@ -46,7 +46,6 @@ export const useProjectForm = () => {
 
     try {
       const response = await createProject(newProjectName, newProjectKey);
-      console.log(response);
 
       const newProject = {
         id: response?.data?.id || -1,
@@ -60,9 +59,14 @@ export const useProjectForm = () => {
       addProject(newProject);
 
       setError('');
-    } catch (error) {
-      console.error(error);
-      setError('프로젝트 생성에 실패했습니다.');
+    } catch (error: any) {
+      if (error.response.data.error.code === 'P001') {
+        setError('이미 존재하는 프로젝트 키입니다. 다른 키를 입력해주세요.');
+        throw error;
+      } else {
+        setError('프로젝트 생성에 실패했습니다.');
+        throw error;
+      }
     }
   };
 

@@ -23,8 +23,6 @@ export const useEpicForm = (projectId: number, initialName?: string) => {
 
     const response = await createEpic(projectId, name);
 
-    console.log(response);
-
     const epic = {
       id: response.data!.id,
       key: 'TEMP-KEY',

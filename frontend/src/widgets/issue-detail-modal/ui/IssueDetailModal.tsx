@@ -228,7 +228,7 @@ export const IssueDetailModal = () => {
             <Tag
               ref={componentRef}
               name='컴포넌트'
-              value={component?.name || null}
+              value={component?.name}
               onClick={() => {
                 setEditField('component');
                 setAnchorRef(componentRef as React.RefObject<HTMLSpanElement>);

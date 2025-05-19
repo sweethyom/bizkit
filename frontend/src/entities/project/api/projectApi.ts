@@ -30,7 +30,6 @@ export const getProjectList = async (
         : `/projects?sort=${sort}&pageSize=10`;
 
     const response = await api.get<ApiResponse<ProjectList>>(url);
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(error);

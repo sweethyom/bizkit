@@ -16,7 +16,6 @@ export const useIssue = ({ type, typeId }: UseIssueProps) => {
     try {
       setIsLoading(true);
       const response = await getIssueList(type, typeId);
-      console.log(response.data);
       setIssues(type, typeId, response.data || []);
     } catch (error) {
       console.error(error);

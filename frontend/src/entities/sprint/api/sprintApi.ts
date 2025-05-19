@@ -6,12 +6,13 @@ interface CreateSprintResponse {
 }
 
 export const sprintApi = {
-  createSprint: async (projectId: number, sprintName: string) => {
+  createSprint: async (projectId: number, sprintName: string, dueDate?: string) => {
     try {
       const response = await api.post<ApiResponse<CreateSprintResponse>>(
         `/projects/${projectId}/sprints`,
         {
           name: sprintName,
+          dueDate,
         },
       );
       return response.data;
@@ -55,22 +56,10 @@ export const sprintApi = {
       throw error;
     }
   },
-  startSprint: async (sprintId: number) => {
+  startSprint: async (sprintId: number, dueDate?: string) => {
     try {
-      const dueDate = new Date();
-      dueDate.setDate(dueDate.getDate() + 14);
-
-      // 한국 시간으로 변환
-      const options = {
-        timeZone: 'Asia/Seoul',
-        year: 'numeric' as const,
-        month: 'numeric' as const,
-        day: 'numeric' as const,
-      };
-      const formattedDate = new Intl.DateTimeFormat('ko-KR', options).format(dueDate);
-
       const response = await api.patch<ApiResponse>(`/sprints/${sprintId}/start`, {
-        dueDate: formattedDate.split('.').map(Number).slice(0, 3),
+        dueDate,
       });
 
       console.log(response.data);
@@ -83,8 +72,6 @@ export const sprintApi = {
   },
   completeSprint: async (sprintId: number, toSprintId: number | null = null) => {
     try {
-      const data = toSprintId ? { id: toSprintId } : undefined;
-
       const response = await api.patch<ApiResponse<void>>(`/sprints/${sprintId}/complete`, {
         id: toSprintId,
       });

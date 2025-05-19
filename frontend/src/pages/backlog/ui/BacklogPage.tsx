@@ -1,6 +1,6 @@
 import { IssueDetailModal, useIssueModalStore } from '@/widgets/issue-detail-modal';
 
-import { EpicForm, useEpic, useEpicStore } from '@/entities/epic';
+import { EpicForm, useEpic } from '@/entities/epic';
 import { moveIssueToSprint, useIssueStore } from '@/entities/issue';
 import { SprintForm, SprintStatus, useSprint } from '@/entities/sprint';
 
@@ -25,13 +25,23 @@ export const BacklogPage = () => {
     isLoading: isLoadingSprints,
     startSprint,
     completeSprint,
+    setSprints,
   } = useSprint(Number(projectId));
   const [isCreateSprintFormOpen, setIsCreateSprintFormOpen] = useState(false);
   const [isCompleteSprintModalOpen, setIsCompleteSprintModalOpen] = useState(false);
   const [completeTargetSprintId, setCompleteTargetSprintId] = useState<number | null>(null);
 
-  const { epics, getEpics, isLoading: isLoadingEpics, onDeleteIssue } = useEpic(Number(projectId));
+  const {
+    epics,
+    getEpics,
+    isLoading: isLoadingEpics,
+    onDeleteIssue,
+    setEpics: epicSetEpics,
+  } = useEpic(Number(projectId));
   const [isCreateEpicFormOpen, setIsCreateEpicFormOpen] = useState(false);
+
+  const [startTargetSprintId, setStartTargetSprintId] = useState<number | null>(null);
+  const [startDueDate, setStartDueDate] = useState<string>('');
 
   useEffect(() => {
     getEpics();
@@ -40,8 +50,6 @@ export const BacklogPage = () => {
   const { isOpen: isIssueModalOpened } = useIssueModalStore();
 
   const { issues, moveIssue } = useIssueStore();
-
-  const { setEpics } = useEpicStore();
 
   const [dragSource, setDragSource] = useState<string | null>(null);
 
@@ -69,7 +77,7 @@ export const BacklogPage = () => {
 
       try {
         await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : 0);
-        setEpics(
+        epicSetEpics(
           epics.map((epic) => {
             if (epic.id === to.id) {
               return { ...epic, cntRemainIssues: epic.cntRemainIssues + 1 };
@@ -97,7 +105,7 @@ export const BacklogPage = () => {
 
     try {
       await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : 0);
-      setEpics(
+      epicSetEpics(
         epics.map((epic) => {
           if (epic.id === to.id) {
             return { ...epic, cntRemainIssues: epic.cntRemainIssues + 1 };
@@ -111,6 +119,14 @@ export const BacklogPage = () => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleDeleteSprint = (sprintId: number) => {
+    setSprints(sprints.filter((s) => s.id !== sprintId));
+  };
+
+  const handleDeleteEpic = (epicId: number) => {
+    epicSetEpics(epics.filter((e) => e.id !== epicId));
   };
 
   return (
@@ -181,17 +197,54 @@ export const BacklogPage = () => {
                       key={sprint.id}
                       sprint={sprint}
                       onStartSprint={() => {
-                        console.log('startSprint', sprint.id);
-                        startSprint(sprint.id);
+                        const defaultDate = (() => {
+                          const d = new Date();
+                          d.setDate(d.getDate() + 14);
+                          return d.toISOString().slice(0, 10);
+                        })();
+                        setStartTargetSprintId(sprint.id);
+                        setStartDueDate(defaultDate);
                       }}
                       onCompleteSprint={() => {
-                        console.log('completeSprint', sprint.id);
                         setCompleteTargetSprintId(sprint.id);
                         setIsCompleteSprintModalOpen(true);
                       }}
+                      onDeleteSprint={handleDeleteSprint}
                       dragSource={dragSource}
                     />
                   ))
+              )}
+              {startTargetSprintId !== null && (
+                <div className='bg-opacity-30 fixed inset-0 z-50 flex items-center justify-center bg-black'>
+                  <div className='flex min-w-[320px] flex-col gap-4 rounded-lg bg-white p-6 shadow-lg'>
+                    <h2 className='text-lg font-bold'>스프린트 시작</h2>
+                    <label className='text-sm font-medium'>예상 종료일</label>
+                    <input
+                      type='date'
+                      className='rounded border px-2 py-1'
+                      value={startDueDate}
+                      min={new Date().toISOString().slice(0, 10)}
+                      onChange={(e) => setStartDueDate(e.target.value)}
+                    />
+                    <div className='mt-4 flex justify-end gap-2'>
+                      <button
+                        className='bg-primary rounded px-4 py-2 text-white'
+                        onClick={async () => {
+                          await startSprint(startTargetSprintId, startDueDate);
+                          setStartTargetSprintId(null);
+                        }}
+                      >
+                        시작
+                      </button>
+                      <button
+                        className='rounded bg-gray-200 px-4 py-2 text-gray-700'
+                        onClick={() => setStartTargetSprintId(null)}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </section>
@@ -245,7 +298,12 @@ export const BacklogPage = () => {
                     />
                   ) : (
                     epics.map((epic) => (
-                      <EpicCard key={epic.id} epic={epic} onDeleteIssue={onDeleteIssue} />
+                      <EpicCard
+                        key={epic.id}
+                        epic={epic}
+                        onDeleteIssue={onDeleteIssue}
+                        onDeleteEpic={handleDeleteEpic}
+                      />
                     ))
                   )}
 

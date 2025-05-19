@@ -47,15 +47,17 @@ export const Tag = ({
       <span
         ref={ref}
         className={clsx(
+          className,
           'relative inline-flex items-center gap-2 rounded px-2 py-1 text-xs font-semibold',
           {
             'cursor-pointer': !errorMessage && onClick,
             'cursor-default': errorMessage || !onClick,
           },
-          value === null || value === 'UNASSIGNED'
-            ? 'text-gray-5/70 bg-transparent'
-            : 'bg-gray-100 text-gray-600',
-          className ? className : 'bg-gray-100 text-gray-600',
+          name === '진행 상황'
+            ? ''
+            : !value
+              ? 'text-gray-5/70 bg-transparent'
+              : 'bg-gray-100 text-gray-600',
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}

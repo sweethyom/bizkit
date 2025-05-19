@@ -14,6 +14,7 @@ interface SprintCardProps {
   sprint: Sprint;
   onStartSprint: () => void;
   onCompleteSprint: () => void;
+  onDeleteSprint: (sprintId: number) => void;
   dragSource?: string | null;
 }
 
@@ -21,6 +22,7 @@ export const SprintCard = ({
   sprint,
   onStartSprint,
   onCompleteSprint,
+  onDeleteSprint,
   dragSource,
 }: SprintCardProps) => {
   const { projectId } = useParams();
@@ -111,9 +113,8 @@ export const SprintCard = ({
         {
           children: '스프린트 삭제',
           onClick: async () => {
-            console.log(sprint.id);
-            const response = await sprintApi.deleteSprint(sprint.id);
-            console.log(response.data);
+            await sprintApi.deleteSprint(sprint.id);
+            onDeleteSprint(sprint.id);
           },
         },
       ]}

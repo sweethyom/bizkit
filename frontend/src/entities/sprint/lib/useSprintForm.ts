@@ -20,11 +20,11 @@ export const useSprintForm = (projectId: number, initialName?: string) => {
     setName(initialName || '');
   };
 
-  const onCreate = async () => {
+  const onCreate = async (dueDate?: string) => {
     if (name.trim() === '' || name === initialName) return;
 
     try {
-      const response = await sprintApi.createSprint(projectId, name.trim());
+      const response = await sprintApi.createSprint(projectId, name.trim(), dueDate);
 
       if (!response.data) {
         throw new Error('Failed to create sprint');
@@ -36,7 +36,7 @@ export const useSprintForm = (projectId: number, initialName?: string) => {
         id: response.data.id,
         name,
         startDate: null,
-        dueDate: null,
+        dueDate: dueDate || null,
         completedDate: null,
         sprintStatus: SprintStatus.READY,
         cntRemainIssues: 0,
