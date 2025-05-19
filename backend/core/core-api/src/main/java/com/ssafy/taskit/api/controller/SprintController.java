@@ -5,6 +5,7 @@ import com.ssafy.taskit.api.response.DefaultIdResponse;
 import com.ssafy.taskit.domain.CompleteSprint;
 import com.ssafy.taskit.domain.ModifySprintDueDate;
 import com.ssafy.taskit.domain.ModifySprintName;
+import com.ssafy.taskit.domain.MoveSprintIssue;
 import com.ssafy.taskit.domain.NewSprint;
 import com.ssafy.taskit.domain.Sprint;
 import com.ssafy.taskit.domain.SprintService;
@@ -86,6 +87,8 @@ public class SprintController {
   @PatchMapping("/sprints/{sprintId}/moveIssues")
   public ApiResponse<Void> moveSprintIssue(
       ApiUser apiUser, @PathVariable Long sprintId, @RequestBody MoveSprintIssueRequest request) {
+    MoveSprintIssue moveSprintIssue = request.toMoveSprintIssue();
+    sprintService.moveSprintIssue(apiUser.toUser(), sprintId, moveSprintIssue);
     return ApiResponse.success();
   }
 }

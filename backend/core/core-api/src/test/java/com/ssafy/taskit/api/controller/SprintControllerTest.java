@@ -238,7 +238,6 @@ class SprintControllerTest extends RestDocsTest {
         .contentType(ContentType.JSON)
         .body(new MoveSprintIssueRequest(
             2L, // moveIssuesId
-            1L, // preIssueId
             5L, // componentId
             IssueStatus.IN_PROGRESS // status
             ))
