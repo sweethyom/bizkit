@@ -27,6 +27,10 @@ export const SprintCardHeader = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    console.log(sprint);
+  }, [sprint]);
+
+  useEffect(() => {
     if (isEditing) {
       const handleInputFocus = (e: MouseEvent) => {
         if (
@@ -81,6 +85,14 @@ export const SprintCardHeader = ({
             <span className='text-label-lg'>{sprint.name}</span>
           )}
         </div>
+
+        {sprint.startDate && sprint.dueDate && (
+          <p className='text-label-md text-gray-4 text-nowrap'>
+            {sprint.startDate} ~{' '}
+            {sprint.completedDate ? sprint.completedDate : sprint.dueDate + ' (예정)'}
+          </p>
+        )}
+
         <p className='text-label-md text-gray-4 text-nowrap'>
           {remainIssueCount !== undefined ? (
             <>할 일 개수: {remainIssueCount}</>

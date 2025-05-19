@@ -51,6 +51,12 @@ export const SprintCard = ({
   const { openModal: openIssueModal } = useIssueModalStore();
 
   useEffect(() => {
+    if (sprint.sprintStatus === SprintStatus.ONGOING) {
+      setExpanded(true);
+    }
+  }, [sprint.sprintStatus]);
+
+  useEffect(() => {
     if (expanded) {
       getIssues();
     }
