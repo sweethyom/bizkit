@@ -22,7 +22,8 @@ const apiImplementations = {
           id: id.toString(),
           email,
           nickname,
-          avatarUrl: profileImageUrl,
+          profileImageUrl: profileImageUrl || null,
+          avatarUrl: profileImageUrl || null,
         };
       } else {
         throw new Error('Failed to fetch user profile');

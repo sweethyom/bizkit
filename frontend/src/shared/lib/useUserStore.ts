@@ -5,7 +5,7 @@ export interface UserInfo {
   id: string;
   nickname: string;
   email: string;
-  profileImageUrl?: string;
+  profileImageUrl?: string | null;
 }
 
 interface UserStore {

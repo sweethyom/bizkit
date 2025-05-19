@@ -6,11 +6,13 @@ import {
   uploadProfileImage,
 } from '@/pages/profile/api/profile';
 import { UserProfile } from '@/pages/profile/model/types';
+import { useUserStore } from '@/shared/lib';
 import axios from 'axios';
 import { AlertCircle, Camera, CheckCircle, ChevronLeft, Loader, User } from 'lucide-react';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 
 export default function ProfilePage() {
+  const { setUser } = useUserStore();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -177,6 +179,9 @@ export default function ProfilePage() {
       // 성공적으로 업로드 후 받아온 URL 설정
       setAvatarUrl(imageUrl);
 
+      const user = await fetchUserProfile();
+      setUser(user);
+
       // 프로필 상태 업데이트
       if (profile) {
         setProfile({ ...profile, avatarUrl: imageUrl });
@@ -184,10 +189,10 @@ export default function ProfilePage() {
       setSuccessMessage('프로필 이미지가 변경되었습니다');
     } catch (err: any) {
       console.error('Profile image upload error:', err);
-      
+
       // 서버 오류 응답에서 오류 정보 추출
       let errorMessage = '이미지 업로드에 실패했습니다';
-      
+
       if (err.message) {
         errorMessage = err.message;
       } else if (axios.isAxiosError(err) && err.response?.data?.error) {
@@ -199,9 +204,9 @@ export default function ProfilePage() {
           errorMessage = serverError;
         }
       }
-      
+
       setGeneralError(errorMessage);
-      
+
       // 에러 발생 시 기존 아바타로 되돌림
       setAvatarUrl(profile?.avatarUrl || null);
     } finally {
@@ -304,8 +309,9 @@ export default function ProfilePage() {
             <input
               type='text'
               id='nickname'
-              className={`flex-1 rounded-md border p-2.5 focus:border-blue-500 focus:ring-blue-500 ${nicknameError ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                }`}
+              className={`flex-1 rounded-md border p-2.5 focus:border-blue-500 focus:ring-blue-500 ${
+                nicknameError ? 'border-red-300 bg-red-50' : 'border-gray-300'
+              }`}
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               disabled={isUpdatingNickname}
@@ -335,8 +341,9 @@ export default function ProfilePage() {
               <input
                 type='password'
                 id='oldPassword'
-                className={`w-full rounded-md border p-2.5 focus:border-blue-500 focus:ring-blue-500 ${passwordError ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 focus:border-blue-500 focus:ring-blue-500 ${
+                  passwordError ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
                 disabled={isUpdatingPassword}
@@ -350,8 +357,9 @@ export default function ProfilePage() {
               <input
                 type='password'
                 id='newPassword'
-                className={`w-full rounded-md border p-2.5 focus:border-blue-500 focus:ring-blue-500 ${passwordError ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 focus:border-blue-500 focus:ring-blue-500 ${
+                  passwordError ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={isUpdatingPassword}
@@ -370,8 +378,9 @@ export default function ProfilePage() {
               <input
                 type='password'
                 id='confirmPassword'
-                className={`w-full rounded-md border p-2.5 focus:border-blue-500 focus:ring-blue-500 ${passwordError ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                  }`}
+                className={`w-full rounded-md border p-2.5 focus:border-blue-500 focus:ring-blue-500 ${
+                  passwordError ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                }`}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={isUpdatingPassword}
