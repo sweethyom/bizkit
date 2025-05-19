@@ -18,7 +18,7 @@ export interface Issue {
   assignee: {
     id: number;
     nickname: string;
-    profileImageUrl: string;
+    profileImgUrl: string;
   };
   epic?: Epic;
 }

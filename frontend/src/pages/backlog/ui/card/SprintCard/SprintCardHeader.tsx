@@ -27,10 +27,6 @@ export const SprintCardHeader = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    console.log(sprint);
-  }, [sprint]);
-
-  useEffect(() => {
     if (isEditing) {
       const handleInputFocus = (e: MouseEvent) => {
         if (
@@ -94,11 +90,7 @@ export const SprintCardHeader = ({
         )}
 
         <p className='text-label-md text-gray-4 text-nowrap'>
-          {remainIssueCount !== undefined ? (
-            <>할 일 개수: {remainIssueCount}</>
-          ) : (
-            <>열어서 확인해주세요.</>
-          )}
+          {remainIssueCount !== undefined && <>할 일 개수: {remainIssueCount}</>}
         </p>
       </div>
       <div className='flex h-full flex-shrink-0 items-start'>

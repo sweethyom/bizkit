@@ -23,13 +23,12 @@ export const BacklogPage = () => {
   const {
     sprints,
     isLoading: isLoadingSprints,
+    startSprintError,
+    validateSprint,
     startSprint,
     completeSprint,
     setSprints,
   } = useSprint(Number(projectId));
-  const [isCreateSprintFormOpen, setIsCreateSprintFormOpen] = useState(false);
-  const [isCompleteSprintModalOpen, setIsCompleteSprintModalOpen] = useState(false);
-  const [completeTargetSprintId, setCompleteTargetSprintId] = useState<number | null>(null);
 
   const {
     epics,
@@ -38,18 +37,19 @@ export const BacklogPage = () => {
     onDeleteIssue,
     setEpics: epicSetEpics,
   } = useEpic(Number(projectId));
+
+  const [isCreateSprintFormOpen, setIsCreateSprintFormOpen] = useState(false);
+  const [isCompleteSprintModalOpen, setIsCompleteSprintModalOpen] = useState(false);
+
   const [isCreateEpicFormOpen, setIsCreateEpicFormOpen] = useState(false);
 
-  const [startTargetSprintId, setStartTargetSprintId] = useState<number | null>(null);
   const [startDueDate, setStartDueDate] = useState<string>('');
 
-  useEffect(() => {
-    getEpics();
-  }, [getEpics]);
-
-  const { isOpen: isIssueModalOpened } = useIssueModalStore();
+  const [startTargetSprintId, setStartTargetSprintId] = useState<number | null>(null);
+  const [completeTargetSprintId, setCompleteTargetSprintId] = useState<number | null>(null);
 
   const { issues, moveIssue } = useIssueStore();
+  const { isOpen: isIssueModalOpened } = useIssueModalStore();
 
   const [dragSource, setDragSource] = useState<string | null>(null);
 
@@ -65,6 +65,8 @@ export const BacklogPage = () => {
     };
 
     if (result.destination.droppableId === 'epic-backlog') {
+      if (from.type === 'epic') return;
+
       const targetIssue = issues.sprint[from.id][from.index];
 
       const to = {
@@ -77,9 +79,10 @@ export const BacklogPage = () => {
 
       try {
         await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : 0);
+
         epicSetEpics(
           epics.map((epic) => {
-            if (epic.id === to.id) {
+            if (to.type === 'epic' && epic.id === to.id) {
               return { ...epic, cntRemainIssues: epic.cntRemainIssues + 1 };
             }
             if (epic.id === from.id) {
@@ -100,6 +103,8 @@ export const BacklogPage = () => {
       id: Number(result.destination.droppableId.split('-')[1]),
       index: result.destination.index,
     };
+
+    if (from.type === to.type && from.id === to.id) return;
 
     moveIssue(issueId, from, to);
 
@@ -128,6 +133,10 @@ export const BacklogPage = () => {
   const handleDeleteEpic = (epicId: number) => {
     epicSetEpics(epics.filter((e) => e.id !== epicId));
   };
+
+  useEffect(() => {
+    getEpics();
+  }, [getEpics]);
 
   return (
     <DragDropContext
@@ -194,12 +203,16 @@ export const BacklogPage = () => {
                   })
                   .map((sprint) => (
                     <SprintCard
+                      startError={startSprintError}
                       key={sprint.id}
                       sprint={sprint}
-                      onStartSprint={() => {
+                      onStartSprint={async () => {
+                        const result = await validateSprint(sprint.id);
+                        if (!result) return;
+
                         const defaultDate = (() => {
                           const d = new Date();
-                          d.setDate(d.getDate() + 14);
+                          d.setDate(d.getDate() + 7);
                           return d.toISOString().slice(0, 10);
                         })();
                         setStartTargetSprintId(sprint.id);
@@ -214,8 +227,9 @@ export const BacklogPage = () => {
                     />
                   ))
               )}
+
               {startTargetSprintId !== null && (
-                <div className='bg-opacity-30 fixed inset-0 z-50 flex items-center justify-center bg-black'>
+                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50'>
                   <div className='flex min-w-[320px] flex-col gap-4 rounded-lg bg-white p-6 shadow-lg'>
                     <h2 className='text-lg font-bold'>스프린트 시작</h2>
                     <label className='text-sm font-medium'>예상 종료일</label>
@@ -223,7 +237,7 @@ export const BacklogPage = () => {
                       type='date'
                       className='rounded border px-2 py-1'
                       value={startDueDate}
-                      min={new Date().toISOString().slice(0, 10)}
+                      min={new Date().toISOString().split('T')[0]}
                       onChange={(e) => setStartDueDate(e.target.value)}
                     />
                     <div className='mt-4 flex justify-end gap-2'>
@@ -253,7 +267,7 @@ export const BacklogPage = () => {
             <div className='relative flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <div className='bg-point h-6 w-1 rounded-full' />
-                <h2 className='text-label-xl'>백로그</h2>
+                <h2 className='text-label-xl'>스택</h2>
               </div>
 
               {!isLoadingEpics && epics.length > 0 && (
@@ -274,9 +288,20 @@ export const BacklogPage = () => {
               {(provided, snapshot) => (
                 <div
                   className={`relative flex h-full flex-col gap-3 transition-colors duration-200`}
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
                 >
+                  <div
+                    className='bg-gray-4/40 border-md absolute top-0 left-0 z-50 h-full w-full rounded-md px-4 py-8'
+                    style={{ visibility: snapshot.isDraggingOver ? 'visible' : 'hidden' }}
+                  >
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className='h-full w-full'
+                    >
+                      {provided.placeholder}
+                    </div>
+                  </div>
+
                   {isCreateEpicFormOpen && (
                     <EpicForm
                       projectId={Number(projectId)}
@@ -303,16 +328,9 @@ export const BacklogPage = () => {
                         epic={epic}
                         onDeleteIssue={onDeleteIssue}
                         onDeleteEpic={handleDeleteEpic}
+                        dragSource={dragSource}
                       />
                     ))
-                  )}
-
-                  {snapshot.isDraggingOver && (
-                    <div className='bg-gray-0/60 border-md absolute top-0 right-0 bottom-0 left-0'>
-                      <div className='flex h-full w-full content-center items-center'>
-                        {provided.placeholder}
-                      </div>
-                    </div>
                   )}
                 </div>
               )}

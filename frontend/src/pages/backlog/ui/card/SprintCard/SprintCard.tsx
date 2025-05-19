@@ -1,32 +1,35 @@
-import { SectionCard } from '@/pages/backlog/ui/card/SectionCard';
+import { useIssueModalStore } from '@/widgets/issue-detail-modal';
 
-import { IssueCard, useIssue } from '@/entities/issue';
+import { Issue, IssueCard, useIssue } from '@/entities/issue';
 import { Sprint, sprintApi, SprintStatus, useSprintForm } from '@/entities/sprint';
+
+import { DropDownSection, IconButton } from '@/shared/ui';
 
 import { SprintCardHeader } from './SprintCardHeader';
 
-import { useIssueModalStore } from '@/widgets/issue-detail-modal';
 import { Draggable, Droppable } from '@hello-pangea/dnd';
+import { clsx } from 'clsx';
+import { ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 interface SprintCardProps {
   sprint: Sprint;
+  startError: { sprintId: number; message: string; invalidIssues: Issue[] } | null;
+  dragSource: string | null;
   onStartSprint: () => void;
   onCompleteSprint: () => void;
   onDeleteSprint: (sprintId: number) => void;
-  dragSource?: string | null;
 }
 
 export const SprintCard = ({
   sprint,
+  startError,
   onStartSprint,
   onCompleteSprint,
   onDeleteSprint,
-  dragSource,
 }: SprintCardProps) => {
   const { projectId } = useParams();
-
   const [expanded, setExpanded] = useState(false);
 
   const {
@@ -39,16 +42,17 @@ export const SprintCard = ({
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const {
-    issues,
-    getIssues,
-    removeIssue,
-    isLoading: isLoadingIssues,
-  } = useIssue({
+  const { issues, getIssues, removeIssue } = useIssue({
     type: 'sprint',
     typeId: sprint.id,
   });
   const { openModal: openIssueModal } = useIssueModalStore();
+
+  useEffect(() => {
+    if (startError?.sprintId === sprint.id) {
+      setExpanded(true);
+    }
+  }, [startError, sprint.id]);
 
   useEffect(() => {
     if (sprint.sprintStatus === SprintStatus.ONGOING) {
@@ -62,117 +66,171 @@ export const SprintCard = ({
     }
   }, [sprint.id, getIssues, expanded]);
 
+  // useLayoutEffect(() => {
+  //   if (expanded && contentRef.current) {
+  //     setMaxHeight(contentRef.current.scrollHeight + 'px');
+  //   } else {
+  //     setMaxHeight('0px');
+  //   }
+  // }, [expanded, contentRef, issues, dragSource]);
+
+  const moreActions = [
+    {
+      children: sprint.sprintStatus === SprintStatus.ONGOING ? '스프린트 종료' : '스프린트 시작',
+      onClick: async () => {
+        if (sprint.sprintStatus === SprintStatus.ONGOING) {
+          onCompleteSprint();
+        } else {
+          onStartSprint();
+        }
+      },
+      disabled: sprint.sprintStatus === SprintStatus.COMPLETED,
+    },
+    {
+      children: '스프린트 수정',
+      onClick: () => setIsEditing(true),
+    },
+    {
+      children: '스프린트 삭제',
+      onClick: async () => {
+        await sprintApi.deleteSprint(sprint.id);
+        onDeleteSprint(sprint.id);
+      },
+    },
+  ];
+
   return (
-    <SectionCard
-      cardType='sprint'
-      cardId={sprint.id}
-      expanded={expanded}
-      toggleExpanded={() => setExpanded((prev) => !prev)}
-      header={
-        <SprintCardHeader
-          sprint={sprint}
-          remainIssueCount={issues?.length}
-          isEditing={isEditing}
-          sprintName={sprintName}
-          setSprintName={handleNameChange}
-          onSave={async (editedName) => {
-            if (!isValid) {
-              initSprintName();
-              setIsEditing(false);
-            }
-
-            if (editedName === sprint.name) {
-              setIsEditing(false);
-              return;
-            }
-
-            try {
-              onUpdateSprintName(sprint.id);
-            } catch (error) {
-              console.error(error);
-            }
-
-            setIsEditing(false);
-          }}
-          onCancel={() => {
-            initSprintName();
-            setIsEditing(false);
-          }}
-        />
-      }
-      moreActions={[
-        {
-          children:
-            sprint.sprintStatus === SprintStatus.ONGOING ? '스프린트 종료' : '스프린트 시작',
-          onClick: async () => {
-            if (sprint.sprintStatus === SprintStatus.ONGOING) {
-              onCompleteSprint();
-            } else {
-              onStartSprint();
-            }
-          },
-        },
-        {
-          children: '스프린트 수정',
-          onClick: () => setIsEditing(true),
-        },
-        {
-          children: '스프린트 삭제',
-          onClick: async () => {
-            await sprintApi.deleteSprint(sprint.id);
-            onDeleteSprint(sprint.id);
-          },
-        },
-      ]}
+    <Droppable
+      droppableId={`sprint-${sprint.id}`}
+      isDropDisabled={sprint.sprintStatus === SprintStatus.COMPLETED}
     >
-      <Droppable
-        droppableId={`sprint-${sprint.id}`}
-        isDropDisabled={!(dragSource && dragSource.startsWith('epic-'))}
-      >
-        {(provided) => {
-          return (
+      {(provided, snapshot) => {
+        return (
+          <div className='border-gray-3 border-l-primary relative flex flex-col rounded-md border border-l-6 shadow-sm'>
             <div
-              className='flex flex-col gap-2'
+              className='bg-gray-3/10 absolute top-1/2 left-1/2 z-10 h-full w-full -translate-x-1/2 -translate-y-1/2'
+              style={{
+                visibility: snapshot.isDraggingOver ? 'visible' : 'hidden',
+              }}
+            />
+
+            <div
+              className={clsx(
+                'flex cursor-pointer items-center gap-4 bg-white p-4',
+                expanded && 'border-gray-2 border-b',
+              )}
+              onClick={() => setExpanded((prev) => !prev)}
+            >
+              <ChevronRight
+                className={clsx(
+                  'text-primary shrink-0 transition-transform',
+                  expanded ? 'rotate-90' : 'rotate-0',
+                )}
+              />
+
+              <SprintCardHeader
+                sprint={sprint}
+                remainIssueCount={issues?.filter((issue) => issue.issueStatus !== 'DONE').length}
+                isEditing={isEditing}
+                sprintName={sprintName}
+                setSprintName={handleNameChange}
+                onSave={async (editedName) => {
+                  if (!isValid) {
+                    initSprintName();
+                    setIsEditing(false);
+                  }
+
+                  if (editedName === sprint.name) {
+                    setIsEditing(false);
+                    return;
+                  }
+
+                  try {
+                    onUpdateSprintName(sprint.id);
+                  } catch (error) {
+                    console.error(error);
+                  }
+
+                  setIsEditing(false);
+                }}
+                onCancel={() => {
+                  initSprintName();
+                  setIsEditing(false);
+                }}
+              />
+
+              <DropDownSection
+                items={moreActions}
+                button={(toggleVisibility) => (
+                  <IconButton
+                    icon='ellipsis'
+                    onClick={() => {
+                      toggleVisibility();
+                    }}
+                  />
+                )}
+              />
+            </div>
+
+            <div
               ref={provided.innerRef}
               {...provided.droppableProps}
+              style={{
+                overflow: 'hidden',
+                visibility: expanded ? 'visible' : 'hidden',
+              }}
             >
-              {isLoadingIssues ||
-                issues === undefined ||
-                (issues.length === 0 && (
-                  <div className='text-gray-4 flex flex-col items-center justify-center gap-1 py-8'>
-                    <span className='text-label-md font-medium'>스프린트가 비어있습니다</span>
-                    <span className='text-label-sm'>에픽에서 이슈를 추가해 시작해보세요</span>
+              {expanded && (
+                <div className='flex flex-col gap-4 p-4'>
+                  <div className='relative flex flex-col gap-2'>
+                    {issues === undefined ||
+                      (issues.length === 0 && (
+                        <div className='text-gray-4 flex flex-col items-center justify-center gap-1 py-8'>
+                          <span className='text-label-md font-medium'>스프린트가 비어있습니다</span>
+                          <span className='text-label-sm'>에픽에서 이슈를 추가해 시작해보세요</span>
+                        </div>
+                      ))}
+
+                    {issues &&
+                      issues.map((issue, index) => {
+                        return (
+                          <Draggable
+                            key={`sprint-${sprint.id}-issue-${issue.id}-${index}`}
+                            draggableId={`sprint-${sprint.id}-issue-${issue.id}`}
+                            index={index}
+                            isDragDisabled={sprint.sprintStatus === SprintStatus.COMPLETED}
+                          >
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <IssueCard
+                                  isError={
+                                    startError?.invalidIssues
+                                      .map((issue) => issue.id)
+                                      .includes(issue.id) ?? false
+                                  }
+                                  issue={issue}
+                                  onClick={() => openIssueModal(issue)}
+                                  onDelete={() => removeIssue(issue.id)}
+                                  draggable={sprint.sprintStatus !== SprintStatus.COMPLETED}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        );
+                      })}
+
+                    {provided.placeholder}
                   </div>
-                ))}
-
-              {issues &&
-                issues.map((issue, index) => (
-                  <Draggable
-                    key={`sprint-${sprint.id}-issue-${issue.id}-${index}`}
-                    draggableId={`sprint-${sprint.id}-issue-${issue.id}`}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                      >
-                        <IssueCard
-                          issue={issue}
-                          onClick={() => openIssueModal(issue)}
-                          onDelete={() => removeIssue(issue.id)}
-                        />
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-
-              {provided.placeholder}
+                </div>
+              )}
             </div>
-          );
-        }}
-      </Droppable>
-    </SectionCard>
+          </div>
+        );
+      }}
+    </Droppable>
   );
 };

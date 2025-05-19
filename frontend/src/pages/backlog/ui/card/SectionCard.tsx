@@ -14,6 +14,7 @@ interface SectionCardProps {
   moreActions: {
     children: ReactNode;
     onClick: () => void;
+    disabled?: boolean;
   }[];
 }
 
