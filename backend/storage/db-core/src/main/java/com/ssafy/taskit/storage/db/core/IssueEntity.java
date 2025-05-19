@@ -37,6 +37,8 @@ public class IssueEntity extends BaseEntity {
 
   private Long sprintId;
 
+  private Double position;
+
   protected IssueEntity() {}
 
   public IssueEntity(String name, String key, Long epicId) {
@@ -50,6 +52,7 @@ public class IssueEntity extends BaseEntity {
     this.assigneeId = null;
     this.epicId = epicId;
     this.sprintId = null;
+    this.position = null;
   }
 
   public Issue toIssue() {
@@ -65,6 +68,7 @@ public class IssueEntity extends BaseEntity {
         this.assigneeId,
         this.epicId,
         this.sprintId,
+        this.position,
         new DefaultDateTime(getCreatedAt(), getUpdatedAt()));
   }
 
@@ -110,5 +114,9 @@ public class IssueEntity extends BaseEntity {
   public void updateIssueSprintToBacklog() {
     this.sprintId = null;
     this.issueStatus = IssueStatus.UNASSIGNED;
+  }
+
+  public void updateIssuePosition(Double position) {
+    this.position = position;
   }
 }

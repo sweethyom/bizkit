@@ -223,4 +223,13 @@ public class IssueCoreRepository implements IssueRepository {
   public List<Object[]> countIssuesByProjectIdsAndUserId(List<Long> projectIds, Long UserId) {
     return issueJpaRepository.countIssuesByProjectIdsAndUserId(projectIds, UserId);
   }
+
+  @Transactional
+  @Override
+  public void modifyIssuePosition(Long issueId, Double newPosition) {
+    IssueEntity issueEntity = issueJpaRepository
+        .findByIdAndEntityStatus(issueId, EntityStatus.ACTIVE)
+        .orElseThrow(() -> new CoreException(CoreErrorType.ISSUE_NOT_FOUND));
+    issueEntity.updateIssuePosition(newPosition);
+  }
 }

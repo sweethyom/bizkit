@@ -239,7 +239,9 @@ class SprintControllerTest extends RestDocsTest {
         .body(new MoveSprintIssueRequest(
             2L, // moveIssuesId
             5L, // componentId
-            IssueStatus.IN_PROGRESS // status
+            IssueStatus.IN_PROGRESS, // status
+            1000.0, // beforeIssuePosition
+            2000.0 // afterIssuePosition
             ))
         .patch("/sprints/{sprintId}/moveIssues", 1L)
         .then()

@@ -50,4 +50,6 @@ public interface IssueRepository {
   void modifyIssueSprintToBacklog(Long issueId);
 
   List<Object[]> countIssuesByProjectIdsAndUserId(List<Long> projectIds, Long UserId);
+
+  void modifyIssuePosition(Long issueId, Double newPosition);
 }

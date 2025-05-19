@@ -145,4 +145,8 @@ public class IssueModifier {
       throw new CoreException(CoreErrorType.ISSUE_ALREADY_IN_BACKLOG);
     }
   }
+
+  public void modifyIssuePosition(Long issueId, Double newPosition) {
+    issueRepository.modifyIssuePosition(issueId, newPosition);
+  }
 }

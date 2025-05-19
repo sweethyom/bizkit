@@ -60,5 +60,13 @@ public class SprintMover {
         return;
       }
     }
+
+    Double before = moveSprintIssue.beforeIssuePosition();
+    Double after = moveSprintIssue.afterIssuePosition();
+
+    IssuePositionOption issuePositionOption = IssuePositionOption.from(before, after);
+    double newPosition = issuePositionOption.calculate(before, after);
+
+    issueModifier.modifyIssuePosition(moveSprintIssue.issueId(), newPosition);
   }
 }
