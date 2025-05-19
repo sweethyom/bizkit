@@ -1,14 +1,14 @@
 import { SectionCard } from '@/pages/backlog/ui/card/SectionCard';
 
-import { deleteEpic, Epic } from '@/entities/epic';
+import { useIssueModalStore } from '@/widgets/issue-detail-modal';
+
+import { deleteEpic, Epic, useEpicForm } from '@/entities/epic';
 import { IssueCard, IssueForm, useIssue } from '@/entities/issue';
 
 import { Button, IconButton, UnderlineInput } from '@/shared/ui';
 
 import { EpicCardHeader } from './EpicCardHeader';
 
-import { useEpicForm } from '@/entities/epic/lib/useEpicForm';
-import { useIssueModalStore } from '@/widgets/issue-detail-modal';
 import { Draggable } from '@hello-pangea/dnd';
 import { Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';

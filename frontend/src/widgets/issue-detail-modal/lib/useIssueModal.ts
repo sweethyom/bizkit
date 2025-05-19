@@ -1,4 +1,4 @@
-import { getIssueDetail, IssueImportance, IssueStatus } from '@/entities/issue';
+import { getIssueDetail, IssueImportance, IssueStatus, useIssueStore } from '@/entities/issue';
 
 import {
   updateIssueAssignee,
@@ -11,7 +11,6 @@ import {
   updateIssueStatus,
 } from '@/widgets/issue-detail-modal';
 
-import { useIssueStore } from '@/entities/issue/lib/useIssueStore';
 import { useIssueModalStore } from './useIssueModalStore';
 
 import { useCallback, useEffect, useState } from 'react';
