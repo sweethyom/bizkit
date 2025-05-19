@@ -6,18 +6,22 @@ import { clsx } from 'clsx';
 
 interface IssueCardProps {
   issue: Issue | null;
+  isError?: boolean;
   view?: 'compact' | 'detail';
   showMenuButton?: boolean;
   onClick?: () => void;
   onDelete?: () => void;
+  draggable?: boolean;
 }
 
 export const IssueCard = ({
   issue,
+  isError,
   view = 'detail',
   showMenuButton = true,
   onClick,
   onDelete,
+  draggable = true,
 }: IssueCardProps) => {
   if (issue === null) {
     return <div className='bg-gray-2 h-full w-full' />;
@@ -26,7 +30,10 @@ export const IssueCard = ({
   if (view === 'compact') {
     return (
       <div
-        className='border-gray-2 hover:border-primary/30 flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4'
+        className={clsx(
+          'border-gray-2 hover:border-primary/30 flex flex-col gap-2 rounded-lg border bg-white p-4',
+          draggable ? 'cursor-pointer' : 'cursor-default',
+        )}
         onClick={() => {
           if (onClick) {
             onClick();
@@ -90,7 +97,16 @@ export const IssueCard = ({
 
   return (
     <div
-      className='border-gray-2 hover:border-primary/30 flex cursor-pointer flex-col gap-2 rounded-lg border bg-white p-4'
+      className={clsx(
+        'border-gray-2 flex flex-col gap-2 rounded-lg border bg-white p-4',
+        draggable
+          ? 'hover:border-primary/30 cursor-pointer'
+          : 'hover:border-gray-3/50 cursor-default',
+        isError && '!border-warning/30 !shadow-warning/20 drop-shadow-warning/10 !shadow-md',
+      )}
+      style={{
+        transition: 'border-color 0.5s ease, box-shadow 0.5s ease',
+      }}
       onClick={() => {
         if (onClick) {
           onClick();
@@ -168,8 +184,8 @@ export const IssueCard = ({
                 <img
                   className='size-full object-cover'
                   src={
-                    issue.assignee?.profileImageUrl ||
-                    issue.user?.profileImageUrl ||
+                    issue.assignee?.profileImgUrl ||
+                    issue.user?.profileImgUrl ||
                     '/images/default-profile.png'
                   }
                   alt='이슈 담당자 프로필 이미지'

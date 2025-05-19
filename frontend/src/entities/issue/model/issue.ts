@@ -5,7 +5,7 @@ export type SprintStatus = 'READY' | 'ONGOING' | 'COMPLETED' | null;
 interface Assignee {
   id: number | null;
   nickname: string;
-  profileImageUrl: string | null;
+  profileImgUrl: string | null;
 }
 
 interface Epic {

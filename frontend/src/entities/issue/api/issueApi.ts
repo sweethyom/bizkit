@@ -44,8 +44,6 @@ export const moveIssueToSprint = async (issueId: number, sprintId: number) => {
       targetId: sprintId,
     });
 
-    console.log(response.data);
-
     return response.data;
   } catch (error) {
     console.error(error);
