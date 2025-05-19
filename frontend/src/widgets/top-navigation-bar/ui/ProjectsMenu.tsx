@@ -52,10 +52,20 @@ export const ProjectsMenu = ({ projectId }: { projectId?: number }) => {
                   <li key={project.id}>
                     <NavLink
                       onClick={() => setIsOpen(false)}
-                      className='hover:bg-background-secondary flex h-full w-full items-center gap-2 px-4 py-2'
+                      className='hover:bg-background-secondary flex h-full w-full items-center gap-2 p-4'
                       to={`/projects/${project.id}/backlog`}
                     >
-                      <div className='bg-background-tertiary size-8 rounded-full'></div>
+                      {project.image ? (
+                        <img
+                          src={project.image}
+                          alt={project.name}
+                          className='size-8 rounded-full'
+                        />
+                      ) : (
+                        <div className='bg-background-tertiary flex size-8 items-center justify-center rounded-full'>
+                          <span className='text-label-lg text-gray-400'>📁</span>
+                        </div>
+                      )}
                       <span>{project.name}</span>
                     </NavLink>
                   </li>

@@ -88,7 +88,7 @@ export const ProfileMenu = ({
         zIndex: 99999,
       }}
     >
-      <div className='border-gray-2 bg-background-secondary flex w-48 flex-col rounded-lg border shadow-lg'>
+      <div className='border-gray-2 bg-background-secondary flex w-fit flex-col rounded-lg border shadow-lg'>
         <div className='border-gray-2 bg-background-primary flex items-center gap-3 border-b p-4'>
           <div className='bg-gray-2 flex size-10 shrink-0 items-center justify-center rounded-full'>
             <img

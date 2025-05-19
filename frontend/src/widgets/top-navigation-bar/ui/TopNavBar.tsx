@@ -1,4 +1,4 @@
-import { getProjectDetail, getProjectList, useProjectStore } from '@/entities/project';
+import { getProjectDetail, getProjectList, Project, useProjectStore } from '@/entities/project';
 
 import { ROUTES_MAP } from '@/shared/config';
 import { useUserStore } from '@/shared/lib';
@@ -39,6 +39,7 @@ export const TopNavBar = () => {
   const { user } = useUserStore();
   const { projects, setProjects } = useProjectStore();
   const location = useLocation();
+  const [project, setProject] = useState<Project | null>(null);
 
   const [isProfileHovered, setIsProfileHovered] = useState(false);
   const profileIconRef = useRef<HTMLDivElement>(null);
@@ -51,10 +52,10 @@ export const TopNavBar = () => {
   }, [setProjects]);
 
   const getProject = useCallback(async () => {
-    await getProjectDetail(Number(projectId));
-    // if (response?.result === 'SUCCESS') {
-    // setProject(response.data);
-    // }
+    const response = await getProjectDetail(Number(projectId));
+    if (response?.result === 'SUCCESS') {
+      setProject(response.data || null);
+    }
   }, [projectId]);
 
   useEffect(() => {
@@ -121,6 +122,7 @@ export const TopNavBar = () => {
                             String(projectId),
                           );
                         },
+                        disabled: !project?.leader,
                       },
                     ]}
                     button={(toggle) => {
