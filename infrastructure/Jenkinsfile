@@ -266,16 +266,19 @@ spec:
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     script {
                         unstash 'api-docs-stash'
-                        sh """
-                        /kaniko/executor \\
-                            --context `pwd` \\
-                            --dockerfile=${API_DOCS_DOCKERFILE_PATH} \\
-                            --destination=${DOCKER_REGISTRY_URL}/${DOCKER_HUB_USERNAME}/${API_DOCS_DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} \\
-                            --insecure \\
-                            --skip-tls-verify \\
-                            --cache=true \\
-                            --cache-dir=/workspace/cache
-                        """
+                        retry(3) {
+                            sh """
+                            /kaniko/executor \\
+                                --context `pwd` \\
+                                --dockerfile=${API_DOCS_DOCKERFILE_PATH} \\
+                                --destination=${DOCKER_REGISTRY_URL}/${DOCKER_HUB_USERNAME}/${API_DOCS_DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} \\
+                                --insecure \\
+                                --skip-tls-verify \\
+                                --cache=true \\
+                                --cache-dir=/workspace/cache
+                            """
+                        }
+
                     }
                 }
             }
@@ -325,16 +328,18 @@ spec:
                 container(name: 'kaniko', shell: '/busybox/sh') {
                     script {
                         unstash 'api-jar-stash'
-                        sh """
-                        /kaniko/executor \\
-                            --context `pwd` \\
-                            --dockerfile=${API_DOCKERFILE_PATH} \\
-                            --destination=${DOCKER_REGISTRY_URL}/${DOCKER_HUB_USERNAME}/${API_DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} \\
-                            --insecure \\
-                            --skip-tls-verify \\
-                            --cache=true \\
-                            --cache-dir=/workspace/cache
-                        """
+                        retry(3) {
+                            sh """
+                            /kaniko/executor \\
+                                --context `pwd` \\
+                                --dockerfile=${API_DOCKERFILE_PATH} \\
+                                --destination=${DOCKER_REGISTRY_URL}/${DOCKER_HUB_USERNAME}/${API_DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} \\
+                                --insecure \\
+                                --skip-tls-verify \\
+                                --cache=true \\
+                                --cache-dir=/workspace/cache
+                            """
+                        }
                     }
                 }
             }
