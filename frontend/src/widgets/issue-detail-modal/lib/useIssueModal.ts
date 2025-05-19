@@ -73,16 +73,23 @@ export const useIssueModal = () => {
     }
   };
 
-  const handleContentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleContentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setContent(e.target.value);
   };
 
   const onSubmitContent = async () => {
     if (!issue) return;
-    await updateIssueContent(issue.id, content);
-    const response = await getIssueDetail(issue.id);
-    if (response.data) {
-      updateIssue(response.data);
+    console.log('Updating issue content to:', content);
+    try {
+      const result = await updateIssueContent(issue.id, content);
+      console.log('Update content result:', result);
+      const response = await getIssueDetail(issue.id);
+      console.log('Fetched updated issue:', response);
+      if (response.data) {
+        updateIssue(response.data);
+      }
+    } catch (error) {
+      console.error('Error in onSubmitContent:', error);
     }
   };
 

@@ -1,10 +1,16 @@
+export interface Assignee {
+  id: string | number;
+  nickname: string;
+  profileImageUrl?: string | null;
+}
+
 export interface Issue {
   id: string;
   key: string;
   title: string;
   epic: string;
   component: string;
-  assignee: string;
+  assignee: string | Assignee | null; // 문자열 또는 객체 또는 null
   storyPoints: number;
   priority: 'low' | 'medium' | 'high';
   status: 'todo' | 'inProgress' | 'done';

@@ -8,7 +8,7 @@ import {
 import { UserProfile } from '@/pages/profile/model/types';
 import { useUserStore } from '@/shared/lib';
 import axios from 'axios';
-import { AlertCircle, Camera, CheckCircle, ChevronLeft, Loader, User } from 'lucide-react';
+import { AlertCircle, Camera, CheckCircle, ChevronLeft, Loader } from 'lucide-react';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 
 export default function ProfilePage() {
@@ -256,15 +256,15 @@ export default function ProfilePage() {
         <div className='mb-8 flex flex-col items-center'>
           <div className='relative'>
             <div className='flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-2 border-gray-300 bg-gray-200'>
-              {avatarUrl || profile?.avatarUrl ? (
-                <img
-                  src={avatarUrl || profile?.avatarUrl || ''}
-                  alt='Profile'
-                  className='h-full w-full object-cover'
-                />
-              ) : (
-                <User className='h-16 w-16 text-gray-400' />
-              )}
+              <img
+                src={avatarUrl || profile?.avatarUrl || '/images/default-profile.png'}
+                alt='Profile'
+                className='h-full w-full object-cover'
+                onError={(e) => {
+                  // 이미지 로드 실패 시 기본 이미지로 대체
+                  e.currentTarget.src = '/images/default-profile.png';
+                }}
+              />
             </div>
             <label
               htmlFor='avatar-upload'

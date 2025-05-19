@@ -1,79 +1,83 @@
-import { api, ApiResponse } from '@/shared/api';
+// entities에서 API 함수 가져오기
+import {
+  updateIssueName as updateIssueNameEntity,
+  updateIssueContent as updateIssueContentEntity,
+  updateIssueAssignee as updateIssueAssigneeEntity,
+  updateIssueComponent as updateIssueComponentEntity,
+  updateIssueBizPoint as updateIssueBizPointEntity,
+  updateIssueImportance as updateIssueImportanceEntity,
+  updateIssueEpic as updateIssueEpicEntity,
+  updateIssueStatus as updateIssueStatusEntity
+} from '@/entities/issue';
 
 export const updateIssueName = async (issueId: number, name: string) => {
   try {
-    const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/name`, { name });
-    return response.data;
+    // entities의 함수 사용
+    return await updateIssueNameEntity(issueId, name);
   } catch (error) {
-    console.error(error);
+    console.error('Error updating issue name:', error);
     throw error;
   }
 };
 
 export const updateIssueContent = async (issueId: number, content: string) => {
   try {
-    const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/content`, { content });
-    return response.data;
+    console.log('API call - updateIssueContent:', issueId, content);
+    // entities의 함수 사용
+    return await updateIssueContentEntity(issueId, content);
   } catch (error) {
-    console.error(error);
+    console.error('Error updating issue content:', error);
     throw error;
   }
 };
 
 export const updateIssueAssignee = async (issueId: number, assigneeId: number) => {
   try {
-    const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/assignee`, {
-      assigneeId,
-    });
-    return response.data;
+    // entities의 함수 사용
+    return await updateIssueAssigneeEntity(issueId, assigneeId);
   } catch (error) {
-    console.error(error);
+    console.error('Error updating issue assignee:', error);
     throw error;
   }
 };
 
 export const updateIssueComponent = async (issueId: number, componentId: number) => {
   try {
-    const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/component`, {
-      componentId,
-    });
-    return response.data;
-  } catch (error: any) {
-    console.error(error.response.data);
+    // entities의 함수 사용
+    return await updateIssueComponentEntity(issueId, componentId);
+  } catch (error) {
+    console.error('Error updating issue component:', error);
     throw error;
   }
 };
 
 export const updateIssueBizPoint = async (issueId: number, bizPoint: number) => {
   try {
-    const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/bizPoint`, {
-      bizPoint,
-    });
-    return response.data;
+    console.log('API call - updateIssueBizPoint:', issueId, bizPoint);
+    // entities의 함수 사용
+    return await updateIssueBizPointEntity(issueId, bizPoint);
   } catch (error) {
-    console.error(error);
+    console.error('Error updating issue bizpoint:', error);
     throw error;
   }
 };
 
 export const updateIssueImportance = async (issueId: number, issueImportance: 'HIGH' | 'LOW') => {
   try {
-    const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/importance`, {
-      issueImportance,
-    });
-    return response.data;
+    // entities의 함수 사용
+    return await updateIssueImportanceEntity(issueId, issueImportance);
   } catch (error) {
-    console.error(error);
+    console.error('Error updating issue importance:', error);
     throw error;
   }
 };
 
 export const updateIssueEpic = async (issueId: number, epicId: number) => {
   try {
-    const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/epic`, { epicId });
-    return response.data;
+    // entities의 함수 사용
+    return await updateIssueEpicEntity(issueId, epicId);
   } catch (error) {
-    console.error(error);
+    console.error('Error updating issue epic:', error);
     throw error;
   }
 };
@@ -83,14 +87,10 @@ export const updateIssueStatus = async (
   issueStatus: 'TODO' | 'IN_PROGRESS' | 'DONE',
 ) => {
   try {
-    console.log(issueStatus);
-
-    const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/status`, {
-      issueStatus,
-    });
-    return response.data;
+    // entities의 함수 사용
+    return await updateIssueStatusEntity(issueId, issueStatus);
   } catch (error) {
-    console.error(error);
+    console.error('Error updating issue status:', error);
     throw error;
   }
 };

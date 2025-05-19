@@ -1,9 +1,11 @@
-import { useComponent } from '@/entities/component';
 import { useEpic } from '@/entities/epic';
-import { useIssueModal, useIssueModalStore } from '@/widgets/issue-detail-modal';
-
-import { useMember } from '@/entities/member';
 import { SprintStatus } from '@/entities/sprint';
+import {
+  useIssueModal,
+  useIssueModalStore,
+  useComponent,
+  useMember
+} from '@/widgets/issue-detail-modal';
 
 import { Button, IconButton } from '@/shared/ui';
 
@@ -401,7 +403,7 @@ export const IssueDetailModal = () => {
               <div className='flex flex-col gap-2'>
                 <textarea
                   value={content || ''}
-                  onChange={handleContentChange as any}
+                  onChange={handleContentChange}
                   className='focus:ring-primary min-h-[120px] w-full rounded border px-3 py-2 focus:ring-2 focus:outline-none'
                 />
                 <div className='flex justify-end gap-2'>

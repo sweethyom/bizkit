@@ -34,7 +34,7 @@ export const updateProjectSettings = async (
       settings,
     );
     console.log('프로젝트 설정 업데이트 응답:', response.data);
-    
+
     // 서버 응답에 데이터가 없는 경우 처리
     if (response.data.result === 'SUCCESS') {
       if (response.data.data) {
@@ -54,18 +54,15 @@ export const updateProjectSettings = async (
 };
 
 // 프로젝트 이미지 업데이트
-export const updateProjectImage = async (
-  projectId: string,
-  imageFile: File,
-): Promise<boolean> => {
+export const updateProjectImage = async (projectId: string, imageFile: File): Promise<boolean> => {
   try {
     console.log('프로젝트 이미지 업데이트 - 프로젝트 ID:', projectId);
     console.log('업로드할 파일 정보:', imageFile.name, imageFile.type, imageFile.size);
-    
+
     // 멀티파트 폼데이터 생성
     const formData = new FormData();
     formData.append('projectImage', imageFile);
-    
+
     // 명시적으로 Content-Type 헤더를 설정
     // 프로필 이미지 업로드 함수와 동일한 방식으로 구현
     const response = await api.patch<ApiResponse<void>>(
@@ -73,16 +70,16 @@ export const updateProjectImage = async (
       formData,
       {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }
+          'Content-Type': 'multipart/form-data',
+        },
+      },
     );
-    
+
     console.log('프로젝트 이미지 업데이트 응답:', response.data);
     return response.data.result === 'SUCCESS';
   } catch (error) {
     console.error('프로젝트 이미지 업데이트 실패:', error);
-    
+
     // Axios 오류인 경우 더 자세한 정보 출력 및 사용자 친화적인 에러 메시지 제공
     if (axios.isAxiosError(error)) {
       console.error('요청 URL:', error.config?.url);
@@ -90,12 +87,12 @@ export const updateProjectImage = async (
       console.error('요청 헤더:', error.config?.headers);
       console.error('응답 상태:', error.response?.status);
       console.error('응답 데이터:', error.response?.data);
-      
+
       // 서버 측 오류 메시지가 있다면 출력
       if (error.response?.data?.error?.message) {
         console.error('서버 오류 메시지:', error.response.data.error.message);
       }
-      
+
       // HTTP 상태 코드에 따른 오류 메시지
       if (error.response?.status === 413) {
         throw new Error('이미지 파일이 너무 큽니다. 더 작은 파일을 업로드해 주세요.');
@@ -104,10 +101,12 @@ export const updateProjectImage = async (
       } else if (error.response?.status === 400) {
         throw new Error('잘못된 요청입니다. 이미지 파일을 올바르게 선택해 주세요.');
       } else if (error.response?.status === 500) {
-        throw new Error('서버 오류가 발생했습니다. 이미지 업로드 기능이 서버에서 완전히 구현되지 않았을 수 있습니다.');
+        throw new Error(
+          '서버 오류가 발생했습니다. 이미지 업로드 기능이 서버에서 완전히 구현되지 않았을 수 있습니다.',
+        );
       }
     }
-    
+
     // 기본 오류 메시지 처리
     if (error instanceof Error) {
       throw error;
@@ -220,19 +219,19 @@ export const addComponent = async (projectId: string, component: Component): Pro
   try {
     // 실제 API 호출
     console.log('컴포넌트 추가 - 프로젝트 ID:', projectId, '컴포넌트:', component);
-    
+
     // API 명세에 맞게 필요한 필드만 전송
     const requestData = {
       name: component.name,
       content: component.content || '',
     };
-    
+
     const response = await api.post<ApiResponse<{ id: number }>>(
       API_PATHS.COMPONENTS(projectId),
       requestData,
     );
     console.log('컴포넌트 추가 응답:', response.data);
-    
+
     // API 명세에 따라 ID만 받아 객체 구성
     if (response.data.result === 'SUCCESS' && response.data.data) {
       return {
@@ -257,7 +256,7 @@ export const updateComponentName = async (componentId: number, name: string): Pr
 
     // API 명세에 맞게 이름만 전송
     const requestData = { name: name.trim() };
-    
+
     const response = await api.put<ApiResponse<{ id: number }>>(
       `components/${componentId}/name`,
       requestData,
@@ -277,14 +276,17 @@ export const updateComponentName = async (componentId: number, name: string): Pr
 };
 
 // 컴포넌트 설명 수정
-export const updateComponentContent = async (componentId: number, content: string): Promise<number> => {
+export const updateComponentContent = async (
+  componentId: number,
+  content: string,
+): Promise<number> => {
   try {
     // 실제 API 호출
     console.log('컴포넌트 설명 수정 - 컴포넌트 ID:', componentId, '새 설명:', content);
 
     // API 명세에 맞게 설명만 전송
     const requestData = { content: content.trim() };
-    
+
     const response = await api.put<ApiResponse<{ id: number }>>(
       `components/${componentId}/content`,
       requestData,
@@ -307,21 +309,21 @@ export const updateComponentContent = async (componentId: number, content: strin
 export const updateComponent = async (component: Component): Promise<Component> => {
   try {
     console.log('컴포넌트 전체 수정:', component);
-    
+
     // 컴포넌트 ID 받아오기
     const componentId = typeof component.id === 'string' ? parseInt(component.id) : component.id;
-    
+
     // 이름과 설명 모두 변경
     let updatedId = componentId;
-    
+
     // 이름 변경
     updatedId = await updateComponentName(componentId, component.name);
-    
+
     // 설명 변경 (공백이 아닐 때만)
     if (component.content !== undefined) {
       updatedId = await updateComponentContent(componentId, component.content || '');
     }
-    
+
     // 결과 객체 구성
     return {
       id: String(updatedId),
@@ -387,14 +389,14 @@ export const removeInvitedMember = async (invitationCode: string): Promise<boole
       console.error('유효하지 않은 초대 코드:', invitationCode);
       throw new Error('유효하지 않은 초대 코드가 전달되었습니다.');
     }
-    
+
     console.log('초대 팀원 삭제 - 초대 코드:', invitationCode);
     const response = await api.delete<ApiResponse<void>>(`members/invitation/${invitationCode}`);
     console.log('초대 팀원 삭제 응답:', response.data);
     return response.data.result === 'SUCCESS';
   } catch (error) {
     console.error('초대 팀원 삭제 실패:', error);
-    
+
     // 엑시오스 오류인 경우 더 자세한 정보 출력
     if (axios.isAxiosError(error)) {
       console.error('요청 URL:', error.config?.url);
@@ -402,7 +404,7 @@ export const removeInvitedMember = async (invitationCode: string): Promise<boole
       console.error('응답 상태:', error.response?.status);
       console.error('응답 데이터:', error.response?.data);
     }
-    
+
     throw error;
   }
 };

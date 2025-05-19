@@ -18,7 +18,8 @@ export const PopoverInput = ({
     left: 0,
     width: 0,
   });
-  const [val, setVal] = useState(value);
+  const [val, setVal] = useState(value || 0);
+
   useEffect(() => {
     if (anchorRef.current) {
       const rect = anchorRef.current.getBoundingClientRect();
@@ -34,6 +35,12 @@ export const PopoverInput = ({
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [anchorRef, onClose]);
+
+  const handleSave = () => {
+    const numValue = parseInt(val.toString()) || 0;
+    onSave(numValue);
+  };
+
   if (pos.top === 0 && pos.left === 0) return null;
   return createPortal(
     <input
@@ -46,9 +53,9 @@ export const PopoverInput = ({
       style={{ position: 'absolute', top: pos.top, left: pos.left, width: pos.width, zIndex: 9999 }}
       className='focus:ring-primary rounded border border-gray-200 px-2 py-1 text-sm shadow-lg outline-none focus:ring-2'
       onChange={(e) => setVal(Number(e.target.value))}
-      onBlur={() => onSave(val)}
+      onBlur={handleSave}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') onSave(val);
+        if (e.key === 'Enter') handleSave();
       }}
     />,
     document.body,

@@ -4,8 +4,10 @@ import {
   getProjectSettings,
   updateProjectSettings,
   updateProjectImage,
+  getTeamMembers,
 } from '@/pages/settings/api/settingsApi';
-import { ProjectSettings } from '@/pages/settings/model/types';
+import { ProjectSettings, TeamMember } from '@/pages/settings/model/types';
+import { ROUTES_MAP } from '@/shared/config';
 import { clsx } from 'clsx';
 import { AlertTriangle, Camera, CheckCircle, Save, Settings, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -26,6 +28,38 @@ const SettingPage: React.FC = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isAuthorized, setIsAuthorized] = useState(true);
+  const [members, setMembers] = useState<TeamMember[]>([]);
+
+  // 팀장 권한 확인 및 접근 허가 처리
+  useEffect(() => {
+    const checkUserRole = async () => {
+      if (!projectId) return;
+
+      try {
+        const teamMembers = await getTeamMembers(projectId);
+        setMembers(teamMembers);
+        
+        const currentUserEmail = localStorage.getItem('userEmail') || '';
+        const isCurrentUserLeader = teamMembers.some(
+          (member) => member.email === currentUserEmail && member.leader
+        );
+        
+        setIsAuthorized(isCurrentUserLeader);
+        
+        // 팀장이 아닌 경우 스프린트 페이지로 리다이렉트
+        if (!isCurrentUserLeader) {
+          console.log('팀장만 접근 가능한 페이지입니다. 스프린트 페이지로 이동합니다.');
+          const sprintUrl = ROUTES_MAP.sprint.path.replace(':projectId', projectId);
+          navigate(sprintUrl);
+        }
+      } catch (error) {
+        console.error('사용자 역할 확인 오류:', error);
+      }
+    };
+
+    checkUserRole();
+  }, [projectId, navigate]);
 
   useEffect(() => {
     const fetchSettings = async () => {

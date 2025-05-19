@@ -5,11 +5,15 @@ import {
   updateIssueStatus,
 } from '@/pages/sprint/api/sprintApi';
 import { Issue, SprintData } from '@/pages/sprint/model/types';
-import { IssueDetailModal } from '@/pages/sprint/ui/IssueDetailModal';
 import { StatusColumn } from '@/pages/sprint/ui/StatusColumn';
+import { SprintIssueDetailModal } from '@/pages/sprint/ui/SprintIssueDetailModal';
+import { Button } from '@/shared/ui';
+import {
+  useIssueModalStore,
+} from '@/widgets/issue-detail-modal';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
-import { AlertCircle, LayoutGrid, Loader2, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { AlertCircle, Filter, Loader2, Tag, Users, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 export const SprintBoard: React.FC = () => {
@@ -27,10 +31,10 @@ export const SprintBoard: React.FC = () => {
         if (!projectId) {
           throw new Error('Project ID is missing');
         }
-        
+
         // 프로젝트 ID를 localStorage에 저장 (IssueDetailModal에서 사용)
         localStorage.setItem('currentProjectId', projectId);
-        
+
         const data = await getSprintData(undefined, projectId);
         setSprintData(data);
       } catch (err: any) {
@@ -49,15 +53,19 @@ export const SprintBoard: React.FC = () => {
     fetchData();
   }, [projectId]);
 
-  const handleIssueClick = (issue: Issue) => {
-    setSelectedIssue(issue);
+  const handleIssueClick = useCallback((issue: Issue) => {
+    console.log('Issue clicked:', issue.id);
+    // 이슈 상세 모달 열기 플래그 먼저 설정
     setIsModalOpen(true);
-  };
+    // 선택된 이슈 설정
+    setSelectedIssue(issue);
+  }, []);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
+    // 이슈 참조 정리
     setSelectedIssue(null);
-  };
+  }, []);
 
   const handleUpdateIssue = (updatedIssue: Issue) => {
     if (!sprintData) return;
@@ -85,7 +93,7 @@ export const SprintBoard: React.FC = () => {
       };
     });
 
-    // 스프린트 데이터 업데이트
+    // 업데이트된 상태 그룹으로 스프린트 데이터 업데이트
     setSprintData({
       ...sprintData,
       statusGroups: updatedStatusGroups,
@@ -120,7 +128,6 @@ export const SprintBoard: React.FC = () => {
       });
     } catch (err) {
       console.error('이슈 삭제 실패:', err);
-      // 필요한 경우 에러 처리 추가
     }
   };
 
@@ -133,7 +140,6 @@ export const SprintBoard: React.FC = () => {
 
     const counts: { [key: string]: number } = {};
 
-    // 각 컴포넌트별로 해당 컴포넌트 이름을 키로 하는 이슈 개수 계산
     sprintData.statusGroups.forEach((statusGroup) => {
       statusGroup.componentGroups.forEach((componentGroup) => {
         if (!counts[componentGroup.name]) {
@@ -167,8 +173,7 @@ export const SprintBoard: React.FC = () => {
   // 필터 초기화 시 모든 컴포넌트 그룹도 초기 상태로 돌리기
   useEffect(() => {
     if (!activeFilter && sprintData) {
-      // 필터가 없을 때 mock 데이터의 초기 상태로 돌리기
-      // 명시적으로 expanded=true로 설정된 컴포넌트만 확장
+      // 필터가 없을 때 초기 상태로 돌리기
       const initialExpandedComponents = new Set<string>();
 
       sprintData.statusGroups.forEach((statusGroup) => {
@@ -205,23 +210,23 @@ export const SprintBoard: React.FC = () => {
 
         // 소스 상태 그룹과 컴포넌트 그룹 찾기
         const sourceStatusGroup = newSprintData.statusGroups.find(
-          (group) => group.id === sourceStatusId
+          (group) => group.id === sourceStatusId,
         );
-        
+
         if (!sourceStatusGroup) {
           console.error(`Status group not found: ${sourceStatusId}`);
           return;
         }
-        
+
         const sourceComponentGroup = sourceStatusGroup.componentGroups.find(
-          (group) => group.id === sourceComponentId
+          (group) => group.id === sourceComponentId,
         );
-        
+
         if (!sourceComponentGroup) {
           console.error(`Component group not found in source: ${sourceComponentId}`);
           return;
         }
-        
+
         if (!sourceComponentGroup.issues || !Array.isArray(sourceComponentGroup.issues)) {
           console.error('Source component group has no issues array:', sourceComponentGroup);
           return;
@@ -229,12 +234,14 @@ export const SprintBoard: React.FC = () => {
 
         // 이슈 찾아서 제거
         if (source.index >= sourceComponentGroup.issues.length) {
-          console.error(`Invalid source index: ${source.index}, issues length: ${sourceComponentGroup.issues.length}`);
+          console.error(
+            `Invalid source index: ${source.index}, issues length: ${sourceComponentGroup.issues.length}`,
+          );
           return;
         }
-        
+
         const [movedIssue] = sourceComponentGroup.issues.splice(source.index, 1);
-        
+
         if (!movedIssue) {
           console.error('Failed to extract moved issue');
           return;
@@ -254,7 +261,19 @@ export const SprintBoard: React.FC = () => {
 
         // 목적지가 다른 컴포넌트로 이동한 경우 컴포넌트도 업데이트
         if (sourceComponentId !== destComponentId) {
-          movedIssue.component = destComponentId;
+          // 목적지 컴포넌트 그룹에서 컴포넌트 이름 가져오기
+          const destStatusGroup = newSprintData.statusGroups.find(
+            (group) => group.id === destStatusId,
+          );
+          
+          const destComponentGroup = destStatusGroup?.componentGroups.find(
+            (group) => group.id === destComponentId,
+          );
+          
+          if (destComponentGroup) {
+            // 컴포넌트 이름 업데이트
+            movedIssue.component = destComponentGroup.name;
+          }
 
           // API 호출
           try {
@@ -266,33 +285,43 @@ export const SprintBoard: React.FC = () => {
 
         // 목적지 상태 그룹과 컴포넌트 그룹 찾기
         const destStatusGroup = newSprintData.statusGroups.find(
-          (group) => group.id === destStatusId
+          (group) => group.id === destStatusId,
         );
-        
+
         if (!destStatusGroup) {
           console.error(`Destination status group not found: ${destStatusId}`);
           return;
         }
-        
+
         const destComponentGroup = destStatusGroup.componentGroups.find(
-          (group) => group.id === destComponentId
+          (group) => group.id === destComponentId,
         );
-        
+
         if (!destComponentGroup) {
           console.error(`Destination component group not found: ${destComponentId}`);
           return;
         }
-        
+
         if (!destComponentGroup.issues || !Array.isArray(destComponentGroup.issues)) {
           console.error('Destination component group has no issues array:', destComponentGroup);
           destComponentGroup.issues = [];
         }
-        
+
         // 목적지에 이슈 추가
         destComponentGroup.issues.splice(destination.index, 0, movedIssue);
 
         // 상태 업데이트
         setSprintData(newSprintData);
+
+        // DnD 작업이 성공적으로 완료되면, 서버에서 최신 데이터를 다시 가져오기
+        setTimeout(async () => {
+          try {
+            const refreshedData = await getSprintData(undefined, projectId);
+            setSprintData(refreshedData);
+          } catch (refreshError) {
+            console.error('스프린트 데이터 새로고침 실패:', refreshError);
+          }
+        }, 500); // 서버 업데이트에 약간의 지연 후 데이터 가져오기
       } catch (error) {
         console.error('드래그 앤 드롭 처리 중 오류 발생:', error);
       }
@@ -302,8 +331,10 @@ export const SprintBoard: React.FC = () => {
   if (loading) {
     return (
       <div className='flex h-screen flex-col items-center justify-center bg-gray-50'>
-        <Loader2 className='mb-4 h-12 w-12 animate-spin text-blue-500' />
-        <p className='text-lg font-medium text-gray-700'>스프린트 데이터를 불러오는 중...</p>
+        <div className='flex flex-col items-center justify-center p-8 rounded-lg bg-white shadow-lg'>
+          <Loader2 className='mb-4 h-12 w-12 animate-spin text-primary' />
+          <p className='text-lg font-medium text-gray-700'>스프린트 데이터를 불러오는 중...</p>
+        </div>
       </div>
     );
   }
@@ -311,9 +342,9 @@ export const SprintBoard: React.FC = () => {
   if (error) {
     return (
       <div className='flex h-screen flex-col items-center justify-center bg-gray-50'>
-        <div className='w-full max-w-md rounded-lg bg-white p-8 shadow-md'>
-          <div className='mb-4 flex items-center'>
-            <AlertCircle className='mr-3 h-8 w-8 text-red-500' />
+        <div className='w-full max-w-md rounded-lg bg-white p-8 shadow-lg'>
+          <div className='mb-4 flex items-center gap-3'>
+            <AlertCircle className='h-8 w-8 text-warning' />
             <h2 className='text-xl font-semibold text-gray-800'>오류가 발생했습니다</h2>
           </div>
           <p className='mb-6 text-gray-600'>{error}</p>
@@ -324,14 +355,17 @@ export const SprintBoard: React.FC = () => {
                   // 스프린트 생성 페이지로 이동 (URL은 프로젝트에 맞게 수정 필요)
                   window.location.href = `/projects/${projectId}/sprint/create`;
                 }}
-                className='w-full rounded-md bg-blue-500 py-2 font-medium text-white transition-colors hover:bg-blue-600'
+                className='w-full rounded-md bg-primary py-2 font-medium text-white transition-colors hover:bg-primary/80'
               >
                 스프린트 생성하기
               </button>
             )}
             <button
               onClick={() => window.location.reload()}
-              className={`w-full rounded-md py-2 font-medium transition-colors ${error.includes('스프린트가 존재하지 않습니다') ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+              className={`w-full rounded-md py-2 font-medium transition-colors ${error.includes('스프린트가 존재하지 않습니다')
+                  ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-primary text-white hover:bg-primary/80'
+                }`}
             >
               다시 시도
             </button>
@@ -344,15 +378,15 @@ export const SprintBoard: React.FC = () => {
   if (!sprintData) {
     return (
       <div className='flex h-screen flex-col items-center justify-center bg-gray-50'>
-        <div className='w-full max-w-md rounded-lg bg-white p-8 shadow-md'>
-          <div className='mb-4 flex items-center'>
-            <AlertCircle className='mr-3 h-8 w-8 text-yellow-500' />
+        <div className='w-full max-w-md rounded-lg bg-white p-8 shadow-lg'>
+          <div className='mb-4 flex items-center gap-3'>
+            <AlertCircle className='h-8 w-8 text-point' />
             <h2 className='text-xl font-semibold text-gray-800'>데이터 없음</h2>
           </div>
           <p className='mb-4 text-gray-600'>스프린트 데이터를 불러올 수 없습니다.</p>
           <button
             onClick={() => window.location.reload()}
-            className='w-full rounded-md bg-blue-500 py-2 font-medium text-white transition-colors hover:bg-blue-600'
+            className='w-full rounded-md bg-primary py-2 font-medium text-white transition-colors hover:bg-primary/80'
           >
             다시 시도
           </button>
@@ -375,11 +409,18 @@ export const SprintBoard: React.FC = () => {
     new Set(
       sprintData.statusGroups.flatMap((statusGroup) =>
         statusGroup.componentGroups.flatMap((componentGroup) =>
-          componentGroup.issues.map((issue) => issue.assignee),
+          componentGroup.issues.map((issue) => {
+            if (typeof issue.assignee === 'string') {
+              return issue.assignee;
+            } else if (issue.assignee && issue.assignee.nickname) {
+              return issue.assignee.nickname;
+            }
+            return '';
+          }),
         ),
       ),
     ),
-  ).filter(Boolean); // 빈 값 제거
+  ).filter((assignee) => assignee !== undefined && assignee !== null && assignee !== ''); // 빈 값 제거
 
   // 필터링된 이슈 총 개수 계산
   const getTotalFilteredIssuesCount = () => {
@@ -395,9 +436,14 @@ export const SprintBoard: React.FC = () => {
           }
         } else if (activeFilter.startsWith('assignee-')) {
           const filterAssignee = activeFilter.replace('assignee-', '');
-          count += componentGroup.issues.filter(
-            (issue) => issue.assignee === filterAssignee,
-          ).length;
+          count += componentGroup.issues.filter((issue) => {
+            if (typeof issue.assignee === 'string') {
+              return issue.assignee === filterAssignee;
+            } else if (issue.assignee && issue.assignee.nickname) {
+              return issue.assignee.nickname === filterAssignee;
+            }
+            return false;
+          }).length;
         }
       });
     });
@@ -410,24 +456,26 @@ export const SprintBoard: React.FC = () => {
     if (!activeFilter) return null;
 
     if (activeFilter.startsWith('component-')) {
-      return `컴포넌트: ${activeFilter.replace('component-', '')}`;
+      const componentName = activeFilter.replace('component-', '');
+      return `컴포넌트: ${componentName}`;
     } else if (activeFilter.startsWith('assignee-')) {
-      return `담당자: ${activeFilter.replace('assignee-', '')}`;
+      const assigneeName = activeFilter.replace('assignee-', '');
+      return `담당자: ${assigneeName || '없음'}`;
     }
     return null;
   };
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='flex flex-col gap-4'>
       {/* 헤더 */}
-      <div className='mb-6 bg-white px-6 py-4 shadow-sm'>
-        <div className='mx-auto max-w-7xl'>
-          <h1 className='text-2xl font-bold text-gray-800'>스프린트 보드</h1>
-          <p className='mt-1 text-gray-500'>작업 상태를 한눈에 파악하고 관리하세요</p>
+      <div className='bg-background-secondary flex items-center justify-between p-4'>
+        <div className='flex flex-col gap-2'>
+          <h1 className='text-heading-xs font-bold'>스프린트 보드</h1>
+          <p className='text-label-lg text-gray-5'>작업 상태를 한눈에 파악하고 관리하세요</p>
           {activeFilter && (
             <div className='mt-2 flex items-center'>
               <span className='mr-2 text-sm text-gray-600'>필터링 중:</span>
-              <span className='inline-flex items-center rounded-md bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800'>
+              <span className='inline-flex items-center rounded-md bg-primary/10 px-2.5 py-0.5 text-sm font-medium text-primary'>
                 {getFilterName()} ({getTotalFilteredIssuesCount()}개 이슈)
               </span>
             </div>
@@ -435,67 +483,78 @@ export const SprintBoard: React.FC = () => {
         </div>
       </div>
 
-      <div className='mx-auto max-w-7xl px-4 pb-12 sm:px-6'>
+      <section className='bg-background-primary flex flex-col gap-4 p-4'>
         {/* 필터 섹션 */}
-        <div className='mb-6 flex flex-wrap gap-x-8 gap-y-4 rounded-lg bg-white p-4 shadow-sm'>
-          {/* 컴포넌트 필터 */}
-          <div className='flex items-center'>
-            <LayoutGrid className='mr-2 h-5 w-5 text-blue-500' />
-            <span className='mr-3 text-sm font-medium text-gray-700'>컴포넌트:</span>
-            <div className='flex flex-wrap gap-2'>
-              {allComponents.map((component, index) => (
-                <button
-                  key={index}
-                  className={`rounded-full px-3 py-1 text-sm font-medium ${activeFilter === `component-${component}`
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    } transition-colors`}
-                  onClick={() =>
-                    setActiveFilter(
-                      activeFilter === `component-${component}` ? null : `component-${component}`,
-                    )
-                  }
-                >
-                  {component}
-                </button>
-              ))}
+        <div className='rounded-lg bg-white p-6 shadow-sm border border-gray-100'>
+          <div className='flex justify-between items-center mb-6'>
+            <div className='flex items-center gap-2'>
+              <Filter size={18} className='text-primary' />
+              <h3 className='font-semibold text-gray-800'>필터</h3>
+            </div>
+            {activeFilter && (
+              <button
+                className='flex items-center gap-1 rounded-md bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 shadow-sm'
+                onClick={() => setActiveFilter(null)}
+              >
+                필터 초기화
+                <X size={16} />
+              </button>
+            )}
+          </div>
+          
+          <div className='flex flex-col gap-6'>
+            {/* 컴포넌트 필터 */}
+            <div>
+              <div className='flex items-center gap-2 mb-3'>
+                <Tag size={16} className='text-primary' />
+                <span className='text-sm font-medium text-gray-700'>컴포넌트</span>
+              </div>
+              <div className='flex flex-wrap gap-2'>
+                {allComponents.map((component, index) => (
+                  <button
+                    key={index}
+                    className={`rounded-full px-3 py-1.5 text-sm font-medium ${activeFilter === `component-${component}`
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      } transition-colors`}
+                    onClick={() =>
+                      setActiveFilter(
+                        activeFilter === `component-${component}` ? null : `component-${component}`,
+                      )
+                    }
+                  >
+                    {component}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 담당자 필터 */}
+            <div>
+              <div className='flex items-center gap-2 mb-3'>
+                <Users size={16} className='text-point' />
+                <span className='text-sm font-medium text-gray-700'>담당자</span>
+              </div>
+              <div className='flex flex-wrap gap-2'>
+                {allAssignees.map((assignee, index) => (
+                  <button
+                    key={index}
+                    className={`rounded-full px-3 py-1.5 text-sm font-medium ${activeFilter === `assignee-${assignee}`
+                        ? 'bg-point text-white shadow-sm'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      } transition-colors`}
+                    onClick={() => {
+                      setActiveFilter(
+                        activeFilter === `assignee-${assignee}` ? null : `assignee-${assignee}`,
+                      );
+                    }}
+                  >
+                    {assignee}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-
-          {/* 담당자 필터 */}
-          <div className='flex items-center'>
-            <Users className='mr-2 h-5 w-5 text-indigo-500' />
-            <span className='mr-3 text-sm font-medium text-gray-700'>담당자:</span>
-            <div className='flex flex-wrap gap-2'>
-              {allAssignees.map((assignee, index) => (
-                <button
-                  key={index}
-                  className={`rounded-full px-3 py-1 text-sm font-medium ${activeFilter === `assignee-${assignee}`
-                      ? 'bg-indigo-100 text-indigo-700'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    } transition-colors`}
-                  onClick={() =>
-                    setActiveFilter(
-                      activeFilter === `assignee-${assignee}` ? null : `assignee-${assignee}`,
-                    )
-                  }
-                >
-                  {assignee}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 필터 초기화 버튼 */}
-          {activeFilter && (
-            <button
-              className='ml-auto flex items-center rounded-md bg-gray-200 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-300'
-              onClick={() => setActiveFilter(null)}
-            >
-              필터 초기화
-              <span className='ml-1'>×</span>
-            </button>
-          )}
         </div>
 
         {/* 보드 섹션 */}
@@ -504,28 +563,43 @@ export const SprintBoard: React.FC = () => {
             {sprintData.statusGroups.map((statusGroup) => {
               // 상태 그룹의 모든 컴포넌트 그룹에 대한 필터링된 사본 생성
               const filteredComponentGroups = statusGroup.componentGroups.map((componentGroup) => {
+                // 필터가 없으면 원래 컴포넌트 그룹을 그대로 반환
+                if (!activeFilter) {
+                  return componentGroup;
+                }
+
                 // 컴포넌트 필터가 활성화된 경우
-                if (activeFilter?.startsWith('component-')) {
+                if (activeFilter.startsWith('component-')) {
                   const filterComponent = activeFilter.replace('component-', '');
                   // 컴포넌트 이름이 필터와 일치하지 않으면 빈 이슈 배열 반환
                   if (componentGroup.name !== filterComponent) {
                     return { ...componentGroup, issues: [] };
                   }
+                  // 일치하는 경우 원래 컴포넌트 그룹 반환
+                  return componentGroup;
                 }
 
                 // 담당자 필터가 활성화된 경우
-                if (activeFilter?.startsWith('assignee-')) {
+                if (activeFilter.startsWith('assignee-')) {
                   const filterAssignee = activeFilter.replace('assignee-', '');
+
                   // 이슈 중 담당자가 필터와 일치하는 것만 유지
+                  const filteredIssues = componentGroup.issues.filter((issue) => {
+                    if (typeof issue.assignee === 'string') {
+                      return issue.assignee === filterAssignee;
+                    } else if (issue.assignee && issue.assignee.nickname) {
+                      return issue.assignee.nickname === filterAssignee;
+                    }
+                    return false;
+                  });
+
                   return {
                     ...componentGroup,
-                    issues: componentGroup.issues.filter(
-                      (issue) => issue.assignee === filterAssignee,
-                    ),
+                    issues: filteredIssues,
                   };
                 }
 
-                // 필터가 없으면 원래 컴포넌트 그룹 반환
+                // 다른 필터의 경우 기본값 반환
                 return componentGroup;
               });
 
@@ -539,8 +613,8 @@ export const SprintBoard: React.FC = () => {
                 <StatusColumn
                   key={statusGroup.id}
                   statusGroup={filteredStatusGroup}
-                  onToggleExpand={handleToggleExpand}
                   expandedComponents={expandedComponents}
+                  onToggleExpand={handleToggleExpand}
                   onIssueClick={handleIssueClick}
                   filterActive={activeFilter !== null}
                   componentIssueCounts={componentIssueCounts}
@@ -549,13 +623,12 @@ export const SprintBoard: React.FC = () => {
             })}
           </div>
         </DragDropContext>
-      </div>
+      </section>
 
       {/* 이슈 상세 모달 */}
-      <IssueDetailModal
+      <SprintIssueDetailModal
         isOpen={isModalOpen}
-        issue={selectedIssue}
-        projectId={projectId || ''}
+        selectedIssue={selectedIssue}
         onClose={handleCloseModal}
         onDelete={handleDeleteIssue}
         onUpdate={handleUpdateIssue}
