@@ -6,7 +6,7 @@ export type IssueImportance = 'HIGH' | 'LOW';
 interface Assignee {
   id: number | null;
   nickname: string;
-  profileImageUrl: string | null;
+  profileImgUrl: string | null;
 }
 
 interface Epic {
