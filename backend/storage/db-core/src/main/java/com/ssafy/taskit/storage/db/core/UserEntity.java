@@ -11,13 +11,13 @@ import org.hibernate.annotations.Immutable;
 public class UserEntity extends BaseEntity {
 
   private String nickname;
-  private String profileImgUrl;
+  private String profileImageUrl;
 
   private String email;
 
   protected UserEntity() {}
 
   public UserDetail toUserDetail() {
-    return new UserDetail(this.getId(), this.nickname, this.profileImgUrl, this.email);
+    return new UserDetail(this.getId(), this.nickname, this.profileImageUrl, this.email);
   }
 }
