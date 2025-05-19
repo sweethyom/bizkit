@@ -13,9 +13,9 @@ public class EmailService {
 
   @Async
   public void sendInvitation(String email, String invitationCode) {
-    String link = "https://bizkit.co.kr/invitations/" + invitationCode;
+    String link = "http://bizkit.co.kr/invitation/" + invitationCode;
     String subject = "프로젝트 초대";
-    String text = "아래 링크를 통해 초대를 수락하세요:/n" + link;
+    String text = "아래 링크를 통해 초대를 수락하세요:" + link;
     emailSender.sendEmail(email, subject, text);
   }
 }
