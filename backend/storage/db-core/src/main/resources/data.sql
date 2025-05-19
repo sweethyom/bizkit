@@ -12,7 +12,6 @@ INSERT INTO "user" (
     'test1',
     '{noop}password!',
     NULL,
-    NULL,
     'ACTIVE',
     CURRENT_TIMESTAMP(),
     CURRENT_TIMESTAMP()
@@ -31,7 +30,6 @@ INSERT INTO "user" (
     'test2@test.com',
     'test2',
     '{noop}password!',
-    NULL,
     NULL,
     'ACTIVE',
     CURRENT_TIMESTAMP(),
@@ -52,7 +50,6 @@ INSERT INTO "user" (
              'test3',
              '{noop}password!',
              NULL,
-             NULL,
              'ACTIVE',
              CURRENT_TIMESTAMP(),
              CURRENT_TIMESTAMP()
@@ -72,7 +69,6 @@ INSERT INTO "user" (
              'test4',
              '{noop}password!',
              NULL,
-             NULL,
              'ACTIVE',
              CURRENT_TIMESTAMP(),
              CURRENT_TIMESTAMP()
@@ -91,7 +87,6 @@ INSERT INTO "user" (
              'test5@test.com',
              'test5',
              '{noop}password!',
-             NULL,
              NULL,
              'ACTIVE',
              CURRENT_TIMESTAMP(),
