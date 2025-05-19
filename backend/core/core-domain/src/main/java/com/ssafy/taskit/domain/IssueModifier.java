@@ -124,9 +124,10 @@ public class IssueModifier {
     if (currentSprintId != null && targetSprintId != 0L) {
       // 조건 2: 기존 스프린트 → 다른 스프린트 이동
       sprintValidator.isCompletedSprint(currentSprintId);
+      sprintValidator.isCompletedSprint(targetSprintId);
+      sprintValidator.isSprintExists(targetSprintId);
       sprintValidator.isSprintsEquals(currentSprintId, targetSprintId);
       sprintValidator.isSprintsInSameProject(currentSprintId, targetSprintId);
-      sprintValidator.isSprintExists(targetSprintId);
       issueRepository.modifyIssueSprint(issueId, modifyIssueSprint);
       return;
     }
@@ -134,6 +135,7 @@ public class IssueModifier {
     if (currentSprintId == null && targetSprintId != 0L) {
       // 조건 3: 백로그 상태 → 스프린트 할당
       sprintValidator.isSprintExists(targetSprintId);
+      sprintValidator.isCompletedSprint(targetSprintId);
       issueRepository.modifyIssueSprint(issueId, modifyIssueSprint);
       return;
     }
