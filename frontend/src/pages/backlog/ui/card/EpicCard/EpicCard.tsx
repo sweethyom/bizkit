@@ -3,15 +3,15 @@ import { SectionCard } from '@/pages/backlog/ui/card/SectionCard';
 import { deleteEpic, Epic } from '@/entities/epic';
 import { IssueCard, IssueForm, useIssue } from '@/entities/issue';
 
-import { api, ApiResponse } from '@/shared/api';
-import { Button } from '@/shared/ui';
+import { Button, IconButton, UnderlineInput } from '@/shared/ui';
 
 import { EpicCardHeader } from './EpicCardHeader';
 
+import { useEpicForm } from '@/entities/epic/lib/useEpicForm';
 import { useIssueModalStore } from '@/widgets/issue-detail-modal';
 import { Draggable } from '@hello-pangea/dnd';
 import { Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface EpicCardProps {
   epic: Epic;
@@ -26,11 +26,34 @@ export const EpicCard = ({ epic, onDeleteIssue }: EpicCardProps) => {
 
   const [showIssueForm, setShowIssueForm] = useState(false);
 
+  const [isEditing, setIsEditing] = useState(false);
+  const { name, byteLength, isValid, handleNameChange, onUpdate } = useEpicForm(0, epic.name);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     if (expanded) {
       getIssues();
     }
   }, [epic.id, getIssues, expanded]);
+
+  useEffect(() => {
+    if (isEditing) {
+      const handleClickOutside = (e: MouseEvent) => {
+        if (
+          inputRef.current &&
+          !inputRef.current.contains(e.target as Node) &&
+          !buttonRef.current?.contains(e.target as Node)
+        ) {
+          setIsEditing(false);
+        }
+      };
+      document.addEventListener('click', handleClickOutside, true);
+      return () => {
+        document.removeEventListener('click', handleClickOutside, true);
+      };
+    }
+  }, [isEditing]);
 
   return (
     <SectionCard
@@ -38,16 +61,58 @@ export const EpicCard = ({ epic, onDeleteIssue }: EpicCardProps) => {
       cardId={epic.id}
       expanded={expanded}
       toggleExpanded={() => setExpanded((prev) => !prev)}
-      header={<EpicCardHeader epic={epic} />}
+      header={
+        isEditing ? (
+          <div className='flex w-full flex-row items-start justify-between'>
+            <div className='flex flex-1 flex-col'>
+              <div className='flex items-center gap-2'>
+                <UnderlineInput
+                  ref={inputRef}
+                  type='text'
+                  value={name}
+                  onChange={handleNameChange}
+                  autoFocus
+                  className='text-label-lg w-full outline-none'
+                  maxLength={40}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <span className='text-label-sm text-gray-4 whitespace-nowrap'>
+                  {byteLength} / 40 byte
+                </span>
+                <IconButton
+                  ref={buttonRef}
+                  icon='check'
+                  size={20}
+                  color='primary'
+                  disabled={!isValid}
+                  onClick={async () => {
+                    await onUpdate(epic.id);
+                    setIsEditing(false);
+                  }}
+                />
+                <IconButton
+                  icon='x'
+                  size={20}
+                  color='warning'
+                  onClick={() => setIsEditing(false)}
+                />
+              </div>
+              <p className='text-label-md text-gray-4 text-nowrap'>
+                전체 이슈: {epic.cntTotalIssues} | 남은 이슈: {epic.cntRemainIssues}
+              </p>
+            </div>
+            <div className='flex h-full flex-shrink-0 items-start'>
+              <div style={{ width: 40 }} />
+            </div>
+          </div>
+        ) : (
+          <EpicCardHeader epic={epic} />
+        )
+      }
       moreActions={[
         {
           children: '에픽 수정',
-          onClick: async () => {
-            const response = await api.patch<ApiResponse<void>>(`/epics/${epic.id}/name`, {
-              name: 'epic 2',
-            });
-            console.log(response.data);
-          },
+          onClick: () => setIsEditing(true),
         },
         {
           children: '에픽 삭제',

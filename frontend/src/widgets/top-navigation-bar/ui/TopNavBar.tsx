@@ -5,10 +5,12 @@ import { useUserStore } from '@/shared/lib';
 import { ProfileMenu } from './PorfileMenu';
 import { ProjectsMenu } from './ProjectsMenu';
 
+import { ROUTES_MAP } from '@/shared/config';
+import { DropDownSection } from '@/shared/ui/menus/DropDownSection';
 import { clsx } from 'clsx';
 import { Layers } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { NavLink, useParams } from 'react-router';
+import { NavLink, useLocation, useParams } from 'react-router';
 
 const StyledNavLink = ({
   to,
@@ -36,6 +38,7 @@ export const TopNavBar = () => {
   const { projectId } = useParams();
   const { user } = useUserStore();
   const { projects, setProjects } = useProjectStore();
+  const location = useLocation();
 
   const [isProfileHovered, setIsProfileHovered] = useState(false);
   const profileIconRef = useRef<HTMLDivElement>(null);
@@ -90,10 +93,66 @@ export const TopNavBar = () => {
                   <StyledNavLink to={`/projects/${projectId}/backlog`}>백로그</StyledNavLink>
                 </li>
                 <li>
-                  <StyledNavLink to={`/projects/${projectId}/burndown`}>번다운</StyledNavLink>
-                </li>
-                <li>
-                  <StyledNavLink to={`/projects/${projectId}/settings`}>설정</StyledNavLink>
+                  <DropDownSection
+                    items={[
+                      {
+                        children: '팀 설정',
+                        onClick: () => {
+                          window.location.href = ROUTES_MAP.teamSettings.path.replace(
+                            ':projectId',
+                            String(projectId),
+                          );
+                        },
+                      },
+                      {
+                        children: '컴포넌트 설정',
+                        onClick: () => {
+                          window.location.href = ROUTES_MAP.componentSettings.path.replace(
+                            ':projectId',
+                            String(projectId),
+                          );
+                        },
+                      },
+                      {
+                        children: '프로젝트 설정',
+                        onClick: () => {
+                          window.location.href = ROUTES_MAP.projectSettings.path.replace(
+                            ':projectId',
+                            String(projectId),
+                          );
+                        },
+                      },
+                    ]}
+                    button={(toggle) => {
+                      const settingPaths = [
+                        ROUTES_MAP.teamSettings.path.replace(':projectId', String(projectId)),
+                        ROUTES_MAP.componentSettings.path.replace(':projectId', String(projectId)),
+                        ROUTES_MAP.projectSettings.path.replace(':projectId', String(projectId)),
+                      ];
+                      const isActive = settingPaths.some((path) => location.pathname === path);
+                      return (
+                        <button
+                          type='button'
+                          className={clsx(
+                            'flex items-center gap-1 rounded px-2 py-1 hover:text-black',
+                            isActive ? 'font-bold text-black' : 'text-gray-4',
+                          )}
+                          onClick={toggle}
+                        >
+                          설정
+                          <svg width='16' height='16' fill='none' viewBox='0 0 24 24'>
+                            <path
+                              d='M6 9l6 6 6-6'
+                              stroke='currentColor'
+                              strokeWidth='2'
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                            />
+                          </svg>
+                        </button>
+                      );
+                    }}
+                  />
                 </li>
               </>
             )}

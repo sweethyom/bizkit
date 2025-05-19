@@ -10,6 +10,7 @@ import { EmptyCard } from './card/EmptyCard';
 import { EpicCard } from './card/EpicCard';
 import { SkeletonCard } from './card/SkeletonCard';
 import { SprintCard } from './card/SprintCard';
+import { CompleteSprintModal } from './modal/CompleteSprintModal';
 
 import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 import { Plus } from 'lucide-react';
@@ -25,14 +26,16 @@ export const BacklogPage = () => {
     startSprint,
     completeSprint,
   } = useSprint(Number(projectId));
+  const [isCreateSprintFormOpen, setIsCreateSprintFormOpen] = useState(false);
+  const [isCompleteSprintModalOpen, setIsCompleteSprintModalOpen] = useState(false);
+  const [completeTargetSprintId, setCompleteTargetSprintId] = useState<number | null>(null);
+
   const { epics, getEpics, isLoading: isLoadingEpics, onDeleteIssue } = useEpic(Number(projectId));
+  const [isCreateEpicFormOpen, setIsCreateEpicFormOpen] = useState(false);
 
   useEffect(() => {
     getEpics();
   }, [getEpics]);
-
-  const [isCreateEpicFormOpen, setIsCreateEpicFormOpen] = useState(false);
-  const [isCreateSprintFormOpen, setIsCreateSprintFormOpen] = useState(false);
 
   const { isOpen: isIssueModalOpened } = useIssueModalStore();
 
@@ -183,7 +186,8 @@ export const BacklogPage = () => {
                       }}
                       onCompleteSprint={() => {
                         console.log('completeSprint', sprint.id);
-                        completeSprint(sprint.id, 4);
+                        setCompleteTargetSprintId(sprint.id);
+                        setIsCompleteSprintModalOpen(true);
                       }}
                       dragSource={dragSource}
                     />
@@ -254,6 +258,25 @@ export const BacklogPage = () => {
       </div>
 
       {isIssueModalOpened && <IssueDetailModal />}
+      {isCompleteSprintModalOpen && completeTargetSprintId !== null && (
+        <CompleteSprintModal
+          closeModal={() => {
+            setIsCompleteSprintModalOpen(false);
+            setCompleteTargetSprintId(null);
+          }}
+          currentSprintId={completeTargetSprintId}
+          incompleteIssues={(issues.sprint[completeTargetSprintId] || [])
+            .filter((issue) => issue.issueStatus !== 'DONE')
+            .map((issue) => ({ id: issue.id }))}
+          sprints={sprints}
+          onComplete={async (toSprintId: number) => {
+            console.log('completeSprint', completeTargetSprintId, toSprintId);
+            await completeSprint(completeTargetSprintId, toSprintId);
+            setIsCompleteSprintModalOpen(false);
+            setCompleteTargetSprintId(null);
+          }}
+        />
+      )}
     </DragDropContext>
   );
 };

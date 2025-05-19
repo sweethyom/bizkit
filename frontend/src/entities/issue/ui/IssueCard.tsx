@@ -156,7 +156,7 @@ export const IssueCard = ({
             </TooltipSection>
             <span>•</span>
             <TooltipSection info='담당자'>
-              <span>{issue.assignee?.nickname || '없음'}</span>
+              <span>{issue.assignee?.nickname || issue.user?.nickname || '없음'}</span>
             </TooltipSection>
           </div>
 
@@ -167,7 +167,11 @@ export const IssueCard = ({
               {issue.assignee?.id || issue.user?.id ? (
                 <img
                   className='size-full object-cover'
-                  src={issue.assignee?.profileImageUrl || '/images/default-profile.png'}
+                  src={
+                    issue.assignee?.profileImageUrl ||
+                    issue.user?.profileImageUrl ||
+                    '/images/default-profile.png'
+                  }
                   alt='이슈 담당자 프로필 이미지'
                 />
               ) : (

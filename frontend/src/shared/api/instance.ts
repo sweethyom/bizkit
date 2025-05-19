@@ -17,9 +17,9 @@ let isRenewingRefreshToken = false;
 let refreshTokenPromise: Promise<TokenInfo | null> | null = null;
 
 const logout = () => {
-  // tokenStorage.remove();
-  // useUserStore.getState().clearUser();
-  // window.location.href = '/signin';
+  tokenStorage.remove();
+  useUserStore.getState().clearUser();
+  window.location.href = '/signin';
 };
 
 // 요청 인터셉터
@@ -38,8 +38,6 @@ api.interceptors.request.use(
     if (currentTokenInfo.refreshTokenRenewableAt < now) {
       if (currentTokenInfo.refreshTokenExpiresAt < now) {
         logout();
-        tokenStorage.remove();
-        useUserStore.getState().clearUser();
 
         return Promise.reject(
           new AxiosError(

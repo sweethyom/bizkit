@@ -18,6 +18,7 @@ type IssueStore = {
     to: { type: 'sprint' | 'epic'; id: number; index: number },
   ) => void;
   addIssue: (issue: Issue) => void;
+  updateIssue: (updatedIssue: Issue) => void;
 };
 
 export const useIssueStore = create<IssueStore>()(
@@ -37,6 +38,20 @@ export const useIssueStore = create<IssueStore>()(
             ...(state.issues['epic'][issue.epic!.id] || []),
             issue,
           ];
+          return { issues: newIssues };
+        });
+      },
+      updateIssue: (updatedIssue: Issue) => {
+        set((state) => {
+          const newIssues = { ...state.issues };
+          (['sprint', 'epic'] as const).forEach((type) => {
+            Object.keys(newIssues[type]).forEach((id) => {
+              const numId = Number(id);
+              newIssues[type][numId] = newIssues[type][numId]?.map((issue: Issue) =>
+                issue.id === updatedIssue.id ? updatedIssue : issue,
+              );
+            });
+          });
           return { issues: newIssues };
         });
       },

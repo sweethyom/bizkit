@@ -1,4 +1,5 @@
 import { Sprint } from '@/entities/sprint';
+import { getByteSize } from '@/shared/lib/byteUtils';
 import { IconButton, UnderlineInput } from '@/shared/ui';
 import { ChangeEvent, useEffect, useRef } from 'react';
 import { SprintCardStatusLabel } from './SprintCardStatusLabel';
@@ -46,11 +47,11 @@ export const SprintCardHeader = ({
   }, [isEditing, onCancel]);
 
   return (
-    <>
-      <div className='flex flex-col'>
-        <h3 className='text-label-lg'>
+    <div className='flex w-full flex-row items-start justify-between'>
+      <div className='flex flex-1 flex-col'>
+        <div className='flex items-center gap-2'>
           {isEditing ? (
-            <div className='flex items-center'>
+            <>
               <UnderlineInput
                 ref={inputRef}
                 type='text'
@@ -58,25 +59,28 @@ export const SprintCardHeader = ({
                 className='text-label-lg w-full outline-none'
                 value={sprintName}
                 onChange={setSprintName}
+                maxLength={40}
                 onClick={(e) => e.stopPropagation()}
               />
-
+              <span className='text-label-sm text-gray-4 whitespace-nowrap'>
+                {getByteSize(sprintName)} / 40 byte
+              </span>
               <IconButton
                 ref={buttonRef}
                 icon='check'
                 size={20}
                 onClick={() => {
-                  console.log(sprintName);
                   onSave(sprintName);
                 }}
                 color='primary'
+                disabled={sprintName.trim() === '' || getByteSize(sprintName) > 40}
               />
               <IconButton icon='x' size={20} onClick={onCancel} color='warning' />
-            </div>
+            </>
           ) : (
-            sprint.name
+            <span className='text-label-lg'>{sprint.name}</span>
           )}
-        </h3>
+        </div>
         <p className='text-label-md text-gray-4 text-nowrap'>
           {remainIssueCount !== undefined ? (
             <>할 일 개수: {remainIssueCount}</>
@@ -85,8 +89,10 @@ export const SprintCardHeader = ({
           )}
         </p>
       </div>
-
+      <div className='flex h-full flex-shrink-0 items-start'>
+        <div style={{ width: 40 }} />
+      </div>
       <SprintCardStatusLabel status={sprint.sprintStatus} />
-    </>
+    </div>
   );
 };
