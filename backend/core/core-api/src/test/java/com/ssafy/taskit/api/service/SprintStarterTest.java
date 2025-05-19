@@ -135,6 +135,7 @@ class SprintStarterTest {
         20L,
         30L,
         40L,
+        100.0,
         new DefaultDateTime(null, null));
 
     Issue spyIssue = spy(issue); // spy()로 감싸기
