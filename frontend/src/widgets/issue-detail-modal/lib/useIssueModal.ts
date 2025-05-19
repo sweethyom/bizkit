@@ -1,7 +1,7 @@
 import { getIssueDetail, IssueImportance, IssueStatus, useIssueStore } from '@/entities/issue';
-import { useMemberStore } from '@/entities/member';
 
 import {
+  Member,
   updateIssueAssignee,
   updateIssueBizPoint,
   updateIssueComponent,
@@ -14,13 +14,15 @@ import {
 
 import { useIssueModalStore } from './useIssueModalStore';
 
+import { Component } from '@/entities/component';
+import { Epic } from '@/entities/epic';
+import { getByteSize } from '@/shared/lib';
 import { useCallback, useEffect, useState } from 'react';
 
 export const useIssueModal = () => {
-  const { members } = useMemberStore();
-
   const { issue } = useIssueModalStore();
   const updateIssue = useIssueStore((state) => state.updateIssue);
+  const moveIssue = useIssueStore((state) => state.moveIssue);
 
   const [key, setKey] = useState(issue?.key ?? '');
   const [name, setName] = useState(issue?.name ?? '로드 중...');
@@ -59,17 +61,27 @@ export const useIssueModal = () => {
   }, [issue, getIssue]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!issue) return;
+    if (!issue || getByteSize(e.target.value) > 40) return;
 
     setName(e.target.value);
   };
 
   const onSubmitName = async () => {
-    if (!issue) return;
-    await updateIssueName(issue.id, name);
-    const response = await getIssueDetail(issue.id);
-    if (response.data) {
-      updateIssue(response.data);
+    if (!issue || !name.trim() || getByteSize(name) > 40) return;
+
+    if (name.trim() === issue.name.trim()) {
+      setName(issue.name.trim());
+      return;
+    }
+
+    try {
+      await updateIssueName(issue.id, name);
+
+      issue.name = name.trim();
+      updateIssue(issue);
+      setName(issue.name.trim());
+    } catch (error) {
+      console.error('Error in onSubmitName:', error);
     }
   };
 
@@ -79,98 +91,145 @@ export const useIssueModal = () => {
 
   const onSubmitContent = async () => {
     if (!issue) return;
-    console.log('Updating issue content to:', content);
+
+    if (content.trim() === issue.content?.trim()) {
+      setContent(issue.content.trim() ?? '');
+      return;
+    }
+
     try {
-      const result = await updateIssueContent(issue.id, content);
-      console.log('Update content result:', result);
-      const response = await getIssueDetail(issue.id);
-      console.log('Fetched updated issue:', response);
-      if (response.data) {
-        updateIssue(response.data);
-      }
+      await updateIssueContent(issue.id, content.trim());
+
+      issue.content = content.trim();
+      updateIssue(issue);
+      setContent(issue.content.trim());
     } catch (error) {
       console.error('Error in onSubmitContent:', error);
     }
   };
 
-  const handleAssigneeChange = async (assigneeId: number) => {
-    if (!issue) return;
-    await updateIssueAssignee(issue.id, assigneeId);
+  const handleAssigneeChange = async (members: Member[], assigneeId: number) => {
+    if (!issue || assigneeId === issue.assignee?.id) return;
 
-    // 현재 store에서 이슈를 가져옴
-    const state = useIssueStore.getState();
-    const currentIssue =
-      state.issues.sprint[issue.sprint?.id || 0]?.find((i) => i.id === issue.id) ||
-      state.issues.epic[issue.epic?.id || 0]?.find((i) => i.id === issue.id) ||
-      issue; // fallback
+    try {
+      await updateIssueAssignee(issue.id, assigneeId);
 
-    // members에서 assignee 정보 생성
-    const targetMember = members.find((member) => member.userId === assigneeId);
-    const assignee = {
-      id: targetMember?.userId || null,
-      nickname: targetMember?.nickname || '',
-      profileImageUrl: targetMember?.profileImage || '',
-    };
+      // 현재 store에서 이슈를 가져옴
+      const state = useIssueStore.getState();
+      const currentIssue =
+        state.issues.sprint[issue.sprint?.id || 0]?.find((i) => i.id === issue.id) ||
+        state.issues.epic[issue.epic?.id || 0]?.find((i) => i.id === issue.id) ||
+        issue; // fallback
 
-    // 기존 이슈 정보에 assignee만 덮어쓰기
-    const updatedIssue = {
-      ...currentIssue,
-      assignee,
-      user: assignee, // 필요시
-    };
+      // members에서 assignee 정보 생성
+      const targetMember = members.find((member) => member.userId === assigneeId);
 
-    updateIssue(updatedIssue);
-    setAssignee(assignee);
+      const assignee = {
+        id: targetMember?.userId || null,
+        nickname: targetMember?.nickname || '',
+        profileImgUrl: targetMember?.profileImage || '',
+      };
+
+      // 기존 이슈 정보에 assignee만 덮어쓰기
+      const updatedIssue = {
+        ...currentIssue,
+        assignee,
+        user: assignee, // 필요시
+      };
+
+      updateIssue(updatedIssue);
+      setAssignee(assignee);
+    } catch (error) {
+      console.error('Error in handleAssigneeChange:', error);
+    }
   };
 
   const handleIssueStatusChange = async (issueStatus: IssueStatus) => {
-    if (!issue) return;
-    if (issueStatus === 'UNASSIGNED') return;
-    await updateIssueStatus(issue.id, issueStatus);
-    setIssueStatus(issueStatus);
-    const response = await getIssueDetail(issue.id);
-    if (response.data) {
-      updateIssue(response.data);
+    if (!issue || issueStatus === issue.issueStatus || issueStatus === 'UNASSIGNED') return;
+
+    try {
+      await updateIssueStatus(issue.id, issueStatus);
+
+      issue.issueStatus = issueStatus;
+      updateIssue(issue);
+      setIssueStatus(issueStatus);
+    } catch (error) {
+      console.error('Error in handleIssueStatusChange:', error);
     }
   };
 
   const handleIssueImportanceChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!issue) return;
-    await updateIssueImportance(issue.id, e.target.value as 'LOW' | 'HIGH');
-    setIssueImportance(e.target.value as 'LOW' | 'HIGH');
-    const response = await getIssueDetail(issue.id);
-    if (response.data) {
-      updateIssue(response.data);
+    if (!issue || e.target.value === issue.issueImportance) return;
+
+    try {
+      await updateIssueImportance(issue.id, e.target.value as 'LOW' | 'HIGH');
+
+      issue.issueImportance = e.target.value as 'LOW' | 'HIGH';
+      updateIssue(issue);
+      setIssueImportance(e.target.value as 'LOW' | 'HIGH');
+    } catch (error) {
+      console.error('Error in handleIssueImportanceChange:', error);
     }
   };
 
   const handleBizPointChange = async (bizPoint: number) => {
-    if (!issue) return;
-    await updateIssueBizPoint(issue.id, bizPoint);
-    setBizPoint(bizPoint);
-    const response = await getIssueDetail(issue.id);
-    if (response.data) {
-      updateIssue(response.data);
+    if (!issue || bizPoint === issue.bizPoint) return;
+
+    try {
+      await updateIssueBizPoint(issue.id, bizPoint);
+
+      issue.bizPoint = bizPoint;
+      updateIssue(issue);
+      setBizPoint(bizPoint);
+    } catch (error) {
+      console.error('Error in handleBizPointChange:', error);
     }
   };
 
-  const handleComponentChange = async (componentId: number) => {
-    if (!issue) return;
-    await updateIssueComponent(issue.id, componentId);
-    const response = await getIssueDetail(issue.id);
-    if (response.data) {
-      setComponent(response.data.component);
-      updateIssue(response.data);
+  const handleComponentChange = async (components: Component[], componentId: number) => {
+    if (!issue || componentId === issue.component?.id) return;
+
+    try {
+      await updateIssueComponent(issue.id, componentId);
+
+      issue.component = components.find((component) => component.id === componentId);
+      updateIssue(issue);
+      setComponent(issue.component);
+    } catch (error) {
+      console.error('Error in handleComponentChange:', error);
     }
   };
 
-  const handleEpicChange = async (epicId: number) => {
-    if (!issue) return;
-    await updateIssueEpic(issue.id, epicId);
-    const response = await getIssueDetail(issue.id);
-    if (response.data) {
-      setEpic(response.data.epic);
-      updateIssue(response.data);
+  const handleEpicChange = async (epics: Epic[], epicId: number) => {
+    if (!issue || epicId === issue.epic?.id) return;
+
+    try {
+      await updateIssueEpic(issue.id, epicId);
+
+      moveIssue(
+        issue.id,
+        { type: 'epic', id: issue.epic?.id || 0, index: 0 },
+        { type: 'epic', id: epicId, index: 0 },
+      );
+
+      const fromEpic = epics.find((epic) => epic.id === issue.epic?.id);
+      const toEpic = epics.find((epic) => epic.id === epicId);
+
+      if (fromEpic) {
+        fromEpic.cntTotalIssues -= 1;
+        fromEpic.cntRemainIssues -= 1;
+      }
+
+      if (toEpic) {
+        toEpic.cntTotalIssues += 1;
+        toEpic.cntRemainIssues += 1;
+      }
+
+      issue.epic = toEpic;
+      updateIssue(issue);
+      setEpic(toEpic);
+    } catch (error) {
+      console.error('Error in handleEpicChange:', error);
     }
   };
 

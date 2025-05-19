@@ -1,10 +1,10 @@
 import { useEpic } from '@/entities/epic';
 import { SprintStatus } from '@/entities/sprint';
 import {
+  useComponent,
   useIssueModal,
   useIssueModalStore,
-  useComponent,
-  useMember
+  useMember,
 } from '@/widgets/issue-detail-modal';
 
 import { Button, IconButton } from '@/shared/ui';
@@ -14,7 +14,7 @@ import { PopoverInput } from './PopOverMenu';
 import { Tag } from './Tag';
 
 import { clsx } from 'clsx';
-import { BookOpen, Briefcase, Flag, Hash, Layers, User } from 'lucide-react';
+import { Briefcase, Flag, Hash, Layers, Save, User, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 
@@ -167,12 +167,11 @@ export const IssueDetailModal = () => {
             <Tag
               ref={statusRef}
               name='진행 상황'
-              value={issueStatus}
               className={clsx({
                 'cursor-not-allowed': sprint?.sprintStatus !== SprintStatus.ONGOING,
-                'text-gray-5/70 bg-transparent': issueStatus === 'UNASSIGNED',
-                'bg-gray-100 text-gray-700': issueStatus === 'TODO',
-                'bg-blue-100 text-blue-700': issueStatus === 'IN_PROGRESS',
+                '!text-gray-5/70 !bg-transparent': issueStatus === 'UNASSIGNED',
+                '!bg-gray-100 !text-gray-700': issueStatus === 'TODO',
+                '!bg-blue-100 !text-blue-700': issueStatus === 'IN_PROGRESS',
                 'bg-green-100 text-green-700': issueStatus === 'DONE',
               })}
               onClick={() => {
@@ -195,11 +194,10 @@ export const IssueDetailModal = () => {
             <Tag
               ref={priorityRef}
               name='우선순위'
-              value={issueImportance}
               className={clsx({
-                'text-gray-5/70 bg-transparent': !issueImportance,
-                'bg-blue-100 text-blue-800': issueImportance === 'LOW',
-                'bg-red-100 text-red-800': issueImportance === 'HIGH',
+                '!text-gray-5/70 !bg-transparent': !issueImportance,
+                '!bg-blue-100 !text-blue-800': issueImportance === 'LOW',
+                '!bg-red-100 !text-red-800': issueImportance === 'HIGH',
               })}
               onClick={() => {
                 setEditField('priority');
@@ -216,7 +214,9 @@ export const IssueDetailModal = () => {
             <Tag
               ref={storyPointsRef}
               name='비즈포인트'
-              value={bizPoint || null}
+              className={clsx({
+                '!text-gray-5/70 !bg-transparent': !bizPoint,
+              })}
               onClick={() => {
                 setEditField('storyPoints');
                 setAnchorRef(storyPointsRef as React.RefObject<HTMLSpanElement>);
@@ -230,7 +230,9 @@ export const IssueDetailModal = () => {
             <Tag
               ref={componentRef}
               name='컴포넌트'
-              value={component?.name}
+              className={clsx({
+                '!text-gray-5/70 !bg-transparent': !component?.id,
+              })}
               onClick={() => {
                 setEditField('component');
                 setAnchorRef(componentRef as React.RefObject<HTMLSpanElement>);
@@ -244,7 +246,9 @@ export const IssueDetailModal = () => {
             <Tag
               ref={assigneeRef}
               name='담당자'
-              value={assignee?.id}
+              className={clsx({
+                '!text-gray-5/70 !bg-transparent': !assignee?.id,
+              })}
               onClick={() => {
                 setEditField('assignee');
                 setAnchorRef(assigneeRef as React.RefObject<HTMLSpanElement>);
@@ -258,7 +262,6 @@ export const IssueDetailModal = () => {
             <Tag
               ref={epicRef}
               name='에픽'
-              value={epic?.name}
               onClick={() => {
                 setEditField('epic');
                 setAnchorRef(epicRef as React.RefObject<HTMLSpanElement>);
@@ -269,7 +272,7 @@ export const IssueDetailModal = () => {
             </Tag>
 
             {/* 스프린트(읽기전용) */}
-            <Tag name='스프린트' value={sprint?.id}>
+            <Tag name='스프린트'>
               <Layers size={14} />
               {sprint?.name || '없음'}
             </Tag>
@@ -324,7 +327,7 @@ export const IssueDetailModal = () => {
                   setHasFetchedMembers(true);
                 }}
                 onSelect={(v) => {
-                  handleAssigneeChange(Number(v));
+                  handleAssigneeChange(members, Number(v));
                   setEditField(null);
                 }}
                 onClose={() => setEditField(null)}
@@ -346,7 +349,7 @@ export const IssueDetailModal = () => {
                 }}
                 onClose={() => setEditField(null)}
                 onSelect={(v) => {
-                  handleComponentChange(Number(v));
+                  handleComponentChange(components, Number(v));
                   setEditField(null);
                 }}
               />
@@ -366,7 +369,7 @@ export const IssueDetailModal = () => {
                   setHasFetchedEpics(true);
                 }}
                 onSelect={(v) => {
-                  handleEpicChange(Number(v));
+                  handleEpicChange(epics, Number(v));
                   setEditField(null);
                 }}
                 onClose={() => setEditField(null)}
@@ -378,6 +381,8 @@ export const IssueDetailModal = () => {
                 anchorRef={anchorRef}
                 value={bizPoint ?? 0}
                 onSave={(v) => {
+                  if (v <= 0) return;
+
                   handleBizPointChange(v);
                   setEditField(null);
                 }}
@@ -389,7 +394,7 @@ export const IssueDetailModal = () => {
 
         {/* 내용 */}
         <div className='px-8 pb-8'>
-          <div className='flex flex-col gap-2 rounded-lg bg-gray-50 p-4 shadow-sm'>
+          {/* <div className='flex flex-col gap-2 rounded-lg bg-gray-50 p-4 shadow-sm'>
             <div className='flex items-center gap-2 text-xs text-gray-400'>
               <BookOpen size={14} /> 내용
               <IconButton
@@ -398,37 +403,65 @@ export const IssueDetailModal = () => {
                 size={14}
                 className='ml-1'
               />
-            </div>
-            {isEditing.content ? (
-              <div className='flex flex-col gap-2'>
-                <textarea
-                  value={content || ''}
-                  onChange={handleContentChange}
-                  className='focus:ring-primary min-h-[120px] w-full rounded border px-3 py-2 focus:ring-2 focus:outline-none'
-                />
-                <div className='flex justify-end gap-2'>
-                  <Button size='sm' color='primary' variant='solid' onClick={onSubmitContent}>
-                    저장
-                  </Button>
-                  <Button
-                    size='sm'
-                    color='warning'
-                    variant='outline'
-                    onClick={() => {
+            </div> */}
+          {isEditing.content ? (
+            <div className='space-y-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all'>
+              <textarea
+                value={content || ''}
+                onChange={handleContentChange}
+                placeholder='내용을 입력하세요...'
+                className='min-h-[120px] w-full resize-none border-0 p-2 focus:ring-0 focus-visible:ring-0'
+              />
+              <div className='flex justify-end gap-2'>
+                <Button
+                  size='sm'
+                  variant='outline'
+                  onClick={() => {
+                    setIsEditing({ ...isEditing, content: false });
+                  }}
+                  className='gap-1 text-gray-600 hover:text-gray-700'
+                >
+                  <X className='size-4' />
+                  취소
+                </Button>
+                <Button
+                  size='sm'
+                  onClick={async () => {
+                    try {
+                      await onSubmitContent();
                       setIsEditing({ ...isEditing, content: false });
-                    }}
-                  >
-                    취소
-                  </Button>
-                </div>
+                    } catch (error) {
+                      console.error('내용 저장 실패:', error);
+                    }
+                  }}
+                  className='gap-1'
+                >
+                  <Save className='size-4' />
+                  저장
+                </Button>
               </div>
-            ) : (
-              <div className='min-h-[80px] rounded-md bg-white p-3 text-sm text-gray-700'>
-                {content || '설명이 없습니다.'}
+            </div>
+          ) : (
+            <div className='group border-gray-2 relative overflow-hidden rounded-md border transition-all hover:shadow-md'>
+              <div className='absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100'>
+                <IconButton
+                  className='text-black'
+                  size={16}
+                  icon='pencil-line'
+                  onClick={() => setIsEditing({ ...isEditing, content: true })}
+                />
               </div>
-            )}
-          </div>
+              <div className='text-paragraph-lg text-gray-5 min-h-[160px] rounded-md p-4'>
+                {content ? (
+                  <p className='whitespace-pre-wrap'>{content}</p>
+                ) : (
+                  <p className='text-gray-400 italic'>설명이 없습니다.</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
+        {/* </div> */}
       </div>
     </div>
   );

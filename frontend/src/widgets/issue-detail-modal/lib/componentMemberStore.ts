@@ -18,5 +18,7 @@ export interface MemberStore {
 
 export const useMemberStore = create<MemberStore>((set) => ({
   members: [],
-  setMembers: (members) => set({ members }),
+  setMembers: (members) => {
+    return set({ members });
+  },
 }));
