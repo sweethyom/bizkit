@@ -35,8 +35,8 @@ const SignInForm: FC<SignInFormProps> = ({
         <label htmlFor='username' className='block text-sm font-medium text-gray-700'>
           이메일
         </label>
-        <div className='mt-1 relative rounded-md shadow-sm'>
-          <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+        <div className='relative mt-1 rounded-md shadow-sm'>
+          <div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
             <Mail className='h-5 w-5 text-gray-400' />
           </div>
           <input
@@ -47,7 +47,7 @@ const SignInForm: FC<SignInFormProps> = ({
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className='pl-10 appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
+            className='block w-full appearance-none rounded-md border border-gray-300 px-3 py-3 pl-10 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm'
             placeholder='you@example.com'
           />
         </div>
@@ -58,8 +58,8 @@ const SignInForm: FC<SignInFormProps> = ({
         <label htmlFor='password' className='block text-sm font-medium text-gray-700'>
           비밀번호
         </label>
-        <div className='mt-1 relative rounded-md shadow-sm'>
-          <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+        <div className='relative mt-1 rounded-md shadow-sm'>
+          <div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
             <Lock className='h-5 w-5 text-gray-400' />
           </div>
           <input
@@ -70,7 +70,7 @@ const SignInForm: FC<SignInFormProps> = ({
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className='pl-10 appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
+            className='block w-full appearance-none rounded-md border border-gray-300 px-3 py-3 pl-10 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm'
             placeholder='••••••••'
           />
         </div>
@@ -80,8 +80,8 @@ const SignInForm: FC<SignInFormProps> = ({
       <div className='flex items-center justify-between'>
         <div className='text-sm'>
           <a
-            href='#'
-            className='font-medium text-indigo-600 hover:text-indigo-500 transition duration-150 ease-in-out'
+            href='/reset-password'
+            className='font-medium text-indigo-600 transition duration-150 ease-in-out hover:text-indigo-500'
           >
             비밀번호를 잊으셨나요?
           </a>
@@ -90,7 +90,7 @@ const SignInForm: FC<SignInFormProps> = ({
 
       {/* 에러 메시지 */}
       {error && (
-        <div className='bg-red-50 border-l-4 border-red-500 p-4 rounded'>
+        <div className='rounded border-l-4 border-red-500 bg-red-50 p-4'>
           <div className='flex'>
             <div className='flex-shrink-0'>
               <AlertCircle className='h-5 w-5 text-red-500' />
@@ -107,12 +107,13 @@ const SignInForm: FC<SignInFormProps> = ({
         <button
           type='submit'
           disabled={isLoading}
-          className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150 ease-in-out ${isLoading ? 'opacity-70 cursor-not-allowed' : ''
-            }`}
+          className={`flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition-colors duration-150 ease-in-out hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none ${
+            isLoading ? 'cursor-not-allowed opacity-70' : ''
+          }`}
         >
           {isLoading ? (
             <div className='flex items-center'>
-              <LoaderCircle className='animate-spin -ml-1 mr-2 h-4 w-4 text-white' />
+              <LoaderCircle className='mr-2 -ml-1 h-4 w-4 animate-spin text-white' />
               로그인 중...
             </div>
           ) : (
