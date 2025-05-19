@@ -13,9 +13,12 @@ import {
 
 import { useIssueModalStore } from './useIssueModalStore';
 
+import { useMemberStore } from '@/entities/member/lib/useMemeberStore';
 import { useCallback, useEffect, useState } from 'react';
 
 export const useIssueModal = () => {
+  const { members } = useMemberStore();
+
   const { issue } = useIssueModalStore();
   const updateIssue = useIssueStore((state) => state.updateIssue);
 
@@ -86,12 +89,31 @@ export const useIssueModal = () => {
   const handleAssigneeChange = async (assigneeId: number) => {
     if (!issue) return;
     await updateIssueAssignee(issue.id, assigneeId);
-    const response = await getIssueDetail(issue.id);
-    if (response.data) {
-      console.log(response.data);
-      setAssignee(response.data.user || response.data.assignee);
-      updateIssue(response.data);
-    }
+
+    // 현재 store에서 이슈를 가져옴
+    const state = useIssueStore.getState();
+    const currentIssue =
+      state.issues.sprint[issue.sprint?.id || 0]?.find((i) => i.id === issue.id) ||
+      state.issues.epic[issue.epic?.id || 0]?.find((i) => i.id === issue.id) ||
+      issue; // fallback
+
+    // members에서 assignee 정보 생성
+    const targetMember = members.find((member) => member.userId === assigneeId);
+    const assignee = {
+      id: targetMember?.userId || null,
+      nickname: targetMember?.nickname || '',
+      profileImageUrl: targetMember?.profileImage || '',
+    };
+
+    // 기존 이슈 정보에 assignee만 덮어쓰기
+    const updatedIssue = {
+      ...currentIssue,
+      assignee,
+      user: assignee, // 필요시
+    };
+
+    updateIssue(updatedIssue);
+    setAssignee(assignee);
   };
 
   const handleIssueStatusChange = async (issueStatus: IssueStatus) => {

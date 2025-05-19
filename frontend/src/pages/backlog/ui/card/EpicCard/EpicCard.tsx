@@ -155,7 +155,7 @@ export const EpicCard = ({ epic, onDeleteIssue }: EpicCardProps) => {
                     >
                       <IssueCard
                         issue={issue}
-                        onClick={() => {
+                        onClick={async () => {
                           openModal(issue);
                         }}
                         onDelete={() => {

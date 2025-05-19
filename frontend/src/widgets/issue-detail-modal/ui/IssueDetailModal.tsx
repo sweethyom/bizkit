@@ -86,10 +86,6 @@ export const IssueDetailModal = () => {
     };
   }, [closeModal]);
 
-  useEffect(() => {
-    console.log(assignee);
-  }, [assignee]);
-
   const statusLabels = {
     UNASSIGNED: '진행 상황',
     TODO: '해야 할 일',
@@ -218,21 +214,21 @@ export const IssueDetailModal = () => {
             <Tag
               ref={storyPointsRef}
               name='비즈포인트'
-              value={bizPoint}
+              value={bizPoint || null}
               onClick={() => {
                 setEditField('storyPoints');
                 setAnchorRef(storyPointsRef as React.RefObject<HTMLSpanElement>);
               }}
             >
               <Briefcase size={14} />
-              {bizPoint ?? '없음'}
+              {bizPoint || '없음'}
             </Tag>
 
             {/* 컴포넌트 */}
             <Tag
               ref={componentRef}
               name='컴포넌트'
-              value={component?.name}
+              value={component?.name || null}
               onClick={() => {
                 setEditField('component');
                 setAnchorRef(componentRef as React.RefObject<HTMLSpanElement>);

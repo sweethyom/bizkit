@@ -1,3 +1,4 @@
+import { Issue } from '@/entities/issue/model/issue';
 import { Sprint } from '@/entities/sprint';
 import { ApiResponse, api } from '@/shared/api';
 
@@ -91,6 +92,16 @@ export const sprintApi = {
 
       console.log(response.data);
 
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
+
+  getSprintIssues: async (sprintId: number) => {
+    try {
+      const response = await api.get<ApiResponse<Issue[]>>(`/sprints/${sprintId}/issues`);
       return response.data;
     } catch (error) {
       console.error(error);

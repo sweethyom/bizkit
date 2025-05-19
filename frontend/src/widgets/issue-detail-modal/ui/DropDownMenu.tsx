@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -58,24 +59,31 @@ export const DropDownMenu = ({
         left: pos.left,
         minWidth: pos.width,
         zIndex: 9999,
+        maxHeight: 320,
+        overflowY: 'auto',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
       }}
-      className='border-gray-2 animate-fadein overflow-hidden rounded-xl border bg-white shadow-2xl'
+      className='border-gray-2 animate-fadein rounded-md border bg-white shadow-2xl'
     >
-      {options.map((opt) => {
-        const isSelected = opt.value === value;
+      {options.map((opt, idx) => {
+        const isSelected = opt.label === value;
         return (
-          <div
-            key={opt.value}
-            className='hover:bg-primary/10 hover:text-primary active:bg-primary/20 cursor-pointer px-4 py-2 text-base font-medium transition-colors duration-100'
-            style={{
-              fontWeight: isSelected ? 700 : 500,
-              background: isSelected ? 'rgba(59,130,246,0.08)' : undefined,
-              color: isSelected ? '#2563eb' : undefined,
-            }}
-            onClick={() => onSelect(opt.value)}
-          >
-            {opt.label}
-          </div>
+          <>
+            <div
+              key={opt.value}
+              className='group hover:bg-primary/10 hover:text-primary active:bg-primary/20 text-label-md flex cursor-pointer items-center gap-2 px-4 py-2 text-base transition-colors duration-150'
+              style={{
+                fontWeight: isSelected ? 700 : 500,
+                background: isSelected ? 'rgba(59,130,246,0.08)' : undefined,
+                color: isSelected ? '#2563eb' : undefined,
+              }}
+              onClick={() => onSelect(opt.value)}
+            >
+              <span>{opt.label}</span>
+              {isSelected && <Check size={16} />}
+            </div>
+            {idx < options.length - 1 && <div className='mx-3 h-px bg-gray-100' />}
+          </>
         );
       })}
     </div>,

@@ -3,6 +3,7 @@ import { Issue } from '@/entities/issue';
 import { DropDownSection, IconButton, TooltipSection } from '@/shared/ui';
 
 import { clsx } from 'clsx';
+import { useEffect } from 'react';
 
 interface IssueCardProps {
   issue: Issue | null;
@@ -19,6 +20,10 @@ export const IssueCard = ({
   onClick,
   onDelete,
 }: IssueCardProps) => {
+  useEffect(() => {
+    console.log(issue);
+  }, [issue]);
+
   if (issue === null) {
     return <div className='bg-gray-2 h-full w-full' />;
   }

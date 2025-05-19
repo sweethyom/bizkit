@@ -1,5 +1,5 @@
 export interface Member {
   nickname: string;
-  profileImageUrl: string | null;
+  profileImage: string | null;
   userId: number;
 }
