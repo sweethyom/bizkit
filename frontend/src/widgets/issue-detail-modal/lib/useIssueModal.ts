@@ -64,7 +64,10 @@ export const useIssueModal = () => {
   const onSubmitName = async () => {
     if (!issue) return;
     await updateIssueName(issue.id, name);
-    // 이름 변경 후 최신 이슈 정보 fetch 및 store 갱신 필요시 여기에 추가
+    const response = await getIssueDetail(issue.id);
+    if (response.data) {
+      updateIssue(response.data);
+    }
   };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +77,10 @@ export const useIssueModal = () => {
   const onSubmitContent = async () => {
     if (!issue) return;
     await updateIssueContent(issue.id, content);
-    // 내용 변경 후 최신 이슈 정보 fetch 및 store 갱신 필요시 여기에 추가
+    const response = await getIssueDetail(issue.id);
+    if (response.data) {
+      updateIssue(response.data);
+    }
   };
 
   const handleAssigneeChange = async (assigneeId: number) => {
@@ -82,7 +88,8 @@ export const useIssueModal = () => {
     await updateIssueAssignee(issue.id, assigneeId);
     const response = await getIssueDetail(issue.id);
     if (response.data) {
-      setAssignee(response.data.assignee);
+      console.log(response.data);
+      setAssignee(response.data.user || response.data.assignee);
       updateIssue(response.data);
     }
   };
@@ -92,21 +99,30 @@ export const useIssueModal = () => {
     if (issueStatus === 'UNASSIGNED') return;
     await updateIssueStatus(issue.id, issueStatus);
     setIssueStatus(issueStatus);
-    // 상태 변경 후 최신 이슈 정보 fetch 및 store 갱신 필요시 여기에 추가
+    const response = await getIssueDetail(issue.id);
+    if (response.data) {
+      updateIssue(response.data);
+    }
   };
 
   const handleIssueImportanceChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!issue) return;
     await updateIssueImportance(issue.id, e.target.value as 'LOW' | 'HIGH');
     setIssueImportance(e.target.value as 'LOW' | 'HIGH');
-    // 중요도 변경 후 최신 이슈 정보 fetch 및 store 갱신 필요시 여기에 추가
+    const response = await getIssueDetail(issue.id);
+    if (response.data) {
+      updateIssue(response.data);
+    }
   };
 
   const handleBizPointChange = async (bizPoint: number) => {
     if (!issue) return;
     await updateIssueBizPoint(issue.id, bizPoint);
     setBizPoint(bizPoint);
-    // 비즈 포인트 변경 후 최신 이슈 정보 fetch 및 store 갱신 필요시 여기에 추가
+    const response = await getIssueDetail(issue.id);
+    if (response.data) {
+      updateIssue(response.data);
+    }
   };
 
   const handleComponentChange = async (componentId: number) => {

@@ -75,7 +75,9 @@ export const MyWorksPage = () => {
                 showMenuButton={false}
                 view='compact'
                 onClick={() => {
-                  alert(`navigate to '/projects/${task.project?.id}/sprint?issueId=${task.id}'`);
+                  if (task.project?.id) {
+                    navigate(`/projects/${task.project?.id}/sprint?issueId=${task.id}`);
+                  }
                 }}
               />
             ))}
@@ -87,7 +89,7 @@ export const MyWorksPage = () => {
         </div>
 
         <div>
-          <h2 className='mb-4 text-xl font-semibold text-black'>진행중</h2>
+          <h2 className='mb-4 text-xl font-semibold text-black'>진행 중</h2>
           <div className='flex flex-col gap-4 rounded-md bg-white p-4'>
             {inProgress.map((task) => (
               <IssueCard
@@ -96,7 +98,9 @@ export const MyWorksPage = () => {
                 showMenuButton={false}
                 view='compact'
                 onClick={() => {
-                  alert(`navigate to '/projects/${task.project?.id}/sprint?issueId=${task.id}'`);
+                  if (task.project?.id) {
+                    navigate(`/projects/${task.project?.id}/sprint?issueId=${task.id}`);
+                  }
                 }}
               />
             ))}

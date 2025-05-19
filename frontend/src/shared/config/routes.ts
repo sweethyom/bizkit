@@ -47,4 +47,8 @@ export const ROUTES_MAP = {
     path: '/invitation/accept/:invitationId',
     name: 'InvitationAccept',
   },
+  resetPassword: {
+    path: '/reset-password',
+    name: 'ResetPassword',
+  },
 };

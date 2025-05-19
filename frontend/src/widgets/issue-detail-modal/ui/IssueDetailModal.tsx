@@ -86,6 +86,10 @@ export const IssueDetailModal = () => {
     };
   }, [closeModal]);
 
+  useEffect(() => {
+    console.log(assignee);
+  }, [assignee]);
+
   const statusLabels = {
     UNASSIGNED: '진행 상황',
     TODO: '해야 할 일',
@@ -309,10 +313,12 @@ export const IssueDetailModal = () => {
             {editField === 'assignee' && anchorRef && (
               <DropDownMenu
                 anchorRef={anchorRef}
-                options={members.map((member) => ({
-                  label: member.nickname,
-                  value: String(member.id),
-                }))}
+                options={members.map((member) => {
+                  return {
+                    label: member.nickname,
+                    value: String(member.userId),
+                  };
+                })}
                 value={assignee?.nickname || '없음'}
                 onOpen={() => {
                   if (hasFetchedMembers) return;

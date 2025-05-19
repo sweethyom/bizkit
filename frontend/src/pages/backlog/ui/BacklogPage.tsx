@@ -220,7 +220,7 @@ export const BacklogPage = () => {
             <Droppable droppableId='epic-backlog'>
               {(provided, snapshot) => (
                 <div
-                  className={`relative flex h-full flex-col gap-3 transition-colors duration-200 ${snapshot.isDraggingOver ? 'bg-point/10' : ''}`}
+                  className={`relative flex h-full flex-col gap-3 transition-colors duration-200`}
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
@@ -249,7 +249,13 @@ export const BacklogPage = () => {
                     ))
                   )}
 
-                  {provided.placeholder}
+                  {snapshot.isDraggingOver && (
+                    <div className='bg-gray-0/60 border-md absolute top-0 right-0 bottom-0 left-0'>
+                      <div className='flex h-full w-full content-center items-center'>
+                        {provided.placeholder}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </Droppable>

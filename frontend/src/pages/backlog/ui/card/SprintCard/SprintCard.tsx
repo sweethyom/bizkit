@@ -122,8 +122,7 @@ export const SprintCard = ({
         droppableId={`sprint-${sprint.id}`}
         isDropDisabled={!(dragSource && dragSource.startsWith('epic-'))}
       >
-        {(provided, snapshot) => {
-          const isDropDisabled = !(dragSource && dragSource.startsWith('epic-'));
+        {(provided) => {
           return (
             <div
               className='flex flex-col gap-2'
@@ -162,7 +161,7 @@ export const SprintCard = ({
                   </Draggable>
                 ))}
 
-              {!isDropDisabled && snapshot.isDraggingOver ? provided.placeholder : null}
+              {provided.placeholder}
             </div>
           );
         }}
