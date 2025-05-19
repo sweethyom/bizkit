@@ -1,11 +1,33 @@
+import { SprintStatus } from '@/entities/sprint';
 import { sprintApi } from '@/entities/sprint/api/sprintApi';
-import { useCallback, useEffect, useState } from 'react';
-import { SprintStatus } from '../model/sprint';
+
+import { Issue } from '@/shared/model';
+
 import { useSprintStore } from './useSprintStore';
+
+import { useCallback, useEffect, useState } from 'react';
 
 export const useSprint = (projectId: number) => {
   const { sprints, setSprints, updateSprintStatus } = useSprintStore();
   const [isLoading, setIsLoading] = useState(true);
+
+  const [startSprintError, setStartSprintError] = useState<{
+    sprintId: number;
+    message: string;
+    invalidIssues: Issue[];
+  } | null>(null);
+
+  useEffect(() => {
+    if (startSprintError) {
+      alert(startSprintError.message);
+
+      const timer = setTimeout(() => {
+        setStartSprintError(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [startSprintError]);
 
   const loadSprints = useCallback(async () => {
     if (!Number.isInteger(projectId)) return;
@@ -25,37 +47,36 @@ export const useSprint = (projectId: number) => {
     loadSprints();
   }, [loadSprints]);
 
+  const validateSprint = useCallback(async (sprintId: number) => {
+    const { data: issues } = await sprintApi.getSprintIssues(sprintId);
+
+    const invalidIssues = (issues || []).filter((issue: any) => {
+      return (
+        !issue.name ||
+        !issue.bizPoint ||
+        !issue.issueImportance ||
+        !issue.issueStatus ||
+        !issue.component.id ||
+        !issue.user.id
+      );
+    });
+
+    if (invalidIssues.length > 0) {
+      setStartSprintError({
+        sprintId,
+        message: '스프린트 내 모든 이슈의 정보가 입력되어 있어야 합니다. 누락된 이슈가 있습니다.',
+        invalidIssues,
+      });
+
+      return false;
+    }
+
+    return true;
+  }, []);
+
   const startSprint = useCallback(
     async (sprintId: number, dueDate?: string) => {
       try {
-        // 1. 스프린트 이슈 목록 조회
-        const { data: issues } = await sprintApi.getSprintIssues(sprintId);
-        // 2. 필수값 검증 (content 제외)
-        const invalidIssues = (issues || []).filter((issue: any) => {
-          // 필수값: id, name, key, bizPoint, issueImportance, issueStatus, component(id, name), assignee(id, nickname)
-          console.log(issue);
-          if (
-            !issue.name ||
-            typeof issue.bizPoint !== 'number' ||
-            issue.bizPoint <= 0 ||
-            !issue.issueImportance ||
-            !issue.issueStatus ||
-            !issue.component.id ||
-            !issue.user.id
-          ) {
-            return true;
-          }
-          return false;
-        });
-
-        console.log(invalidIssues);
-        if (invalidIssues.length > 0) {
-          window.alert(
-            '스프린트 내 모든 이슈의 정보가 입력되어 있어야 합니다. 누락된 이슈가 있습니다.',
-          );
-          return;
-        }
-        // 3. 정상일 때만 스프린트 시작
         await sprintApi.startSprint(sprintId, dueDate);
         updateSprintStatus(sprintId, SprintStatus.ONGOING);
       } catch (error) {
@@ -77,5 +98,14 @@ export const useSprint = (projectId: number) => {
     [updateSprintStatus],
   );
 
-  return { sprints, isLoading, startSprint, completeSprint, setSprints };
+  return {
+    sprints,
+    isLoading,
+    startSprintError,
+    validateSprint,
+    startSprint,
+    completeSprint,
+    setSprints,
+    setStartSprintError,
+  };
 };
