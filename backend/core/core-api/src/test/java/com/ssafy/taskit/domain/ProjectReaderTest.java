@@ -29,6 +29,9 @@ class ProjectReaderTest {
   @Mock
   private ProjectValidator projectValidator;
 
+  @Mock
+  private InvitationRepository invitationRepository;
+
   @InjectMocks
   private ProjectReader projectReader;
 
@@ -37,12 +40,14 @@ class ProjectReaderTest {
 
   private List<Long> accessibleProjectIds;
 
+  private DefaultDateTime now;
+
   @BeforeEach
   void setUp() {
     testUser = new User(1L);
     testProjects = new ArrayList<>();
     accessibleProjectIds = Arrays.asList(1L, 2L, 3L);
-    DefaultDateTime now = new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now());
+    now = new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now());
 
     testProjects.add(new Project(1L, 1L, "Test Project", "TEST-KEY1", 0, null, now));
     testProjects.add(new Project(2L, 2L, "Test Project", "TEST-KEY2", 0, null, now));
@@ -123,5 +128,32 @@ class ProjectReaderTest {
     assertThat(result.project().id()).isEqualTo(projectId);
 
     verify(projectRepository).findProject(testUser, projectId, isLeader);
+  }
+
+  @Test
+  @DisplayName("초대 코드로 프로젝트 정보 조회")
+  void shouldReadInvitedProjectDetail() {
+    // Given
+    String invitationCode = "invitationCode";
+    Project project = testProjects.get(0);
+
+    when(invitationRepository.findByInvitationCode(invitationCode))
+        .thenReturn(new Invitation(
+            1L,
+            testUser.id(),
+            "user1@test.com",
+            1L,
+            invitationCode,
+            InvitationStatus.PENDING,
+            now));
+    when(projectRepository.findById(project.id()))
+        .thenReturn(new Project(1L, 1L, "Test Project", "TEST-KEY1", 0, null, now));
+    // When
+    Project result = projectReader.findInvitationProject(testUser, invitationCode);
+    // Then
+    assertThat(result).isNotNull();
+    assertThat(result.id()).isEqualTo(project.id());
+
+    verify(invitationRepository).findByInvitationCode(invitationCode);
   }
 }
