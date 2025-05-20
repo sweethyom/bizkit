@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -45,7 +46,7 @@ public class ProjectCoreRepository implements ProjectRepository {
   public List<Long> findUserProjectIds(User user, ProjectSort sortType) {
     Sort sort =
         switch (sortType) {
-          case RECENT_VIEW -> Sort.by(Sort.Direction.DESC, "lastAccessedAt");
+          case RECENT_VIEW -> JpaSort.unsafe(Sort.Direction.DESC, "m.lastAccessedAt");
         };
 
     return projectJpaRepository.findProjectIdsByUserIdAndMemberStatusAndProjectStatus(
