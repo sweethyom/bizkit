@@ -8,14 +8,11 @@ export const getProjectComponents = async (projectId?: string): Promise<any[]> =
       throw new Error('Project ID is required');
     }
 
-    console.log(`[sprintApi.ts] Getting component list for project: ${projectId}`);
     const response = await api.get<ApiResponse<any>>(`/projects/${projectId}/components`);
 
     if (response.data.result === 'SUCCESS' && response.data.data) {
-      console.log(`[sprintApi.ts] Found ${response.data.data.length} components in project`);
       return response.data.data;
     } else {
-      console.log('[sprintApi.ts] No components found in project or API error');
       return [];
     }
   } catch (error) {
@@ -39,15 +36,11 @@ export const getProjectSprints = async (projectId: string): Promise<any[]> => {
 // 현재 활성 스프린트의 ID를 찾는 함수 (활성 스프린트가 없을 경우 대체 스프린트 찾기)
 export const findActiveSprintId = async (projectId: string): Promise<string | null> => {
   try {
-    console.log(`[sprintApi.ts] Finding active sprint for projectId: ${projectId}`);
     const sprints = await getProjectSprints(projectId);
 
     if (sprints.length === 0) {
-      console.log('[sprintApi.ts] No sprints found for this project');
       return null; // 스프린트가 없는 경우
     }
-
-    console.log(`[sprintApi.ts] Found ${sprints.length} sprints, checking for ONGOING status`);
 
     // 1. 활성 스프린트 찾기 (ONGOING)
     // 백엔드의 스프린트 상태 필드명이 status 또는 sprintStatus일 수 있으므로 둘 다 확인
@@ -56,7 +49,6 @@ export const findActiveSprintId = async (projectId: string): Promise<string | nu
     });
 
     if (activeSprint) {
-      console.log(`[sprintApi.ts] Found active sprint with id: ${activeSprint.id}`);
       return activeSprint.id.toString();
     }
 
@@ -274,42 +266,30 @@ export const getSprintIssues = async (sprintId: string): Promise<Issue[]> => {
 };
 
 // 단일 컴포넌트에 대한 활성 스프린트 이슈 조회
-// API 명세: GET /sprints/ongoing/components/issues?componentId=1
+// API 명세: GET /sprints/ongoing/{projectId}/components/issues?componentId=1
 export const getOngoingSprintComponentIssue = async (
   projectId?: string,
   componentId?: string,
 ): Promise<ComponentIssueGroup[]> => {
   try {
-    console.log(
-      `[sprintApi.ts] Fetching ongoing sprint issues for component: ${componentId}, projectId: ${projectId}`,
-    );
+    if (!projectId) {
+      throw new Error('Project ID is required');
+    }
 
     // API 호출
-    const url = '/sprints/ongoing/components/issues';
+    const url = `/sprints/ongoing/${projectId}/components/issues`;
     const params: any = {};
 
     if (componentId) {
       params.componentId = componentId;
     }
 
-    if (projectId) {
-      params.projectId = projectId;
-    }
-
-    console.log(`[sprintApi.ts] Calling API: ${url} with params:`, params);
-
     const response = await api.get<ApiResponse<any>>(url, { params });
-    console.log(
-      `[sprintApi.ts] API Response for component ${componentId}:`,
-      response.data.result,
-      response.data.data ? `(${response.data.data.length} groups)` : '(no data)',
-    );
 
     if (response.data.result === 'SUCCESS') {
       const data = response.data.data || [];
 
       if (data.length === 0) {
-        console.log(`[sprintApi.ts] No issues found for component ${componentId}`);
         return [];
       }
 
@@ -384,16 +364,11 @@ export const getOngoingSprintComponentIssues = async (
       throw new Error('Project ID is required');
     }
 
-    console.log(
-      `[sprintApi.ts] Fetching ongoing sprint issues for all components in project: ${projectId}`,
-    );
-
     // 1. 프로젝트의 컴포넌트 목록 가져오기
     const components = await getProjectComponents(projectId);
 
     // 2. 컴포넌트가 없으면 기본 조회 시도 ('미분류' 컴포넌트)
     if (components.length === 0) {
-      console.log('[sprintApi.ts] No components found, fetching issues without component filter');
       return getOngoingSprintComponentIssue(projectId);
     }
 
@@ -405,11 +380,9 @@ export const getOngoingSprintComponentIssues = async (
       );
 
       if (!hasActiveSprint) {
-        console.log('[sprintApi.ts] No active sprint found in project');
         return [];
       }
     } catch (error) {
-      console.error('[sprintApi.ts] Error checking active sprint:', error);
       // 오류는 기록하지만 계속 진행
     }
 

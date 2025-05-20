@@ -70,7 +70,6 @@ export const transformApiResponseToSprintData = (componentIssueGroups: Component
           // 유효한 컴포넌트만 맵에 추가
           if (componentId && componentName) {
             if (!allComponentsMap.has(componentId)) {
-              console.log(`[transformers.ts] Adding component to map: id=${componentId}, name=${componentName}`);
               allComponentsMap.set(componentId, componentName);
             }
           }
@@ -139,8 +138,6 @@ export const transformApiResponseToSprintData = (componentIssueGroups: Component
         
         // 유효한 컴포넌트 ID인 경우만 처리
         if (componentId) {
-          console.log(`[transformers.ts] Processing issue ${issue.id} - Component: ${componentName} (ID: ${componentId})`);
-
           // 컴포넌트 그룹 찾기
           let componentGroup = statusGroup.componentGroups.find(cg => cg.id === componentId);
           
@@ -163,9 +160,20 @@ export const transformApiResponseToSprintData = (componentIssueGroups: Component
               status: statusKey as 'todo' | 'inProgress' | 'done',
               description: issue.description || issue.content || '',
               sprint: issue.sprint?.name || '',
+              // position 정보 추가 - API에 있거나 샘플 데이터에 중요함
+              position: issue.position || issue.rank || issue.order || null,
             };
 
             componentGroup.issues.push(formattedIssue);
+            
+            // position 값에 따라 이슈 정렬
+            componentGroup.issues.sort((a, b) => {
+              // position 값이 없는 경우 기본 순서 유지
+              if (a.position === null && b.position === null) return 0;
+              if (a.position === null) return 1; // position 값이 없는 것은 뒤로
+              if (b.position === null) return -1; // position 값이 없는 것은 뒤로
+              return a.position - b.position; // position 값에 따라 오름차순 정렬
+            });
           }
         }
       });

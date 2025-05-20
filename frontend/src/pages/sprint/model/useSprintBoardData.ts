@@ -19,7 +19,6 @@ export const useSprintBoardData = (projectId?: string) => {
         throw new Error('Project ID is missing');
       }
 
-      console.log(`[useSprintBoardData.ts] 로딩 스프린트 데이터 for projectId: ${projectId}`);
       localStorage.setItem('currentProjectId', projectId);
       
       // 성능 향상을 위해 프로젝트의 스프린트 상태 확인
@@ -30,8 +29,6 @@ export const useSprintBoardData = (projectId?: string) => {
         const hasReadySprints = sprints.some(sprint =>
           sprint.sprintStatus === 'READY' || sprint.status === 'READY');
           
-        console.log(`[useSprintBoardData.ts] Project sprints status - Active: ${hasActiveSprint}, Ready: ${hasReadySprints}`);
-        
         if (!hasActiveSprint) {
           setSprintData(createEmptySprintData());
           if (hasReadySprints) {
@@ -44,17 +41,13 @@ export const useSprintBoardData = (projectId?: string) => {
         }
 
         // 컴포넌트별 이슈 조회 전략 사용 - 컴포넌트 목록 기반
-        console.log(`[useSprintBoardData.ts] Trying to fetch ongoing sprint component issues API for projectId: ${projectId}`);
         const componentIssueGroups = await getOngoingSprintComponentIssues(projectId);
-        console.log('[useSprintBoardData.ts] Received ongoing sprint component issues:', componentIssueGroups);
         
         const convertedData = transformApiResponseToSprintData(componentIssueGroups);
-        console.log('[useSprintBoardData.ts] Converted sprint data:', convertedData);
         setSprintData(convertedData);
         
         if (!componentIssueGroups || componentIssueGroups.length === 0) {
           // 활성 스프린트가 있지만 이슈가 없는 경우 - 오류가 아니라 정보 메시지
-          console.log('[useSprintBoardData.ts] No issues found in the active sprint');
           setError('현재 활성 스프린트에는 이슈가 없습니다. 백로그에서 이슈를 스프린트로 추가해 보세요.');
         } else {
           setError(null);

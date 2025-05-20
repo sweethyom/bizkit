@@ -16,6 +16,7 @@ export interface Issue {
   status: 'todo' | 'inProgress' | 'done';
   description?: string; // 이슈 상세 내용
   sprint?: string; // 스프린트 정보
+  position?: number; // 이슈의 순서 값
 }
 
 // GET /components/{componentId}/issues API 응답을 위한 인터페이스

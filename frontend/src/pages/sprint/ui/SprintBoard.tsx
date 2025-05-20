@@ -29,8 +29,9 @@ export const SprintBoard: React.FC = () => {
   const { onDragEnd } = useSprintBoardDrag(
     sprintData,
     updateIssue,
-    // refreshData는 함수를 직접 호출하는 것이므로, 함수를 호출하는 콜백 함수를 전달
+    // 데이터를 갱신하기 위한 함수 전달
     (newData) => {
+      // 외부에서 데이터 갱신이 필요한 경우 refreshData 호출
       refreshData();
     },
     projectId,

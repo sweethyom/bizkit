@@ -194,6 +194,85 @@ export const updateIssueSprint = async (
   }
 };
 
+// 스프린트 내 이슈 이동 - API 명세: PATCH /sprints/{sprintId}/moveIssues
+export const moveIssue = async (
+  sprintId: string,
+  moveIssueId: string,
+  newStatus?: 'TODO' | 'IN_PROGRESS' | 'DONE',  // API와 일치하는 형태로 변경
+  componentId?: string,
+  beforeIssuePosition?: number | null,
+  afterIssuePosition?: number | null,
+): Promise<void> => {
+  try {
+    // sprintId와 moveIssueId는 필수
+    if (!sprintId || !moveIssueId) {
+      throw new Error('Sprint ID and Issue ID are required');
+    }
+
+    console.log(`[이슈 이동] 스프린트=${sprintId}, 이슈=${moveIssueId}, 상태=${newStatus}, 컴포넌트=${componentId}`);
+    console.log(`[이슈 이동] 이전 위치=${beforeIssuePosition}, 이후 위치=${afterIssuePosition}`);
+
+    // API 요청 데이터 구성
+    const requestData: {
+      moveIssueId: number;
+      componentId?: number;
+      status?: string;
+      beforeIssuePosition?: number | null;
+      afterIssuePosition?: number | null;
+      position?: number;  // 계산된 위치 값
+    } = {
+      moveIssueId: Number(moveIssueId),
+    };
+
+    // 선택적 파라미터 추가
+    if (componentId) {
+      requestData.componentId = Number(componentId);
+    }
+
+    if (newStatus) {
+      // 이미 API 형식의 상태값을 받으므로 그대로 사용
+      requestData.status = newStatus;
+    }
+
+    // 이전/이후 이슈 위치를 기반으로 새 위치 값 계산
+    if (beforeIssuePosition !== undefined && beforeIssuePosition !== null && 
+        afterIssuePosition !== undefined && afterIssuePosition !== null) {
+      // 이전과 이후 이슈 사이의 위치 값 계산
+      const calculatedPosition = beforeIssuePosition + (afterIssuePosition - beforeIssuePosition) / 2;
+      console.log(`[이슈 이동] 계산된 새 위치 값: ${calculatedPosition}`);
+      
+      // 계산된 position 값 추가 - API가 지원한다면 이 값을 사용
+      requestData.position = calculatedPosition;
+    }
+
+    // beforeIssuePosition과 afterIssuePosition도 전송
+    if (beforeIssuePosition !== undefined && beforeIssuePosition !== null) {
+      requestData.beforeIssuePosition = beforeIssuePosition;
+    }
+
+    if (afterIssuePosition !== undefined && afterIssuePosition !== null) {
+      requestData.afterIssuePosition = afterIssuePosition;
+    }
+
+    console.log('[API 요청 데이터]', requestData);
+
+    // API 호출
+    const response = await api.patch<ApiResponse<void>>(
+      `/sprints/${sprintId}/moveIssues`,
+      requestData
+    );
+
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(`Failed to move issue ${moveIssueId} in sprint ${sprintId}`);
+    }
+    
+    console.log(`[이슈 이동 성공] 이슈 ${moveIssueId} 이동 완료`);
+  } catch (error) {
+    console.error(`Error moving issue: ${error}`);
+    throw new Error(`Failed to move issue`);
+  }
+};
+
 // 내 이슈 목록 조회 - API 명세: GET /issues/me
 export const getMyIssues = async (): Promise<Issue[]> => {
   // 실제 API 호출
