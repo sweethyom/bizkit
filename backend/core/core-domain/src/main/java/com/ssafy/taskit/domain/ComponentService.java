@@ -66,7 +66,7 @@ public class ComponentService {
     componentValidator.isComponentExists(componentId);
     Component component = componentReader.findComponent(componentId);
     memberValidator.validateMember(user, component.projectId());
-    List<Issue> issues = issueService.findComponentIssues(user, componentId);
+    List<Issue> issues = issueService.findComponentIssues(user, component.projectId(), componentId);
     for (Issue issue : issues) {
       issueService.modifyIssueComponent(user, issue.id(), new ModifyIssueComponent(null));
     }

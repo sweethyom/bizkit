@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SprintService {
+
   private final SprintAppender sprintAppender;
   private final SprintReader sprintReader;
 
@@ -16,19 +17,23 @@ public class SprintService {
 
   private final SprintCompleter sprintCompleter;
 
+  private final SprintIssueMover sprintIssueMover;
+
   public SprintService(
       SprintAppender sprintAppender,
       SprintReader sprintReader,
       SprintModifier sprintModifier,
       SprintDeleter sprintDeleter,
       SprintStarter sprintStarter,
-      SprintCompleter sprintCompleter) {
+      SprintCompleter sprintCompleter,
+      SprintIssueMover sprintIssueMover) {
     this.sprintAppender = sprintAppender;
     this.sprintReader = sprintReader;
     this.sprintModifier = sprintModifier;
     this.sprintDeleter = sprintDeleter;
     this.sprintStarter = sprintStarter;
     this.sprintCompleter = sprintCompleter;
+    this.sprintIssueMover = sprintIssueMover;
   }
 
   public Sprint append(User user, Long projectId, NewSprint newSprint) {
@@ -65,5 +70,9 @@ public class SprintService {
 
   public void completeSprint(User user, Long sprintId, CompleteSprint completeSprint) {
     sprintCompleter.completeSprint(user, sprintId, completeSprint);
+  }
+
+  public void moveSprintIssue(User user, Long sprintId, MoveSprintIssue moveSprintIssue) {
+    sprintIssueMover.moveSprintIssue(user, sprintId, moveSprintIssue);
   }
 }

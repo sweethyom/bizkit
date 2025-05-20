@@ -82,6 +82,7 @@ class IssueControllerTest extends RestDocsTest {
             null,
             1L,
             null,
+            200.0,
             new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())));
     given()
         .contentType(ContentType.JSON)
@@ -118,6 +119,7 @@ class IssueControllerTest extends RestDocsTest {
             1L,
             1L,
             1L,
+            200.0,
             new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())));
     when(userService.findUserDetail(anyLong()))
         .thenReturn(new UserDetail(1L, "채용수", "http://profile1.jpg", "user1@example.com"));
@@ -373,6 +375,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                200.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
             new Issue(
                 2L,
@@ -386,6 +389,7 @@ class IssueControllerTest extends RestDocsTest {
                 2L,
                 1L,
                 1L,
+                100.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
     when(componentService.mapByIds(any()))
         .thenReturn(Map.of(
@@ -456,6 +460,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                200.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
             new Issue(
                 2L,
@@ -469,6 +474,7 @@ class IssueControllerTest extends RestDocsTest {
                 2L,
                 2L,
                 1L,
+                800.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
     when(componentService.mapByIds(any()))
         .thenReturn(Map.of(
@@ -550,7 +556,7 @@ class IssueControllerTest extends RestDocsTest {
 
   @Test
   public void findComponentIssues() {
-    when(issueService.findComponentIssues(any(User.class), anyLong()))
+    when(issueService.findComponentIssues(any(User.class), anyLong(), anyLong()))
         .thenReturn(List.of(
             new Issue(
                 1L,
@@ -564,6 +570,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                200.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
             new Issue(
                 2L,
@@ -577,6 +584,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                300.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
             new Issue(
                 3L,
@@ -590,6 +598,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                400.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
             new Issue(
                 4L,
@@ -603,6 +612,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                500.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
             new Issue(
                 5L,
@@ -616,6 +626,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                600.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
             new Issue(
                 6L,
@@ -629,6 +640,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                700.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
     when(componentService.mapByIds(any()))
         .thenReturn(Map.of(
@@ -661,7 +673,7 @@ class IssueControllerTest extends RestDocsTest {
     given()
         .contentType(ContentType.JSON)
         .queryParam("componentId", 1L)
-        .get("sprints/ongoing/components/issues", 1L)
+        .get("sprints/ongoing/{sprintId}/components/issues", 1L)
         .then()
         .status(HttpStatus.OK)
         .apply(document(
@@ -752,6 +764,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                400.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
             new Issue(
                 1L,
@@ -765,6 +778,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                100.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
             new Issue(
                 2L,
@@ -778,6 +792,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                300.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now())),
             new Issue(
                 3L,
@@ -791,6 +806,7 @@ class IssueControllerTest extends RestDocsTest {
                 1L,
                 1L,
                 1L,
+                700.0,
                 new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now()))));
     when(epicService.mapByIds(any()))
         .thenReturn(Map.of(

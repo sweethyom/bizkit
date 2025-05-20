@@ -35,13 +35,13 @@ public class SprintCompleter {
 
   public void completeSprint(User user, Long sprintId, CompleteSprint completeSprint) {
     Sprint sprint = sprintReader.findSprint(sprintId);
-    if (completeSprint.id() == null) {
-      completeSprint = new CompleteSprint(0L);
-    }
-    sprintValidator.isSprintsInSameProject(sprintId, completeSprint.id());
-    sprintValidator.isSprintsEquals(sprintId, completeSprint.id());
-    memberValidator.validateMember(user, sprint.projectId());
     sprintValidator.isOngoingSprint(sprintId);
+    memberValidator.validateMember(user, sprint.projectId());
+
+    if (completeSprint.id() != null) {
+      sprintValidator.isSprintsInSameProject(sprintId, completeSprint.id());
+      sprintValidator.isSprintsEquals(sprintId, completeSprint.id());
+    }
 
     List<Issue> issues = issueReader.readSprintIssues(user, sprintId).stream()
         .filter(issue -> issue.issueStatus() != IssueStatus.DONE)

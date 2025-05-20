@@ -44,6 +44,8 @@ public enum CoreErrorCode {
   S008,
 
   S009,
+
+  S010,
   E000,
   I000,
   I001,

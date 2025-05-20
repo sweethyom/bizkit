@@ -14,6 +14,7 @@ public record Issue(
     Long assigneeId,
     Long epicId,
     Long sprintId,
+    Double position,
     DefaultDateTime defaultDateTime) {
 
   public boolean isReadyToStart() {

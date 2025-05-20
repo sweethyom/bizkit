@@ -175,10 +175,12 @@ public class IssueController {
     return ApiResponse.success(response);
   }
 
-  @GetMapping("sprints/ongoing/components/issues")
+  @GetMapping("sprints/ongoing/{projectId}/components/issues")
   public ApiResponse<List<ComponentIssuesResponse>> findComponentIssues(
-      ApiUser apiUser, @RequestParam(required = false) Long componentId) {
-    List<Issue> issues = issueService.findComponentIssues(apiUser.toUser(), componentId);
+      ApiUser apiUser,
+      @PathVariable Long projectId,
+      @RequestParam(required = false) Long componentId) {
+    List<Issue> issues = issueService.findComponentIssues(apiUser.toUser(), projectId, componentId);
     List<Long> componentIds = issues.stream().map(Issue::componentId).distinct().toList();
     List<Long> assigneeIds = issues.stream().map(Issue::assigneeId).distinct().toList();
     List<Long> epicIds = issues.stream().map(Issue::epicId).distinct().toList();

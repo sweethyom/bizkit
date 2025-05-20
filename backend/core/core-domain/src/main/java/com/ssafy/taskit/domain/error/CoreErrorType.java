@@ -106,6 +106,12 @@ public enum CoreErrorType {
       CoreErrorCode.S009,
       "스프린트는 1개만 활성화 할 수 있습니다.",
       CoreErrorLevel.INFO),
+
+  MOVE_ISSUE_NOT_IN_THIS_SPRINT(
+      CoreErrorKind.CLIENT_ERROR,
+      CoreErrorCode.S010,
+      "옮기려는 이슈가 해당 스프린트에 있지 않습니다.",
+      CoreErrorLevel.INFO),
   LEADER_MEMBER_SAME_NOT_ALLOWED(
       CoreErrorKind.CLIENT_ERROR, CoreErrorCode.M001, "팀장은 자신을 삭제할 수 없습니다.", CoreErrorLevel.INFO),
 

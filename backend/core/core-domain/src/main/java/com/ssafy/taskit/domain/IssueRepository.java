@@ -33,7 +33,7 @@ public interface IssueRepository {
 
   List<Issue> findSprintIssues(Long sprintId);
 
-  List<Issue> findComponentIssues(Long componentId);
+  List<Issue> findComponentIssues(Long projectId, Long componentId);
 
   List<Issue> findMyIssuesFirstPage(Long userId, IssueStatus issueStatus, Integer pageSize);
 
@@ -50,4 +50,6 @@ public interface IssueRepository {
   void modifyIssueSprintToBacklog(Long issueId);
 
   List<Object[]> countIssuesByProjectIdsAndUserId(List<Long> projectIds, Long UserId);
+
+  void modifyIssuePosition(Long issueId, Double newPosition);
 }

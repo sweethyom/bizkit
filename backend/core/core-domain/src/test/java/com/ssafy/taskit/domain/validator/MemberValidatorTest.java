@@ -1,4 +1,4 @@
-package com.ssafy.taskit.api.validator;
+package com.ssafy.taskit.domain.validator;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;

@@ -12,17 +12,21 @@ public class IssueAppender {
   private final EpicRepository epicRepository;
   private final KeyGenerator keyGenerator;
 
+  private final IssueModifier issueModifier;
+
   public IssueAppender(
       EpicValidator epicValidator,
       MemberValidator memberValidator,
       IssueRepository issueRepository,
       EpicRepository epicRepository,
-      KeyGenerator keyGenerator) {
+      KeyGenerator keyGenerator,
+      IssueModifier issueModifier) {
     this.epicValidator = epicValidator;
     this.memberValidator = memberValidator;
     this.issueRepository = issueRepository;
     this.epicRepository = epicRepository;
     this.keyGenerator = keyGenerator;
+    this.issueModifier = issueModifier;
   }
 
   @Transactional
@@ -31,6 +35,11 @@ public class IssueAppender {
     Epic epic = epicRepository.findById(epicId);
     memberValidator.validateMember(user, epic.projectId());
     String key = keyGenerator.generateKey(epic.projectId());
-    return issueRepository.save(epicId, newIssue, key);
+    Issue issue = issueRepository.save(epicId, newIssue, key);
+
+    issueModifier.modifyIssuePosition(issue.id(), issue.id() * 100.0);
+    issue = issueRepository.findById(issue.id());
+
+    return issue;
   }
 }

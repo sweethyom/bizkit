@@ -238,9 +238,10 @@ class SprintControllerTest extends RestDocsTest {
         .contentType(ContentType.JSON)
         .body(new MoveSprintIssueRequest(
             2L, // moveIssuesId
-            1L, // preIssueId
             5L, // componentId
-            IssueStatus.IN_PROGRESS // status
+            IssueStatus.IN_PROGRESS, // status
+            1000.0, // beforeIssuePosition
+            2000.0 // afterIssuePosition
             ))
         .patch("/sprints/{sprintId}/moveIssues", 1L)
         .then()
@@ -250,10 +251,6 @@ class SprintControllerTest extends RestDocsTest {
             pathParameters(parameterWithName("sprintId").description("이슈를 이동할 대상 스프린트 ID")),
             requestFields(
                 fieldWithPath("moveIssueId").type(JsonFieldType.NUMBER).description("이동할 이슈 ID"),
-                fieldWithPath("preIssueId")
-                    .type(JsonFieldType.NUMBER)
-                    .optional()
-                    .description("기준이 되는 이전 이슈 ID (null이면 가장 앞으로 이동)"),
                 fieldWithPath("componentId")
                     .type(JsonFieldType.NUMBER)
                     .optional()
@@ -261,7 +258,15 @@ class SprintControllerTest extends RestDocsTest {
                 fieldWithPath("status")
                     .type(JsonFieldType.STRING)
                     .optional()
-                    .description("이동할 이슈의 상태 (예: TODO, IN_PROGRESS, DONE)")),
+                    .description("이동할 이슈의 상태 (예: TODO, IN_PROGRESS, DONE)"),
+                fieldWithPath("beforeIssuePosition")
+                    .type(JsonFieldType.NUMBER)
+                    .optional()
+                    .description("이동 대상 이슈의 바로 앞에 있는 이슈의 position 값 (null이면 맨 앞에 배치)"),
+                fieldWithPath("afterIssuePosition")
+                    .type(JsonFieldType.NUMBER)
+                    .optional()
+                    .description("이동 대상 이슈의 바로 뒤에 있는 이슈의 position 값 (null이면 맨 뒤에 배치)")),
             responseFields(fieldWithPath("result")
                 .type(JsonFieldType.STRING)
                 .description("성공 여부 (예: SUCCESS or ERROR)"))));
