@@ -1,7 +1,7 @@
 import {
   deleteIssue,
-  getSprintData,
   getOngoingSprintComponentIssues,
+  getSprintData,
   updateIssueComponent,
   updateIssueStatus,
 } from '@/pages/sprint/api/sprintApi';
@@ -10,7 +10,7 @@ import { SprintIssueDetailModal } from '@/pages/sprint/ui/SprintIssueDetailModal
 import { StatusColumn } from '@/pages/sprint/ui/StatusColumn';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import { AlertCircle, Filter, Loader2, Tag, Users, X } from 'lucide-react';
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 export const SprintBoard: React.FC = () => {
@@ -33,15 +33,15 @@ export const SprintBoard: React.FC = () => {
         localStorage.setItem('currentProjectId', projectId);
 
         console.log('Fetching ongoing sprint data for project:', projectId);
-        
+
         // 활성 스프린트의 이슈 데이터를 컴포넌트별로 가져오기
         try {
           console.log('Trying to fetch ongoing sprint component issues API...');
           const componentIssueGroups = await getOngoingSprintComponentIssues();
           console.log('Received ongoing sprint component issues:', componentIssueGroups);
-          
+
           // 받은 데이터를 SprintData 형식으로 변환
-          // ... 기존 변환 로직 ... 
+          // ... 기존 변환 로직 ...
 
           if (componentIssueGroups && componentIssueGroups.length > 0) {
             // 데이터가 정상적으로 있는 경우
@@ -72,8 +72,8 @@ export const SprintBoard: React.FC = () => {
             const allComponentsMap = new Map<string, string>();
 
             // API 응답에서 모든 고유 컴포넌트 추출
-            componentIssueGroups.forEach(group => {
-              group.issues.forEach(issue => {
+            componentIssueGroups.forEach((group) => {
+              group.issues.forEach((issue) => {
                 if (issue.component && typeof issue.component !== 'string') {
                   const componentId = issue.component.id.toString();
                   if (!allComponentsMap.has(componentId)) {
@@ -89,7 +89,7 @@ export const SprintBoard: React.FC = () => {
             }
 
             // 각 상태 그룹에 컴포넌트 그룹 초기화
-            convertedData.statusGroups.forEach(statusGroup => {
+            convertedData.statusGroups.forEach((statusGroup) => {
               allComponentsMap.forEach((componentName, componentId) => {
                 statusGroup.componentGroups.push({
                   id: componentId,
@@ -101,20 +101,21 @@ export const SprintBoard: React.FC = () => {
             });
 
             // 이슈를 적절한 상태 및 컴포넌트 그룹에 할당
-            componentIssueGroups.forEach(group => {
+            componentIssueGroups.forEach((group) => {
               // issueStatus를 소문자 및 camelCase로 변환 (TODO -> todo, IN_PROGRESS -> inProgress)
-              const statusKey = group.issueStatus === 'TODO' 
-                ? 'todo' 
-                : group.issueStatus === 'IN_PROGRESS' 
-                  ? 'inProgress' 
-                  : 'done';
-              
+              const statusKey =
+                group.issueStatus === 'TODO'
+                  ? 'todo'
+                  : group.issueStatus === 'IN_PROGRESS'
+                    ? 'inProgress'
+                    : 'done';
+
               // 해당 상태 그룹 찾기
-              const statusGroup = convertedData.statusGroups.find(sg => sg.status === statusKey);
+              const statusGroup = convertedData.statusGroups.find((sg) => sg.status === statusKey);
               if (!statusGroup) return;
 
               // 각 이슈를 적절한 컴포넌트 그룹에 할당
-              group.issues.forEach(issue => {
+              group.issues.forEach((issue) => {
                 let componentId = '0';
                 if (issue.component) {
                   if (typeof issue.component !== 'string') {
@@ -123,7 +124,9 @@ export const SprintBoard: React.FC = () => {
                 }
 
                 // 해당 컴포넌트 그룹 찾기
-                const componentGroup = statusGroup.componentGroups.find(cg => cg.id === componentId);
+                const componentGroup = statusGroup.componentGroups.find(
+                  (cg) => cg.id === componentId,
+                );
                 if (!componentGroup) return;
 
                 // 이슈 객체 상태 표준화 (API 응답에서 프론트엔드 모델로 변환)
@@ -131,14 +134,23 @@ export const SprintBoard: React.FC = () => {
                   id: issue.id.toString(),
                   key: issue.key,
                   title: issue.name || '',
-                  epic: issue.epic ? (typeof issue.epic === 'string' ? issue.epic : issue.epic.name || '') : '',
-                  component: typeof issue.component === 'string' ? issue.component : (issue.component ? issue.component.name || '' : ''),
+                  epic: issue.epic
+                    ? typeof issue.epic === 'string'
+                      ? issue.epic
+                      : issue.epic.name || ''
+                    : '',
+                  component:
+                    typeof issue.component === 'string'
+                      ? issue.component
+                      : issue.component
+                        ? issue.component.name || ''
+                        : '',
                   assignee: issue.assignee || issue.user || null,
                   storyPoints: issue.bizPoint || 0,
-                  priority: (issue.issueImportance === 'HIGH' 
-                    ? 'high' 
-                    : issue.issueImportance === 'MEDIUM' 
-                      ? 'medium' 
+                  priority: (issue.issueImportance === 'HIGH'
+                    ? 'high'
+                    : issue.issueImportance === 'MEDIUM'
+                      ? 'medium'
                       : 'low') as 'low' | 'medium' | 'high',
                   status: statusKey as 'todo' | 'inProgress' | 'done',
                   description: issue.content || '',
@@ -161,7 +173,7 @@ export const SprintBoard: React.FC = () => {
         } catch (ongoingSprintError) {
           console.error('Error fetching ongoing sprint data:', ongoingSprintError);
           console.log('Fallback to original getSprintData due to error');
-          
+
           // 오류 발생 시 기존 API로 폴백
           try {
             const data = await getSprintData(undefined, projectId);
@@ -170,8 +182,13 @@ export const SprintBoard: React.FC = () => {
           } catch (fallbackError: any) {
             console.error('Fallback API also failed:', fallbackError);
             // 에러 메시지 파싱
-            if (fallbackError?.message?.includes('No sprint found') || fallbackError?.message?.includes('sprint not found')) {
-              setError('현재 프로젝트에 활성 스프린트가 존재하지 않습니다. 스프린트를 먼저 생성해주세요.');
+            if (
+              fallbackError?.message?.includes('No sprint found') ||
+              fallbackError?.message?.includes('sprint not found')
+            ) {
+              setError(
+                '현재 프로젝트에 활성 스프린트가 존재하지 않습니다. 스프린트를 먼저 생성해주세요.',
+              );
             } else {
               setError('스프린트 데이터를 불러오는 중 오류가 발생했습니다.');
             }
@@ -180,8 +197,13 @@ export const SprintBoard: React.FC = () => {
       } catch (err: any) {
         // 에러 메시지 파싱
         console.error('Error details:', err);
-        if (err?.message?.includes('No sprint found') || err?.message?.includes('sprint not found')) {
-          setError('현재 프로젝트에 활성 스프린트가 존재하지 않습니다. 스프린트를 먼저 생성해주세요.');
+        if (
+          err?.message?.includes('No sprint found') ||
+          err?.message?.includes('sprint not found')
+        ) {
+          setError(
+            '현재 프로젝트에 활성 스프린트가 존재하지 않습니다. 스프린트를 먼저 생성해주세요.',
+          );
         } else {
           setError('스프린트 데이터를 불러오는 중 오류가 발생했습니다.');
         }
@@ -207,38 +229,41 @@ export const SprintBoard: React.FC = () => {
     setSelectedIssue(null);
   }, []);
 
-  const handleUpdateIssue = useCallback((updatedIssue: Issue) => {
-    if (!sprintData) return;
+  const handleUpdateIssue = useCallback(
+    (updatedIssue: Issue) => {
+      if (!sprintData) return;
 
-    // 스프린트 데이터에서 해당 이슈를 찾아 업데이트
-    const updatedStatusGroups = sprintData.statusGroups.map((statusGroup) => {
-      const updatedComponentGroups = statusGroup.componentGroups.map((componentGroup) => {
-        const updatedIssues = componentGroup.issues.map((issue) => {
-          if (issue.id === updatedIssue.id) {
-            // 업데이트된 이슈 정보로 교체
-            return updatedIssue;
-          }
-          return issue;
+      // 스프린트 데이터에서 해당 이슈를 찾아 업데이트
+      const updatedStatusGroups = sprintData.statusGroups.map((statusGroup) => {
+        const updatedComponentGroups = statusGroup.componentGroups.map((componentGroup) => {
+          const updatedIssues = componentGroup.issues.map((issue) => {
+            if (issue.id === updatedIssue.id) {
+              // 업데이트된 이슈 정보로 교체
+              return updatedIssue;
+            }
+            return issue;
+          });
+
+          return {
+            ...componentGroup,
+            issues: updatedIssues,
+          };
         });
 
         return {
-          ...componentGroup,
-          issues: updatedIssues,
+          ...statusGroup,
+          componentGroups: updatedComponentGroups,
         };
       });
 
-      return {
-        ...statusGroup,
-        componentGroups: updatedComponentGroups,
-      };
-    });
-
-    // 업데이트된 상태 그룹으로 스프린트 데이터 업데이트
-    setSprintData({
-      ...sprintData,
-      statusGroups: updatedStatusGroups,
-    });
-  }, [sprintData]);
+      // 업데이트된 상태 그룹으로 스프린트 데이터 업데이트
+      setSprintData({
+        ...sprintData,
+        statusGroups: updatedStatusGroups,
+      });
+    },
+    [sprintData],
+  );
 
   const handleDeleteIssue = async (issueId: string) => {
     if (!sprintData) return;
@@ -460,7 +485,7 @@ export const SprintBoard: React.FC = () => {
             try {
               // 우선 getOngoingSprintComponentIssues API 사용 시도
               const refreshedComponentIssueGroups = await getOngoingSprintComponentIssues();
-              
+
               if (refreshedComponentIssueGroups && refreshedComponentIssueGroups.length > 0) {
                 // 데이터 변환 및 업데이트 로직 반복 (fetchData와 유사한 로직)
                 const convertedData: SprintData = {
@@ -488,8 +513,8 @@ export const SprintBoard: React.FC = () => {
 
                 // 모든 고유 컴포넌트 식별
                 const allComponentsMap = new Map<string, string>();
-                refreshedComponentIssueGroups.forEach(group => {
-                  group.issues.forEach(issue => {
+                refreshedComponentIssueGroups.forEach((group) => {
+                  group.issues.forEach((issue) => {
                     if (issue.component && typeof issue.component !== 'string') {
                       const componentId = issue.component.id.toString();
                       if (!allComponentsMap.has(componentId)) {
@@ -505,7 +530,7 @@ export const SprintBoard: React.FC = () => {
                 }
 
                 // 각 상태 그룹에 컴포넌트 그룹 초기화
-                convertedData.statusGroups.forEach(statusGroup => {
+                convertedData.statusGroups.forEach((statusGroup) => {
                   allComponentsMap.forEach((componentName, componentId) => {
                     statusGroup.componentGroups.push({
                       id: componentId,
@@ -517,17 +542,20 @@ export const SprintBoard: React.FC = () => {
                 });
 
                 // 이슈를 적절한 상태 및 컴포넌트 그룹에 할당
-                refreshedComponentIssueGroups.forEach(group => {
-                  const statusKey = group.issueStatus === 'TODO' 
-                    ? 'todo' 
-                    : group.issueStatus === 'IN_PROGRESS' 
-                      ? 'inProgress' 
-                      : 'done';
-                  
-                  const statusGroup = convertedData.statusGroups.find(sg => sg.status === statusKey);
+                refreshedComponentIssueGroups.forEach((group) => {
+                  const statusKey =
+                    group.issueStatus === 'TODO'
+                      ? 'todo'
+                      : group.issueStatus === 'IN_PROGRESS'
+                        ? 'inProgress'
+                        : 'done';
+
+                  const statusGroup = convertedData.statusGroups.find(
+                    (sg) => sg.status === statusKey,
+                  );
                   if (!statusGroup) return;
 
-                  group.issues.forEach(issue => {
+                  group.issues.forEach((issue) => {
                     let componentId = '0';
                     if (issue.component) {
                       if (typeof issue.component !== 'string') {
@@ -535,21 +563,32 @@ export const SprintBoard: React.FC = () => {
                       }
                     }
 
-                    const componentGroup = statusGroup.componentGroups.find(cg => cg.id === componentId);
+                    const componentGroup = statusGroup.componentGroups.find(
+                      (cg) => cg.id === componentId,
+                    );
                     if (!componentGroup) return;
 
                     const formattedIssue: Issue = {
                       id: issue.id.toString(),
                       key: issue.key,
                       title: issue.name || '',
-                      epic: issue.epic ? (typeof issue.epic === 'string' ? issue.epic : issue.epic.name || '') : '',
-                      component: typeof issue.component === 'string' ? issue.component : (issue.component ? issue.component.name || '' : ''),
+                      epic: issue.epic
+                        ? typeof issue.epic === 'string'
+                          ? issue.epic
+                          : issue.epic.name || ''
+                        : '',
+                      component:
+                        typeof issue.component === 'string'
+                          ? issue.component
+                          : issue.component
+                            ? issue.component.name || ''
+                            : '',
                       assignee: issue.assignee || issue.user || null,
                       storyPoints: issue.bizPoint || 0,
-                      priority: (issue.issueImportance === 'HIGH' 
-                        ? 'high' 
-                        : issue.issueImportance === 'MEDIUM' 
-                          ? 'medium' 
+                      priority: (issue.issueImportance === 'HIGH'
+                        ? 'high'
+                        : issue.issueImportance === 'MEDIUM'
+                          ? 'medium'
                           : 'low') as 'low' | 'medium' | 'high',
                       status: statusKey as 'todo' | 'inProgress' | 'done',
                       description: issue.content || '',
@@ -563,7 +602,9 @@ export const SprintBoard: React.FC = () => {
                 setSprintData(convertedData);
                 console.log('Data refreshed successfully with ongoing sprint API');
               } else {
-                console.log('No data from ongoing sprint API during refresh, fallback to getSprintData');
+                console.log(
+                  'No data from ongoing sprint API during refresh, fallback to getSprintData',
+                );
                 // 활성 스프린트 API가 데이터를 반환하지 않으면 기존 API로 폴백
                 const refreshedData = await getSprintData(undefined, projectId);
                 setSprintData(refreshedData);
@@ -572,7 +613,7 @@ export const SprintBoard: React.FC = () => {
             } catch (ongoingApiError) {
               console.error('Error with ongoing sprint API during refresh:', ongoingApiError);
               console.log('Fallback to original getSprintData API for refresh');
-              
+
               // 오류 발생 시 기존 API로 폴백
               const refreshedData = await getSprintData(undefined, projectId);
               setSprintData(refreshedData);
@@ -622,10 +663,11 @@ export const SprintBoard: React.FC = () => {
             )}
             <button
               onClick={() => window.location.reload()}
-              className={`w-full rounded-md py-2 font-medium transition-colors ${error.includes('스프린트가 존재하지 않습니다')
+              className={`w-full rounded-md py-2 font-medium transition-colors ${
+                error.includes('스프린트가 존재하지 않습니다')
                   ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   : 'bg-primary hover:bg-primary/80 text-white'
-                }`}
+              }`}
             >
               다시 시도
             </button>
@@ -773,10 +815,11 @@ export const SprintBoard: React.FC = () => {
                 {allComponents.map((component, index) => (
                   <button
                     key={index}
-                    className={`rounded-full px-3 py-1.5 text-sm font-medium ${activeFilter === `component-${component}`
+                    className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+                      activeFilter === `component-${component}`
                         ? 'bg-primary text-white shadow-sm'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      } transition-colors`}
+                    } transition-colors`}
                     onClick={() =>
                       setActiveFilter(
                         activeFilter === `component-${component}` ? null : `component-${component}`,
@@ -799,10 +842,11 @@ export const SprintBoard: React.FC = () => {
                 {allAssignees.map((assignee, index) => (
                   <button
                     key={index}
-                    className={`rounded-full px-3 py-1.5 text-sm font-medium ${activeFilter === `assignee-${assignee}`
+                    className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+                      activeFilter === `assignee-${assignee}`
                         ? 'bg-point text-white shadow-sm'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      } transition-colors`}
+                    } transition-colors`}
                     onClick={() => {
                       setActiveFilter(
                         activeFilter === `assignee-${assignee}` ? null : `assignee-${assignee}`,

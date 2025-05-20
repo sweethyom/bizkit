@@ -35,20 +35,20 @@ export const findActiveSprintId = async (projectId: string): Promise<string | nu
     }
 
     // 1. 활성 스프린트 찾기 (ONGOING)
-    const activeSprint = sprints.find((sprint) => sprint.status === 'ONGOING');
+    const activeSprint = sprints.find((sprint) => sprint.sprintStatus === 'ONGOING');
     if (activeSprint) {
       return activeSprint.id.toString();
     }
 
     // 2. 활성 스프린트가 없는 경우, 준비 상태(READY)의 스프린트 찾기
-    const readySprint = sprints.find((sprint) => sprint.status === 'READY');
+    const readySprint = sprints.find((sprint) => sprint.sprintStatus === 'READY');
     if (readySprint) {
       return readySprint.id.toString();
     }
 
     // 3. 준비 상태의 스프린트도 없는 경우, 마지막에 종료된 스프린트 사용
     // 일반적으로 가장 최근에 종료된 스프린트가 더 관련성이 높음
-    const completedSprints = sprints.filter((sprint) => sprint.status === 'COMPLETED');
+    const completedSprints = sprints.filter((sprint) => sprint.sprintStatus === 'COMPLETED');
     if (completedSprints.length > 0) {
       // completedDate가 가장 최근인 스프린트 찾기
       completedSprints.sort((a, b) => {
@@ -84,6 +84,8 @@ export const getSprintData = async (sprintId?: string, projectId?: string): Prom
   }
 
   const response = await api.get<ApiResponse<any>>(`/sprints/${targetSprintId}/issues`);
+
+  console.log(response.data);
 
   if (response.data.result === 'SUCCESS' && response.data.data) {
     const sprintData: SprintData = {

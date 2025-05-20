@@ -55,6 +55,8 @@ export const TopNavBar = () => {
     const response = await getProjectDetail(Number(projectId));
     if (response?.result === 'SUCCESS') {
       setProject(response.data || null);
+    } else {
+      alert('프로젝트를 찾을 수 없습니다.');
     }
   }, [projectId]);
 
@@ -91,7 +93,7 @@ export const TopNavBar = () => {
                   <StyledNavLink to={`/projects/${projectId}/sprint`}>활성 스프린트</StyledNavLink>
                 </li>
                 <li>
-                  <StyledNavLink to={`/projects/${projectId}/backlog`}>백로그</StyledNavLink>
+                  <StyledNavLink to={`/projects/${projectId}/backlog`}>스택</StyledNavLink>
                 </li>
                 <li>
                   <DropDownSection

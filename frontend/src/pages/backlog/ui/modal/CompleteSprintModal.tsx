@@ -1,4 +1,4 @@
-import { moveIssueToSprint, useIssueStore } from '@/entities/issue';
+import { Issue, useIssueStore } from '@/entities/issue';
 import { SprintStatus } from '@/entities/sprint';
 import clsx from 'clsx';
 import { X } from 'lucide-react';
@@ -39,9 +39,9 @@ const MenuItem = ({
 interface CompleteSprintModalProps {
   closeModal: () => void;
   currentSprintId: number;
-  incompleteIssues: { id: number }[];
+  incompleteIssues: Issue[];
   sprints: { id: number; name: string; sprintStatus: SprintStatus }[];
-  onComplete?: (toSprintId: number) => void;
+  onComplete?: (toSprintId: number | null) => void;
 }
 
 export const CompleteSprintModal = ({
@@ -67,23 +67,31 @@ export const CompleteSprintModal = ({
     };
   }, [closeModal]);
 
-  const handleMoveAllIssues = async (targetSprintId: number) => {
+  const handleMoveAllIssues = async (toSprintId: number | null) => {
     if (loading) return;
     setLoading(true);
 
     try {
-      await Promise.all(
-        incompleteIssues.map((issue) => moveIssueToSprint(issue.id, targetSprintId)),
-      );
+      // await Promise.all(
+      //   incompleteIssues.map((issue) =>
+      //     moveIssueToSprint(issue.id, toSprintId ?? issue.epic?.id ?? 0),
+      //   ),
+      // );
+
       incompleteIssues.forEach((issue) => {
         moveIssue(
           issue.id,
           { type: 'sprint', id: currentSprintId, index: 0 },
-          { type: targetSprintId === 0 ? 'epic' : 'sprint', id: targetSprintId, index: 0 },
+          {
+            type: toSprintId === null ? 'epic' : 'sprint',
+            id: toSprintId ?? issue.epic?.id ?? 0,
+            index: 0,
+          },
         );
       });
+
       if (onComplete) {
-        onComplete(targetSprintId);
+        onComplete(toSprintId);
       } else {
         closeModal();
       }
@@ -115,8 +123,8 @@ export const CompleteSprintModal = ({
           <div className='flex flex-col gap-2'>
             <h3 className='text-label-md font-bold'>이동 가능한 위치</h3>
             <div className='flex max-h-[200px] flex-col gap-2 overflow-auto'>
-              <MenuItem type='epic' onClick={() => handleMoveAllIssues(0)} disabled={loading}>
-                백로그
+              <MenuItem type='epic' onClick={() => handleMoveAllIssues(null)} disabled={loading}>
+                스택
               </MenuItem>
               {sprints
                 .filter(

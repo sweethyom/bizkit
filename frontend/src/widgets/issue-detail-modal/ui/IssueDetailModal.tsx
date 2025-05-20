@@ -112,9 +112,9 @@ export const IssueDetailModal = () => {
         {/* 상태별 컬러 바 */}
         <div
           className={clsx('h-2 w-full rounded-t-2xl', {
-            'bg-gray-300': issueStatus === 'UNASSIGNED' || issueStatus === 'TODO',
-            'bg-blue-400': issueStatus === 'IN_PROGRESS',
-            'bg-green-400': issueStatus === 'DONE',
+            'bg-gray-4/40': issueStatus === 'UNASSIGNED' || issueStatus === 'TODO',
+            'bg-point/70': issueStatus === 'IN_PROGRESS',
+            'bg-primary/90': issueStatus === 'DONE',
           })}
         />
         {/* 닫기 버튼 */}
@@ -170,9 +170,9 @@ export const IssueDetailModal = () => {
               className={clsx({
                 'cursor-not-allowed': sprint?.sprintStatus !== SprintStatus.ONGOING,
                 '!text-gray-5/70 !bg-transparent': issueStatus === 'UNASSIGNED',
-                '!bg-gray-100 !text-gray-700': issueStatus === 'TODO',
-                '!bg-blue-100 !text-blue-700': issueStatus === 'IN_PROGRESS',
-                'bg-green-100 text-green-700': issueStatus === 'DONE',
+                '!bg-gray-4/20 !text-gray-4 !font-bold': issueStatus === 'TODO',
+                '!bg-point/20 !text-point !font-bold': issueStatus === 'IN_PROGRESS',
+                '!bg-primary/20 !text-primary !font-bold': issueStatus === 'DONE',
               })}
               onClick={() => {
                 if (sprint?.sprintStatus === SprintStatus.ONGOING) {
@@ -261,7 +261,7 @@ export const IssueDetailModal = () => {
             {/* 에픽 */}
             <Tag
               ref={epicRef}
-              name='에픽'
+              name='킷'
               onClick={() => {
                 setEditField('epic');
                 setAnchorRef(epicRef as React.RefObject<HTMLSpanElement>);

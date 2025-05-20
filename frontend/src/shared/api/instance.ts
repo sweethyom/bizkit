@@ -19,7 +19,7 @@ let refreshTokenPromise: Promise<TokenInfo | null> | null = null;
 const logout = () => {
   tokenStorage.remove();
   useUserStore.getState().clearUser();
-  window.location.href = '/signin';
+  // window.location.href = '/signin';
 };
 
 // 요청 인터셉터
@@ -128,10 +128,10 @@ const onAccessTokenReissueFailed = () => {
 // 응답 인터셉터
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
-  async (error: AxiosError) => {
+  async (error) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    if (!error.response || !originalRequest) {
+    if (!error.response || !originalRequest || error.response?.data.error.code === 'AE3001') {
       return Promise.reject(error);
     }
 

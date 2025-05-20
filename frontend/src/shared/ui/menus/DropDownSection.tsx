@@ -8,6 +8,7 @@ interface DropDownSectionProps {
 
 export const DropDownSection = ({ items, button }: DropDownSectionProps) => {
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -29,10 +30,18 @@ export const DropDownSection = ({ items, button }: DropDownSectionProps) => {
   };
 
   return (
-    <div ref={menuRef} className='relative'>
-      {button(toggleVisibility)}
-
-      {isOpen && <DropDownMenu items={items} toggleVisibility={toggleVisibility} />}
+    <div className='relative'>
+      <div ref={buttonRef} style={{ display: 'inline-block' }}>
+        {button(toggleVisibility)}
+      </div>
+      {isOpen && (
+        <DropDownMenu
+          ref={menuRef}
+          items={items}
+          toggleVisibility={toggleVisibility}
+          anchorEl={buttonRef.current}
+        />
+      )}
     </div>
   );
 };

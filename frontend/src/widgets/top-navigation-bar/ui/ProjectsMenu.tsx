@@ -40,7 +40,7 @@ export const ProjectsMenu = ({ projectId }: { projectId?: number }) => {
       </button>
 
       {isOpen && (
-        <div className='border-gray-2 absolute top-full flex min-w-sm flex-col overflow-hidden rounded-md border bg-white'>
+        <div className='border-gray-2 absolute top-full z-50 flex min-w-sm flex-col overflow-hidden rounded-md border bg-white'>
           {projects?.length === 0 ? (
             <div className='text-gray-3 py-8 text-center'>프로젝트가 없습니다.</div>
           ) : (
