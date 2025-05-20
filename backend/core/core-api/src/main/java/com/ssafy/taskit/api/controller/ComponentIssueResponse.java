@@ -14,6 +14,7 @@ public record ComponentIssueResponse(
     String key,
     Long bizPoint,
     Importance issueImportance,
+    Double position,
     ComponentResponse component,
     UserProfileResponse user,
     IssueDetailEpicResponse epic) {
@@ -34,6 +35,7 @@ public record ComponentIssueResponse(
               issue.key(),
               issue.bizPoint(),
               issue.issueImportance(),
+              issue.position(),
               new ComponentResponse(component.id(), component.name()),
               new UserProfileResponse(user.id(), user.nickname(), user.profileImgUrl()),
               new IssueDetailEpicResponse(epic.id(), epic.name(), epic.key()));
