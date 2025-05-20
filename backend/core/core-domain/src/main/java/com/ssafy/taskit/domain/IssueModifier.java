@@ -114,14 +114,14 @@ public class IssueModifier {
     Long currentSprintId = issue.sprintId();
     Long targetSprintId = modifyIssueSprint.targetId();
 
-    if (currentSprintId != null && targetSprintId == 0L) {
+    if (currentSprintId != null && targetSprintId == null) {
       // 조건 1: 기존 스프린트 → 백로그 이동
       sprintValidator.isCompletedSprint(currentSprintId);
       issueRepository.modifyIssueSprintToBacklog(issueId);
       return;
     }
 
-    if (currentSprintId != null && targetSprintId != 0L) {
+    if (currentSprintId != null && targetSprintId != null) {
       // 조건 2: 기존 스프린트 → 다른 스프린트 이동
       sprintValidator.isCompletedSprint(currentSprintId);
       sprintValidator.isCompletedSprint(targetSprintId);
@@ -132,7 +132,7 @@ public class IssueModifier {
       return;
     }
 
-    if (currentSprintId == null && targetSprintId != 0L) {
+    if (currentSprintId == null && targetSprintId != null) {
       // 조건 3: 백로그 상태 → 스프린트 할당
       sprintValidator.isSprintExists(targetSprintId);
       sprintValidator.isCompletedSprint(targetSprintId);
@@ -140,7 +140,7 @@ public class IssueModifier {
       return;
     }
 
-    if (currentSprintId == null && targetSprintId == 0L) {
+    if (currentSprintId == null && targetSprintId == null) {
       // 조건 4: 백로그 상태에서 또 백로그 → 예외
       throw new CoreException(CoreErrorType.ISSUE_ALREADY_IN_BACKLOG);
     }
