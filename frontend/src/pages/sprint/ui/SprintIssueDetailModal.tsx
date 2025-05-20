@@ -3,7 +3,7 @@ import { useIssueModalStore } from '@/widgets/issue-detail-modal';
 import { IssueDetailModal as BaseIssueDetailModal } from '@/widgets/issue-detail-modal';
 import { Button } from '@/shared/ui';
 import { X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 
 interface SprintIssueDetailModalProps {
   isOpen: boolean;
@@ -53,9 +53,21 @@ export const SprintIssueDetailModal: React.FC<SprintIssueDetailModalProps> = ({
     }
   }, [isOpen, hasOpened, closeModal]);
 
+  // 이전 이슈 상태를 추적하기 위한 ref
+  const prevIssueRef = useRef<Issue | null>(null);
+
   // 이슈 업데이트 이벤트 감지
   useEffect(() => {
-    if (widgetIssue && selectedIssue && widgetIssue.id === selectedIssue.id && hasOpened) {
+    if (
+      widgetIssue && 
+      selectedIssue && 
+      widgetIssue.id === selectedIssue.id && 
+      hasOpened && 
+      // 실제 데이터가 변경되었는지 확인 (문자열 비교로 deep comparison)
+      (!prevIssueRef.current || JSON.stringify(widgetIssue) !== JSON.stringify(prevIssueRef.current))
+    ) {
+      // 현재 상태 저장
+      prevIssueRef.current = widgetIssue as Issue;
       // 위젯 모달에서 이슈가 업데이트되면 부모 컴포넌트에 알림
       onUpdate(widgetIssue as any);
     }

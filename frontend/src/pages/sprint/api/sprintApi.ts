@@ -162,15 +162,19 @@ export const getSprintData = async (sprintId?: string, projectId?: string): Prom
             key: issue.key,
             title: issue.name,
             epic: issue.epic?.name || '',
-            assignee: issue.user ? {
-              id: issue.user.id,
-              nickname: issue.user.nickname || '',
-              profileImageUrl: issue.user.profileImgUrl || null
-            } : (issue.assignee ? {
-              id: issue.assignee.id,
-              nickname: issue.assignee.nickname || '',
-              profileImageUrl: issue.assignee.profileImageUrl || null
-            } : null),
+            assignee: issue.user
+              ? {
+                  id: issue.user.id,
+                  nickname: issue.user.nickname || '',
+                  profileImageUrl: issue.user.profileImgUrl || null,
+                }
+              : issue.assignee
+                ? {
+                    id: issue.assignee.id,
+                    nickname: issue.assignee.nickname || '',
+                    profileImageUrl: issue.assignee.profileImageUrl || null,
+                  }
+                : null,
             storyPoints: issue.bizPoint || 0,
             priority: (issue.issueImportance === 'HIGH'
               ? 'high'
@@ -180,6 +184,7 @@ export const getSprintData = async (sprintId?: string, projectId?: string): Prom
             status: status as 'todo' | 'inProgress' | 'done',
             description: issue.content || '',
             sprint: issue.sprint?.name || '',
+            component: '',
           });
         }
       }
@@ -209,18 +214,18 @@ export const getIssueDetail = async (issueId: string): Promise<Issue> => {
         epic: issueData.epic?.name || '',
         component: issueData.component?.name || '',
         assignee: issueData.assignee
-        ? {
-        id: issueData.assignee.id,
-        nickname: issueData.assignee.nickname || '',
-        profileImageUrl: issueData.assignee.profileImageUrl || null,
-        }
-        : (issueData.user
           ? {
-              id: issueData.user.id,
-              nickname: issueData.user.nickname || '',
-              profileImageUrl: issueData.user.profileImgUrl || null,
+              id: issueData.assignee.id,
+              nickname: issueData.assignee.nickname || '',
+              profileImageUrl: issueData.assignee.profileImageUrl || null,
             }
-          : null),
+          : issueData.user
+            ? {
+                id: issueData.user.id,
+                nickname: issueData.user.nickname || '',
+                profileImageUrl: issueData.user.profileImgUrl || null,
+              }
+            : null,
         storyPoints: issueData.bizPoint || 0,
         priority: (issueData.issueImportance === 'HIGH'
           ? 'high'
@@ -521,13 +526,13 @@ export const getComponentIssues = async (componentId: string): Promise<Component
               nickname: issueData.assignee.nickname || '',
               profileImageUrl: issueData.assignee.profileImageUrl || null,
             }
-          : (issueData.user
+          : issueData.user
             ? {
                 id: issueData.user.id,
                 nickname: issueData.user.nickname || '',
                 profileImageUrl: issueData.user.profileImgUrl || null,
               }
-            : null),
+            : null,
         storyPoints: issueData.bizPoint || 0,
         priority: (issueData.issueImportance === 'HIGH'
           ? 'high'
@@ -549,9 +554,13 @@ export const getComponentIssues = async (componentId: string): Promise<Component
 };
 
 // 컴포넌트별 활성 스프린트 이슈 목록 조회 - API 명세: GET /sprints/ongoing/components/issues
-export const getOngoingSprintComponentIssues = async (componentId?: string): Promise<ComponentIssueGroup[]> => {
+export const getOngoingSprintComponentIssues = async (
+  componentId?: string,
+): Promise<ComponentIssueGroup[]> => {
   // 실제 API 호출
-  const url = componentId ? `/sprints/ongoing/components/issues?componentId=${componentId}` : '/sprints/ongoing/components/issues';
+  const url = componentId
+    ? `/sprints/ongoing/components/issues?componentId=${componentId}`
+    : '/sprints/ongoing/components/issues';
   const response = await api.get<ApiResponse<any>>(url);
 
   if (response.data.result === 'SUCCESS' && response.data.data) {

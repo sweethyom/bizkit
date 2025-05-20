@@ -1,19 +1,16 @@
 import {
   deleteIssue,
   getSprintData,
+  getOngoingSprintComponentIssues,
   updateIssueComponent,
   updateIssueStatus,
 } from '@/pages/sprint/api/sprintApi';
 import { Issue, SprintData } from '@/pages/sprint/model/types';
-import { StatusColumn } from '@/pages/sprint/ui/StatusColumn';
 import { SprintIssueDetailModal } from '@/pages/sprint/ui/SprintIssueDetailModal';
-import { Button } from '@/shared/ui';
-import {
-  useIssueModalStore,
-} from '@/widgets/issue-detail-modal';
+import { StatusColumn } from '@/pages/sprint/ui/StatusColumn';
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import { AlertCircle, Filter, Loader2, Tag, Users, X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router';
 
 export const SprintBoard: React.FC = () => {
@@ -35,16 +32,159 @@ export const SprintBoard: React.FC = () => {
         // 프로젝트 ID를 localStorage에 저장 (IssueDetailModal에서 사용)
         localStorage.setItem('currentProjectId', projectId);
 
-        const data = await getSprintData(undefined, projectId);
-        setSprintData(data);
+        console.log('Fetching ongoing sprint data for project:', projectId);
+        
+        // 활성 스프린트의 이슈 데이터를 컴포넌트별로 가져오기
+        try {
+          console.log('Trying to fetch ongoing sprint component issues API...');
+          const componentIssueGroups = await getOngoingSprintComponentIssues();
+          console.log('Received ongoing sprint component issues:', componentIssueGroups);
+          
+          // 받은 데이터를 SprintData 형식으로 변환
+          // ... 기존 변환 로직 ... 
+
+          if (componentIssueGroups && componentIssueGroups.length > 0) {
+            // 데이터가 정상적으로 있는 경우
+            const convertedData: SprintData = {
+              statusGroups: [
+                {
+                  id: 'todo',
+                  status: 'todo',
+                  title: '해야 할 일',
+                  componentGroups: [],
+                },
+                {
+                  id: 'inProgress',
+                  status: 'inProgress',
+                  title: '진행 중',
+                  componentGroups: [],
+                },
+                {
+                  id: 'done',
+                  status: 'done',
+                  title: '완료',
+                  componentGroups: [],
+                },
+              ],
+            };
+
+            // 모든 고유 컴포넌트 식별하기
+            const allComponentsMap = new Map<string, string>();
+
+            // API 응답에서 모든 고유 컴포넌트 추출
+            componentIssueGroups.forEach(group => {
+              group.issues.forEach(issue => {
+                if (issue.component && typeof issue.component !== 'string') {
+                  const componentId = issue.component.id.toString();
+                  if (!allComponentsMap.has(componentId)) {
+                    allComponentsMap.set(componentId, issue.component.name);
+                  }
+                }
+              });
+            });
+
+            // 컴포넌트가 없는 경우를 위한 기본 컴포넌트 추가
+            if (allComponentsMap.size === 0) {
+              allComponentsMap.set('0', '미분류');
+            }
+
+            // 각 상태 그룹에 컴포넌트 그룹 초기화
+            convertedData.statusGroups.forEach(statusGroup => {
+              allComponentsMap.forEach((componentName, componentId) => {
+                statusGroup.componentGroups.push({
+                  id: componentId,
+                  name: componentName,
+                  isExpanded: true,
+                  issues: [],
+                });
+              });
+            });
+
+            // 이슈를 적절한 상태 및 컴포넌트 그룹에 할당
+            componentIssueGroups.forEach(group => {
+              // issueStatus를 소문자 및 camelCase로 변환 (TODO -> todo, IN_PROGRESS -> inProgress)
+              const statusKey = group.issueStatus === 'TODO' 
+                ? 'todo' 
+                : group.issueStatus === 'IN_PROGRESS' 
+                  ? 'inProgress' 
+                  : 'done';
+              
+              // 해당 상태 그룹 찾기
+              const statusGroup = convertedData.statusGroups.find(sg => sg.status === statusKey);
+              if (!statusGroup) return;
+
+              // 각 이슈를 적절한 컴포넌트 그룹에 할당
+              group.issues.forEach(issue => {
+                let componentId = '0';
+                if (issue.component) {
+                  if (typeof issue.component !== 'string') {
+                    componentId = issue.component.id.toString();
+                  }
+                }
+
+                // 해당 컴포넌트 그룹 찾기
+                const componentGroup = statusGroup.componentGroups.find(cg => cg.id === componentId);
+                if (!componentGroup) return;
+
+                // 이슈 객체 상태 표준화 (API 응답에서 프론트엔드 모델로 변환)
+                const formattedIssue: Issue = {
+                  id: issue.id.toString(),
+                  key: issue.key,
+                  title: issue.name || '',
+                  epic: issue.epic ? (typeof issue.epic === 'string' ? issue.epic : issue.epic.name || '') : '',
+                  component: typeof issue.component === 'string' ? issue.component : (issue.component ? issue.component.name || '' : ''),
+                  assignee: issue.assignee || issue.user || null,
+                  storyPoints: issue.bizPoint || 0,
+                  priority: (issue.issueImportance === 'HIGH' 
+                    ? 'high' 
+                    : issue.issueImportance === 'MEDIUM' 
+                      ? 'medium' 
+                      : 'low') as 'low' | 'medium' | 'high',
+                  status: statusKey as 'todo' | 'inProgress' | 'done',
+                  description: issue.content || '',
+                  sprint: issue.sprint?.name || '',
+                };
+
+                componentGroup.issues.push(formattedIssue);
+              });
+            });
+
+            console.log('Converted sprint data:', convertedData);
+            setSprintData(convertedData);
+          } else {
+            console.log('No data from ongoing sprint API, fallback to getSprintData');
+            // 활성 스프린트 API가 데이터를 반환하지 않으면 기존 API로 폴백
+            const data = await getSprintData(undefined, projectId);
+            console.log('Fallback data from getSprintData:', data);
+            setSprintData(data);
+          }
+        } catch (ongoingSprintError) {
+          console.error('Error fetching ongoing sprint data:', ongoingSprintError);
+          console.log('Fallback to original getSprintData due to error');
+          
+          // 오류 발생 시 기존 API로 폴백
+          try {
+            const data = await getSprintData(undefined, projectId);
+            console.log('Fallback data received:', data);
+            setSprintData(data);
+          } catch (fallbackError: any) {
+            console.error('Fallback API also failed:', fallbackError);
+            // 에러 메시지 파싱
+            if (fallbackError?.message?.includes('No sprint found') || fallbackError?.message?.includes('sprint not found')) {
+              setError('현재 프로젝트에 활성 스프린트가 존재하지 않습니다. 스프린트를 먼저 생성해주세요.');
+            } else {
+              setError('스프린트 데이터를 불러오는 중 오류가 발생했습니다.');
+            }
+          }
+        }
       } catch (err: any) {
         // 에러 메시지 파싱
-        if (err?.message?.includes('No sprint found')) {
-          setError('현재 프로젝트에 스프린트가 존재하지 않습니다. 스프린트를 먼저 생성해주세요.');
+        console.error('Error details:', err);
+        if (err?.message?.includes('No sprint found') || err?.message?.includes('sprint not found')) {
+          setError('현재 프로젝트에 활성 스프린트가 존재하지 않습니다. 스프린트를 먼저 생성해주세요.');
         } else {
           setError('스프린트 데이터를 불러오는 중 오류가 발생했습니다.');
         }
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -67,7 +207,7 @@ export const SprintBoard: React.FC = () => {
     setSelectedIssue(null);
   }, []);
 
-  const handleUpdateIssue = (updatedIssue: Issue) => {
+  const handleUpdateIssue = useCallback((updatedIssue: Issue) => {
     if (!sprintData) return;
 
     // 스프린트 데이터에서 해당 이슈를 찾아 업데이트
@@ -98,7 +238,7 @@ export const SprintBoard: React.FC = () => {
       ...sprintData,
       statusGroups: updatedStatusGroups,
     });
-  };
+  }, [sprintData]);
 
   const handleDeleteIssue = async (issueId: string) => {
     if (!sprintData) return;
@@ -265,11 +405,11 @@ export const SprintBoard: React.FC = () => {
           const destStatusGroup = newSprintData.statusGroups.find(
             (group) => group.id === destStatusId,
           );
-          
+
           const destComponentGroup = destStatusGroup?.componentGroups.find(
             (group) => group.id === destComponentId,
           );
-          
+
           if (destComponentGroup) {
             // 컴포넌트 이름 업데이트
             movedIssue.component = destComponentGroup.name;
@@ -316,8 +456,128 @@ export const SprintBoard: React.FC = () => {
         // DnD 작업이 성공적으로 완료되면, 서버에서 최신 데이터를 다시 가져오기
         setTimeout(async () => {
           try {
-            const refreshedData = await getSprintData(undefined, projectId);
-            setSprintData(refreshedData);
+            console.log('Refreshing data after drag and drop');
+            try {
+              // 우선 getOngoingSprintComponentIssues API 사용 시도
+              const refreshedComponentIssueGroups = await getOngoingSprintComponentIssues();
+              
+              if (refreshedComponentIssueGroups && refreshedComponentIssueGroups.length > 0) {
+                // 데이터 변환 및 업데이트 로직 반복 (fetchData와 유사한 로직)
+                const convertedData: SprintData = {
+                  statusGroups: [
+                    {
+                      id: 'todo',
+                      status: 'todo',
+                      title: '해야 할 일',
+                      componentGroups: [],
+                    },
+                    {
+                      id: 'inProgress',
+                      status: 'inProgress',
+                      title: '진행 중',
+                      componentGroups: [],
+                    },
+                    {
+                      id: 'done',
+                      status: 'done',
+                      title: '완료',
+                      componentGroups: [],
+                    },
+                  ],
+                };
+
+                // 모든 고유 컴포넌트 식별
+                const allComponentsMap = new Map<string, string>();
+                refreshedComponentIssueGroups.forEach(group => {
+                  group.issues.forEach(issue => {
+                    if (issue.component && typeof issue.component !== 'string') {
+                      const componentId = issue.component.id.toString();
+                      if (!allComponentsMap.has(componentId)) {
+                        allComponentsMap.set(componentId, issue.component.name);
+                      }
+                    }
+                  });
+                });
+
+                // 컴포넌트가 없는 경우를 위한 기본 컴포넌트 추가
+                if (allComponentsMap.size === 0) {
+                  allComponentsMap.set('0', '미분류');
+                }
+
+                // 각 상태 그룹에 컴포넌트 그룹 초기화
+                convertedData.statusGroups.forEach(statusGroup => {
+                  allComponentsMap.forEach((componentName, componentId) => {
+                    statusGroup.componentGroups.push({
+                      id: componentId,
+                      name: componentName,
+                      isExpanded: true,
+                      issues: [],
+                    });
+                  });
+                });
+
+                // 이슈를 적절한 상태 및 컴포넌트 그룹에 할당
+                refreshedComponentIssueGroups.forEach(group => {
+                  const statusKey = group.issueStatus === 'TODO' 
+                    ? 'todo' 
+                    : group.issueStatus === 'IN_PROGRESS' 
+                      ? 'inProgress' 
+                      : 'done';
+                  
+                  const statusGroup = convertedData.statusGroups.find(sg => sg.status === statusKey);
+                  if (!statusGroup) return;
+
+                  group.issues.forEach(issue => {
+                    let componentId = '0';
+                    if (issue.component) {
+                      if (typeof issue.component !== 'string') {
+                        componentId = issue.component.id.toString();
+                      }
+                    }
+
+                    const componentGroup = statusGroup.componentGroups.find(cg => cg.id === componentId);
+                    if (!componentGroup) return;
+
+                    const formattedIssue: Issue = {
+                      id: issue.id.toString(),
+                      key: issue.key,
+                      title: issue.name || '',
+                      epic: issue.epic ? (typeof issue.epic === 'string' ? issue.epic : issue.epic.name || '') : '',
+                      component: typeof issue.component === 'string' ? issue.component : (issue.component ? issue.component.name || '' : ''),
+                      assignee: issue.assignee || issue.user || null,
+                      storyPoints: issue.bizPoint || 0,
+                      priority: (issue.issueImportance === 'HIGH' 
+                        ? 'high' 
+                        : issue.issueImportance === 'MEDIUM' 
+                          ? 'medium' 
+                          : 'low') as 'low' | 'medium' | 'high',
+                      status: statusKey as 'todo' | 'inProgress' | 'done',
+                      description: issue.content || '',
+                      sprint: issue.sprint?.name || '',
+                    };
+
+                    componentGroup.issues.push(formattedIssue);
+                  });
+                });
+
+                setSprintData(convertedData);
+                console.log('Data refreshed successfully with ongoing sprint API');
+              } else {
+                console.log('No data from ongoing sprint API during refresh, fallback to getSprintData');
+                // 활성 스프린트 API가 데이터를 반환하지 않으면 기존 API로 폴백
+                const refreshedData = await getSprintData(undefined, projectId);
+                setSprintData(refreshedData);
+                console.log('Data refreshed successfully with fallback API');
+              }
+            } catch (ongoingApiError) {
+              console.error('Error with ongoing sprint API during refresh:', ongoingApiError);
+              console.log('Fallback to original getSprintData API for refresh');
+              
+              // 오류 발생 시 기존 API로 폴백
+              const refreshedData = await getSprintData(undefined, projectId);
+              setSprintData(refreshedData);
+              console.log('Data refreshed successfully with fallback API');
+            }
           } catch (refreshError) {
             console.error('스프린트 데이터 새로고침 실패:', refreshError);
           }
@@ -331,8 +591,8 @@ export const SprintBoard: React.FC = () => {
   if (loading) {
     return (
       <div className='flex h-screen flex-col items-center justify-center bg-gray-50'>
-        <div className='flex flex-col items-center justify-center p-8 rounded-lg bg-white shadow-lg'>
-          <Loader2 className='mb-4 h-12 w-12 animate-spin text-primary' />
+        <div className='flex flex-col items-center justify-center rounded-lg bg-white p-8 shadow-lg'>
+          <Loader2 className='text-primary mb-4 h-12 w-12 animate-spin' />
           <p className='text-lg font-medium text-gray-700'>스프린트 데이터를 불러오는 중...</p>
         </div>
       </div>
@@ -344,7 +604,7 @@ export const SprintBoard: React.FC = () => {
       <div className='flex h-screen flex-col items-center justify-center bg-gray-50'>
         <div className='w-full max-w-md rounded-lg bg-white p-8 shadow-lg'>
           <div className='mb-4 flex items-center gap-3'>
-            <AlertCircle className='h-8 w-8 text-warning' />
+            <AlertCircle className='text-warning h-8 w-8' />
             <h2 className='text-xl font-semibold text-gray-800'>오류가 발생했습니다</h2>
           </div>
           <p className='mb-6 text-gray-600'>{error}</p>
@@ -355,7 +615,7 @@ export const SprintBoard: React.FC = () => {
                   // 스프린트 생성 페이지로 이동 (URL은 프로젝트에 맞게 수정 필요)
                   window.location.href = `/projects/${projectId}/sprint/create`;
                 }}
-                className='w-full rounded-md bg-primary py-2 font-medium text-white transition-colors hover:bg-primary/80'
+                className='bg-primary hover:bg-primary/80 w-full rounded-md py-2 font-medium text-white transition-colors'
               >
                 스프린트 생성하기
               </button>
@@ -364,7 +624,7 @@ export const SprintBoard: React.FC = () => {
               onClick={() => window.location.reload()}
               className={`w-full rounded-md py-2 font-medium transition-colors ${error.includes('스프린트가 존재하지 않습니다')
                   ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  : 'bg-primary text-white hover:bg-primary/80'
+                  : 'bg-primary hover:bg-primary/80 text-white'
                 }`}
             >
               다시 시도
@@ -380,13 +640,13 @@ export const SprintBoard: React.FC = () => {
       <div className='flex h-screen flex-col items-center justify-center bg-gray-50'>
         <div className='w-full max-w-md rounded-lg bg-white p-8 shadow-lg'>
           <div className='mb-4 flex items-center gap-3'>
-            <AlertCircle className='h-8 w-8 text-point' />
+            <AlertCircle className='text-point h-8 w-8' />
             <h2 className='text-xl font-semibold text-gray-800'>데이터 없음</h2>
           </div>
           <p className='mb-4 text-gray-600'>스프린트 데이터를 불러올 수 없습니다.</p>
           <button
             onClick={() => window.location.reload()}
-            className='w-full rounded-md bg-primary py-2 font-medium text-white transition-colors hover:bg-primary/80'
+            className='bg-primary hover:bg-primary/80 w-full rounded-md py-2 font-medium text-white transition-colors'
           >
             다시 시도
           </button>
@@ -475,7 +735,7 @@ export const SprintBoard: React.FC = () => {
           {activeFilter && (
             <div className='mt-2 flex items-center'>
               <span className='mr-2 text-sm text-gray-600'>필터링 중:</span>
-              <span className='inline-flex items-center rounded-md bg-primary/10 px-2.5 py-0.5 text-sm font-medium text-primary'>
+              <span className='bg-primary/10 text-primary inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-medium'>
                 {getFilterName()} ({getTotalFilteredIssuesCount()}개 이슈)
               </span>
             </div>
@@ -485,15 +745,15 @@ export const SprintBoard: React.FC = () => {
 
       <section className='bg-background-primary flex flex-col gap-4 p-4'>
         {/* 필터 섹션 */}
-        <div className='rounded-lg bg-white p-6 shadow-sm border border-gray-100'>
-          <div className='flex justify-between items-center mb-6'>
+        <div className='rounded-lg border border-gray-100 bg-white p-6 shadow-sm'>
+          <div className='mb-6 flex items-center justify-between'>
             <div className='flex items-center gap-2'>
               <Filter size={18} className='text-primary' />
               <h3 className='font-semibold text-gray-800'>필터</h3>
             </div>
             {activeFilter && (
               <button
-                className='flex items-center gap-1 rounded-md bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 shadow-sm'
+                className='flex items-center gap-1 rounded-md bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-200'
                 onClick={() => setActiveFilter(null)}
               >
                 필터 초기화
@@ -501,11 +761,11 @@ export const SprintBoard: React.FC = () => {
               </button>
             )}
           </div>
-          
+
           <div className='flex flex-col gap-6'>
             {/* 컴포넌트 필터 */}
             <div>
-              <div className='flex items-center gap-2 mb-3'>
+              <div className='mb-3 flex items-center gap-2'>
                 <Tag size={16} className='text-primary' />
                 <span className='text-sm font-medium text-gray-700'>컴포넌트</span>
               </div>
@@ -531,7 +791,7 @@ export const SprintBoard: React.FC = () => {
 
             {/* 담당자 필터 */}
             <div>
-              <div className='flex items-center gap-2 mb-3'>
+              <div className='mb-3 flex items-center gap-2'>
                 <Users size={16} className='text-point' />
                 <span className='text-sm font-medium text-gray-700'>담당자</span>
               </div>
