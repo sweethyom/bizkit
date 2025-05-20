@@ -2,6 +2,7 @@ package com.ssafy.taskit.domain;
 
 import com.ssafy.taskit.domain.error.CoreErrorType;
 import com.ssafy.taskit.domain.error.CoreException;
+import java.util.Objects;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -60,8 +61,11 @@ public class SprintIssueMover {
         Double before = moveSprintIssue.beforeIssuePosition();
         Double after = moveSprintIssue.afterIssuePosition();
 
-        if (!before.equals(after)) {
-          issueModifier.modifyIssuePosition(moveSprintIssue.issueId(), after);
+        IssuePositionOption option = IssuePositionOption.from(before, after);
+        double newPosition = option.calculate(before, after);
+
+        if (!Objects.equals(issue.position(), newPosition)) {
+          issueModifier.modifyIssuePosition(moveSprintIssue.issueId(), newPosition);
         }
         return;
       }
