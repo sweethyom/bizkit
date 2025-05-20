@@ -5,7 +5,7 @@ import com.ssafy.taskit.domain.error.CoreException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SprintMover {
+public class SprintIssueMover {
 
   private final IssueReader issueReader;
   private final SprintValidator sprintValidator;
@@ -14,7 +14,7 @@ public class SprintMover {
 
   private final SprintReader sprintReader;
 
-  public SprintMover(
+  public SprintIssueMover(
       IssueReader issueReader,
       SprintValidator sprintValidator,
       MemberValidator memberValidator,

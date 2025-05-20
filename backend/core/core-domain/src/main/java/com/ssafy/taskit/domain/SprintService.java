@@ -17,7 +17,7 @@ public class SprintService {
 
   private final SprintCompleter sprintCompleter;
 
-  private final SprintMover sprintMover;
+  private final SprintIssueMover sprintIssueMover;
 
   public SprintService(
       SprintAppender sprintAppender,
@@ -26,14 +26,14 @@ public class SprintService {
       SprintDeleter sprintDeleter,
       SprintStarter sprintStarter,
       SprintCompleter sprintCompleter,
-      SprintMover sprintMover) {
+      SprintIssueMover sprintIssueMover) {
     this.sprintAppender = sprintAppender;
     this.sprintReader = sprintReader;
     this.sprintModifier = sprintModifier;
     this.sprintDeleter = sprintDeleter;
     this.sprintStarter = sprintStarter;
     this.sprintCompleter = sprintCompleter;
-    this.sprintMover = sprintMover;
+    this.sprintIssueMover = sprintIssueMover;
   }
 
   public Sprint append(User user, Long projectId, NewSprint newSprint) {
@@ -73,6 +73,6 @@ public class SprintService {
   }
 
   public void moveSprintIssue(User user, Long sprintId, MoveSprintIssue moveSprintIssue) {
-    sprintMover.moveSprintIssue(user, sprintId, moveSprintIssue);
+    sprintIssueMover.moveSprintIssue(user, sprintId, moveSprintIssue);
   }
 }
