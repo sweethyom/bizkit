@@ -57,6 +57,12 @@ public class SprintIssueMover {
       }
 
       case NO_CHANGE -> {
+        Double before = moveSprintIssue.beforeIssuePosition();
+        Double after = moveSprintIssue.afterIssuePosition();
+
+        if (!before.equals(after)) {
+          issueModifier.modifyIssuePosition(moveSprintIssue.issueId(), after);
+        }
         return;
       }
     }

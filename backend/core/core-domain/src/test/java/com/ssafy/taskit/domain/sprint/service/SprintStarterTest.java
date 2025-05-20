@@ -1,4 +1,4 @@
-package com.ssafy.taskit.api.service;
+package com.ssafy.taskit.domain.sprint.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
