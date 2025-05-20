@@ -39,12 +39,15 @@ public interface IssueJpaRepository extends JpaRepository<IssueEntity, Long> {
   SELECT i
   FROM IssueEntity i
   JOIN SprintEntity s ON i.sprintId = s.id
-  WHERE (:componentId IS NULL AND i.componentId IS NULL
+  WHERE s.projectId = :projectId
+  AND (:componentId IS NULL AND i.componentId IS NULL
          OR i.componentId = :componentId)
     AND i.entityStatus = :entityStatus
     AND s.sprintStatus = :sprintStatus
+    ORDER BY i.position ASC
   """)
-  List<IssueEntity> findAllByComponentIdAndEntityStatus(
+  List<IssueEntity> findAllByProjectIdAndComponentIdAndEntityStatus(
+      @Param("projectId") Long projectId,
       @Param("componentId") Long componentId,
       @Param("entityStatus") EntityStatus entityStatus,
       @Param("sprintStatus") SprintStatus sprintStatus);

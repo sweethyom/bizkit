@@ -150,9 +150,10 @@ public class IssueCoreRepository implements IssueRepository {
   }
 
   @Override
-  public List<Issue> findComponentIssues(Long componentId) {
-    List<IssueEntity> issueEntities = issueJpaRepository.findAllByComponentIdAndEntityStatus(
-        componentId, EntityStatus.ACTIVE, SprintStatus.ONGOING);
+  public List<Issue> findComponentIssues(Long projectId, Long componentId) {
+    List<IssueEntity> issueEntities =
+        issueJpaRepository.findAllByProjectIdAndComponentIdAndEntityStatus(
+            projectId, componentId, EntityStatus.ACTIVE, SprintStatus.ONGOING);
     return issueEntities.stream().map(IssueEntity::toIssue).toList();
   }
 

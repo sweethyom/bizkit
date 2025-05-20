@@ -33,7 +33,7 @@ public interface IssueRepository {
 
   List<Issue> findSprintIssues(Long sprintId);
 
-  List<Issue> findComponentIssues(Long componentId);
+  List<Issue> findComponentIssues(Long projectId, Long componentId);
 
   List<Issue> findMyIssuesFirstPage(Long userId, IssueStatus issueStatus, Integer pageSize);
 

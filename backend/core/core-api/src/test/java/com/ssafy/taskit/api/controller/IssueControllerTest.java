@@ -556,7 +556,7 @@ class IssueControllerTest extends RestDocsTest {
 
   @Test
   public void findComponentIssues() {
-    when(issueService.findComponentIssues(any(User.class), anyLong()))
+    when(issueService.findComponentIssues(any(User.class), anyLong(), anyLong()))
         .thenReturn(List.of(
             new Issue(
                 1L,
@@ -673,7 +673,7 @@ class IssueControllerTest extends RestDocsTest {
     given()
         .contentType(ContentType.JSON)
         .queryParam("componentId", 1L)
-        .get("sprints/ongoing/components/issues", 1L)
+        .get("sprints/ongoing/{sprintId}/components/issues", 1L)
         .then()
         .status(HttpStatus.OK)
         .apply(document(

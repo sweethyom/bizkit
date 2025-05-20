@@ -20,7 +20,7 @@ public enum IssuePositionOption {
     return switch (this) {
       case BETWEEN -> (before + after) / 2.0;
       case AFTER -> before + DEFAULT_GAP;
-      case BEFORE -> after - DEFAULT_GAP;
+      case BEFORE -> (0 + after) / 2.0;
       case NOTHING -> DEFAULT_POSITION;
     };
   }

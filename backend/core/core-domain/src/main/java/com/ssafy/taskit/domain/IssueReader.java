@@ -60,15 +60,17 @@ public class IssueReader {
     return issueRepository.findById(issueId);
   }
 
-  public List<Issue> readComponentIssues(User user, Long componentId) {
+  public List<Issue> readComponentIssues(User user, Long projectId, Long componentId) {
+    memberValidator.validateMember(user, projectId);
+
     if (componentId != null) {
       componentValidator.isComponentExists(componentId);
       Component component = componentRepository
           .findById(componentId)
           .orElseThrow(() -> new CoreException(CoreErrorType.COMPONENT_NOT_FOUND));
-      memberValidator.validateMember(user, component.projectId());
     }
-    return issueRepository.findComponentIssues(componentId);
+
+    return issueRepository.findComponentIssues(projectId, componentId);
   }
 
   public List<Issue> readMyIssuesFirstPage(User user, IssueStatus issueStatus, Integer pageSize) {
