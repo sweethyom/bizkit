@@ -76,11 +76,14 @@ export const useSprint = (projectId: number) => {
 
   const startSprint = useCallback(
     async (sprintId: number, dueDate?: string) => {
+      console.log(`[useSprint.ts] Starting sprint with ID: ${sprintId}, dueDate: ${dueDate}`);
       try {
-        await sprintApi.startSprint(sprintId, dueDate);
+        const response = await sprintApi.startSprint(sprintId, dueDate);
+        console.log(`[useSprint.ts] API response for startSprint:`, response);
         updateSprintStatus(sprintId, SprintStatus.ONGOING);
+        console.log(`[useSprint.ts] Updated sprint status to ONGOING in store`);
       } catch (error) {
-        console.error(error);
+        console.error(`[useSprint.ts] Error starting sprint:`, error);
       }
     },
     [updateSprintStatus],

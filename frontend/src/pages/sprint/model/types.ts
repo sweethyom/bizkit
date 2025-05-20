@@ -12,7 +12,7 @@ export interface Issue {
   component: string;
   assignee: string | Assignee | null; // 문자열 또는 객체 또는 null
   storyPoints: number;
-  priority: 'low' | 'medium' | 'high';
+  priority: 'low' | 'high';
   status: 'todo' | 'inProgress' | 'done';
   description?: string; // 이슈 상세 내용
   sprint?: string; // 스프린트 정보

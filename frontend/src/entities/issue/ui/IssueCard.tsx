@@ -63,7 +63,9 @@ export const IssueCard = ({
             {issue.project && (
               <TooltipSection info='프로젝트'>
                 <div className='bg-gray-4 flex w-fit items-center rounded-sm px-2'>
-                  <span className='text-label-sm text-white'>{issue.project.name}</span>
+                  <span className='text-label-sm text-white'>
+                    {typeof issue.project === 'object' ? issue.project.name : issue.project}
+                  </span>
                 </div>
               </TooltipSection>
             )}
@@ -71,7 +73,9 @@ export const IssueCard = ({
             {issue.epic && (
               <TooltipSection info='킷'>
                 <div className='bg-point flex w-fit items-center rounded-sm px-2'>
-                  <span className='text-label-sm text-white'>{issue.epic.name}</span>
+                  <span className='text-label-sm text-white'>
+                    {typeof issue.epic === 'object' ? issue.epic.name : issue.epic}
+                  </span>
                 </div>
               </TooltipSection>
             )}
@@ -86,7 +90,7 @@ export const IssueCard = ({
 
             {showMenuButton && (
               <div className='relative ml-auto'>
-                <IconButton icon='ellipsis' onClick={() => {}} />
+                <IconButton icon='ellipsis' onClick={() => { }} />
               </div>
             )}
           </div>
@@ -178,7 +182,9 @@ export const IssueCard = ({
           <div className='bg-point flex w-fit items-center rounded-sm px-1'>
             {issue.epic && (
               <div className='flex items-center gap-1'>
-                <span className='text-label-sm text-white'>{issue.epic.name}</span>
+                <span className='text-label-sm text-white'>
+                  {typeof issue.epic === 'object' ? issue.epic.name : issue.epic}
+                </span>
               </div>
             )}
           </div>
@@ -187,7 +193,13 @@ export const IssueCard = ({
         <div className='text-label-md flex w-full items-center'>
           <div className='flex w-full items-center gap-1'>
             <TooltipSection info='컴포넌트'>
-              <span>{issue.component?.name || '없음'}</span>
+              <span>
+                {typeof issue.component === 'object' && issue.component !== null
+                  ? issue.component.name || '없음'
+                  : typeof issue.component === 'string'
+                    ? issue.component
+                    : '없음'}
+              </span>
             </TooltipSection>
             <span>•</span>
             <TooltipSection info='담당자'>

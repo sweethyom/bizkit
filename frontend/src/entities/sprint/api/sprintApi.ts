@@ -58,15 +58,16 @@ export const sprintApi = {
   },
   startSprint: async (sprintId: number, dueDate?: string) => {
     try {
+      console.log(`[sprintApi.ts] Starting sprint ${sprintId} with due date: ${dueDate}`);
       const response = await api.patch<ApiResponse>(`/sprints/${sprintId}/start`, {
         dueDate,
       });
 
-      console.log(response.data);
+      console.log(`[sprintApi.ts] Sprint start response:`, response.data);
 
       return response.data;
     } catch (error) {
-      console.error(error);
+      console.error(`[sprintApi.ts] Error starting sprint:`, error);
       throw error;
     }
   },
