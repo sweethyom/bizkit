@@ -7,6 +7,7 @@ import { DropDownSection } from '@/shared/ui';
 import { ProfileMenu } from './PorfileMenu';
 import { ProjectsMenu } from './ProjectsMenu';
 
+import { fetchUserProfile } from '@/shared/api/user';
 import { clsx } from 'clsx';
 import { Layers } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -36,13 +37,27 @@ const StyledNavLink = ({
 
 export const TopNavBar = () => {
   const { projectId } = useParams();
-  const { user } = useUserStore();
+  const { user, setUser } = useUserStore();
   const { projects, setProjects } = useProjectStore();
   const location = useLocation();
   const [project, setProject] = useState<Project | null>(null);
 
   const [isProfileHovered, setIsProfileHovered] = useState(false);
   const profileIconRef = useRef<HTMLDivElement>(null);
+
+  const getUserProfile = useCallback(async () => {
+    try {
+      const response = await fetchUserProfile();
+      setUser({
+        id: response.id.toString(),
+        nickname: response.nickname,
+        email: response.email,
+        profileImageUrl: response.avatarUrl,
+      });
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+    }
+  }, [setUser]);
 
   const getProjects = useCallback(async () => {
     const response = await getProjectList();
@@ -71,6 +86,12 @@ export const TopNavBar = () => {
       getProject();
     }
   }, [projectId, getProject]);
+
+  useEffect(() => {
+    if (user === null) {
+      getUserProfile();
+    }
+  }, [getUserProfile, user]);
 
   return (
     <nav className='bg-background-primary border-gray-2 text-label-lg flex w-full items-center justify-between border-b px-4 py-2 drop-shadow-sm'>
