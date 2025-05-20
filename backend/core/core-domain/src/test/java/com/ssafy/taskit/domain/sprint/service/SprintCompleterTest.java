@@ -16,6 +16,7 @@ import com.ssafy.taskit.domain.SprintRepository;
 import com.ssafy.taskit.domain.SprintValidator;
 import com.ssafy.taskit.domain.User;
 import java.util.List;
+import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -126,9 +127,11 @@ class SprintCompleterTest {
     sprintCompleter.completeSprint(user, sprintId, completeSprint);
 
     verify(issueModifier)
-        .modifyIssueSprint(eq(user), eq(101L), argThat(arg -> arg.targetId().equals(0L)));
+        .modifyIssueSprint(
+            eq(user), eq(101L), argThat(arg -> Objects.equals(arg.targetId(), null)));
     verify(issueModifier)
-        .modifyIssueSprint(eq(user), eq(102L), argThat(arg -> arg.targetId().equals(0L)));
+        .modifyIssueSprint(
+            eq(user), eq(102L), argThat(arg -> Objects.equals(arg.targetId(), null)));
     verify(issueModifier, never()).modifyIssueSprint(eq(user), eq(103L), any());
   }
 }

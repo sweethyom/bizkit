@@ -71,7 +71,7 @@ class IssuePositionOptionTest {
     void calculate_BeforeNull() {
       double result = IssuePositionOption.BEFORE.calculate(null, 1000.0);
 
-      assertThat(result).isEqualTo(0.0); // 1000 - 1000
+      assertThat(result).isEqualTo(500.0);
     }
 
     @Test
