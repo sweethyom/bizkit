@@ -66,14 +66,6 @@ export const SprintCard = ({
     }
   }, [sprint.id, getIssues, expanded]);
 
-  // useLayoutEffect(() => {
-  //   if (expanded && contentRef.current) {
-  //     setMaxHeight(contentRef.current.scrollHeight + 'px');
-  //   } else {
-  //     setMaxHeight('0px');
-  //   }
-  // }, [expanded, contentRef, issues, dragSource]);
-
   const moreActions = [
     {
       children: sprint.sprintStatus === SprintStatus.ONGOING ? '스프린트 종료' : '스프린트 시작',
@@ -106,7 +98,7 @@ export const SprintCard = ({
     >
       {(provided, snapshot) => {
         return (
-          <div className='border-gray-3 border-l-primary relative flex flex-col rounded-md border border-l-6 shadow-sm'>
+          <div className='border-gray-3 border-l-primary relative flex flex-col overflow-hidden rounded-md border border-l-6 shadow-sm'>
             <div
               className='bg-gray-3/10 absolute top-1/2 left-1/2 z-10 h-full w-full -translate-x-1/2 -translate-y-1/2'
               style={{
@@ -175,11 +167,10 @@ export const SprintCard = ({
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
-              style={{
-                overflow: 'hidden',
-                visibility: expanded ? 'visible' : 'hidden',
-              }}
-            >
+              className={clsx('absolute inset-0 -z-50 px-4', expanded ? 'py-30' : '-my-2')}
+            ></div>
+
+            <div>
               {expanded && (
                 <div className='flex flex-col gap-4 p-4'>
                   <div className='relative flex flex-col gap-2'>
@@ -187,7 +178,7 @@ export const SprintCard = ({
                       (issues.length === 0 && (
                         <div className='text-gray-4 flex flex-col items-center justify-center gap-1 py-8'>
                           <span className='text-label-md font-medium'>스프린트가 비어있습니다</span>
-                          <span className='text-label-sm'>에픽에서 이슈를 추가해 시작해보세요</span>
+                          <span className='text-label-sm'>킷에서 이슈를 추가해 시작해보세요</span>
                         </div>
                       ))}
 

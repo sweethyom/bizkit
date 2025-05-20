@@ -14,7 +14,7 @@ import { CompleteSprintModal } from './modal/CompleteSprintModal';
 
 import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 import { Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 export const BacklogPage = () => {
@@ -53,78 +53,92 @@ export const BacklogPage = () => {
 
   const [dragSource, setDragSource] = useState<string | null>(null);
 
-  const handleMoveIssue = async (result: DropResult) => {
-    if (result.destination === null) return;
+  const handleMoveIssue = useCallback(
+    async (result: DropResult) => {
+      if (result.destination === null) return;
 
-    const issueId = Number(result.draggableId.split('-').pop());
+      const issueId = Number(result.draggableId.split('-').pop());
 
-    const from = {
-      type: result.draggableId.split('-')[0] as 'sprint' | 'epic',
-      id: Number(result.draggableId.split('-')[1]),
-      index: result.source.index,
-    };
+      const from = {
+        type: result.draggableId.split('-')[0] as 'sprint' | 'epic',
+        id: Number(result.draggableId.split('-')[1]),
+        index: result.source.index,
+      };
 
-    if (result.destination.droppableId === 'epic-backlog') {
-      if (from.type === 'epic') return;
+      if (result.destination.droppableId === 'epic-backlog') {
+        if (from.type === 'epic') return;
 
-      const targetIssue = issues.sprint[from.id][from.index];
+        const targetIssue = issues.sprint[from.id][from.index];
+        targetIssue.issueStatus = 'UNASSIGNED';
+
+        const to = {
+          type: 'epic' as 'sprint' | 'epic',
+          id: targetIssue.epic!.id,
+          index: result.destination.index,
+        };
+
+        console.log(epics.find((epic) => epic.id === to.id));
+
+        moveIssue(issueId, from, to);
+
+        try {
+          await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : 0);
+
+          const targetEpic = epics.find((epic) => epic.id === to.id);
+
+          if (!targetEpic) return;
+
+          epicSetEpics(
+            epics.map((epic) => {
+              if (epic.id === to.id) {
+                return { ...epic, cntRemainIssues: targetEpic.cntRemainIssues + 1 };
+              }
+              return epic;
+            }),
+          );
+        } catch (error) {
+          console.error(error);
+        }
+
+        return;
+      }
+
+      if (from.type === 'epic') {
+        const targetIssue = issues.epic[from.id][from.index];
+        targetIssue.issueStatus = 'TODO';
+
+        const fromEpic = epics.find((epic) => epic.id === from.id);
+
+        if (!fromEpic) return;
+
+        epicSetEpics(
+          epics.map((epic) => {
+            if (epic.id === from.id) {
+              return { ...epic, cntRemainIssues: fromEpic.cntRemainIssues - 1 };
+            }
+            return epic;
+          }),
+        );
+      }
 
       const to = {
-        type: 'epic' as 'sprint' | 'epic',
-        id: targetIssue.epic!.id,
+        type: result.destination.droppableId.split('-')[0] as 'sprint' | 'epic',
+        id: Number(result.destination.droppableId.split('-')[1]),
         index: result.destination.index,
       };
+
+      if (from.type === to.type && from.id === to.id) return;
 
       moveIssue(issueId, from, to);
 
       try {
         await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : 0);
-
-        epicSetEpics(
-          epics.map((epic) => {
-            if (to.type === 'epic' && epic.id === to.id) {
-              return { ...epic, cntRemainIssues: epic.cntRemainIssues + 1 };
-            }
-            if (epic.id === from.id) {
-              return { ...epic, cntRemainIssues: epic.cntRemainIssues - 1 };
-            }
-            return epic;
-          }),
-        );
       } catch (error) {
         console.error(error);
       }
-
-      return;
-    }
-
-    const to = {
-      type: result.destination.droppableId.split('-')[0] as 'sprint' | 'epic',
-      id: Number(result.destination.droppableId.split('-')[1]),
-      index: result.destination.index,
-    };
-
-    if (from.type === to.type && from.id === to.id) return;
-
-    moveIssue(issueId, from, to);
-
-    try {
-      await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : 0);
-      epicSetEpics(
-        epics.map((epic) => {
-          if (epic.id === to.id) {
-            return { ...epic, cntRemainIssues: epic.cntRemainIssues + 1 };
-          }
-          if (epic.id === from.id) {
-            return { ...epic, cntRemainIssues: epic.cntRemainIssues - 1 };
-          }
-          return epic;
-        }),
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    },
+    [epics, issues, moveIssue, epicSetEpics],
+  );
 
   const handleDeleteSprint = (sprintId: number) => {
     setSprints(sprints.filter((s) => s.id !== sprintId));
@@ -147,9 +161,9 @@ export const BacklogPage = () => {
       }}
     >
       <div className='flex flex-col gap-4'>
-        <div className='bg-background-secondary flex items-center justify-between p-4'>
+        <div className='bg-background-secondary flex items-center justify-between px-12 py-8'>
           <div className='flex flex-col gap-2'>
-            <h1 className='text-heading-xs font-bold'>프로젝트 백로그</h1>
+            <h1 className='text-heading-xs font-bold'>프로젝트 스택</h1>
             <p className='text-label-lg text-gray-5'>프로젝트 작업 목록을 관리하세요</p>
           </div>
 
@@ -162,7 +176,7 @@ export const BacklogPage = () => {
           </div>
         </div>
 
-        <section className='bg-background-primary flex justify-between gap-4 p-4'>
+        <section className='bg-background-primary flex justify-between gap-6 px-12 py-6'>
           <section className='flex flex-1/2 flex-col gap-4'>
             <div className='flex items-center gap-2'>
               <div className='bg-primary h-6 w-1 rounded-full' />
@@ -279,7 +293,7 @@ export const BacklogPage = () => {
                   onClick={() => setIsCreateEpicFormOpen(true)}
                 >
                   <Plus />
-                  <span>에픽 추가</span>
+                  <span>킷 추가</span>
                 </Button>
               )}
             </div>
@@ -316,9 +330,9 @@ export const BacklogPage = () => {
                   ) : epics.length === 0 && !isCreateEpicFormOpen ? (
                     <EmptyCard
                       type='epic'
-                      title='에픽이 비어있습니다'
-                      description='새로운 에픽을 추가해 시작해보세요.'
-                      actionText='새 에픽'
+                      title='스택이 비어있습니다'
+                      description='새로운 킷을 추가해 시작해보세요.'
+                      actionText='새 킷'
                       onActionClick={() => setIsCreateEpicFormOpen(true)}
                     />
                   ) : (
@@ -340,6 +354,7 @@ export const BacklogPage = () => {
       </div>
 
       {isIssueModalOpened && <IssueDetailModal />}
+
       {isCompleteSprintModalOpen && completeTargetSprintId !== null && (
         <CompleteSprintModal
           closeModal={() => {
@@ -347,12 +362,11 @@ export const BacklogPage = () => {
             setCompleteTargetSprintId(null);
           }}
           currentSprintId={completeTargetSprintId}
-          incompleteIssues={(issues.sprint[completeTargetSprintId] || [])
-            .filter((issue) => issue.issueStatus !== 'DONE')
-            .map((issue) => ({ id: issue.id }))}
+          incompleteIssues={(issues.sprint[completeTargetSprintId] || []).filter(
+            (issue) => issue.issueStatus !== 'DONE',
+          )}
           sprints={sprints}
-          onComplete={async (toSprintId: number) => {
-            console.log('completeSprint', completeTargetSprintId, toSprintId);
+          onComplete={async (toSprintId: number | null) => {
             await completeSprint(completeTargetSprintId, toSprintId);
             setIsCompleteSprintModalOpen(false);
             setCompleteTargetSprintId(null);

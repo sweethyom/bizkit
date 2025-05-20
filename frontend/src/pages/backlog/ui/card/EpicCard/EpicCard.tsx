@@ -70,11 +70,11 @@ export const EpicCard = ({ epic, onDeleteIssue, onDeleteEpic, dragSource }: Epic
 
   const moreActions = [
     {
-      children: '에픽 수정',
+      children: '킷 이름 수정',
       onClick: () => setIsEditing(true),
     },
     {
-      children: '에픽 삭제',
+      children: '킷 삭제',
       onClick: async () => {
         const response = await deleteEpic(epic.id);
         console.log(response);
@@ -89,7 +89,7 @@ export const EpicCard = ({ epic, onDeleteIssue, onDeleteEpic, dragSource }: Epic
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className='border-gray-3 border-l-point flex flex-col rounded-md border border-l-6 shadow-sm'
+          className='border-gray-3 border-l-point flex flex-col overflow-hidden rounded-md border border-l-6 shadow-sm'
         >
           <div
             className={clsx(
@@ -191,7 +191,7 @@ export const EpicCard = ({ epic, onDeleteIssue, onDeleteEpic, dragSource }: Epic
 
                     return (
                       <Draggable
-                        key={issue.id}
+                        key={`issue-${issue.id}-${index}`}
                         draggableId={`epic-${epic.id}-issue-${issue.id}`}
                         index={index}
                       >
