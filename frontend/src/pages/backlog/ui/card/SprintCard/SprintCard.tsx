@@ -85,6 +85,19 @@ export const SprintCard = ({
     {
       children: '스프린트 삭제',
       onClick: async () => {
+        if (sprint.sprintStatus === SprintStatus.ONGOING) {
+          alert('스프린트를 종료한 후 삭제해주세요');
+          return;
+        }
+
+        if (issues && issues.length > 0) {
+          if (confirm('스프린트 내 이슈가 모두 삭제됩니다.')) {
+            await sprintApi.deleteSprint(sprint.id);
+            onDeleteSprint(sprint.id);
+            return;
+          }
+        }
+
         await sprintApi.deleteSprint(sprint.id);
         onDeleteSprint(sprint.id);
       },
