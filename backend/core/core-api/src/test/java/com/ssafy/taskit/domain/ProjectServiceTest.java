@@ -1,6 +1,7 @@
 package com.ssafy.taskit.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -10,6 +11,7 @@ import com.ssafy.taskit.domain.error.CoreException;
 import com.ssafy.taskit.domain.support.DefaultDateTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +38,9 @@ public class ProjectServiceTest {
 
   @Mock
   private InvitationValidator invitationValidator;
+
+  @Mock
+  private ProjectValidator projectValidator;
 
   @InjectMocks
   private ProjectService projectService;
@@ -186,5 +191,48 @@ public class ProjectServiceTest {
     assertThat(result.id()).isEqualTo(projectId);
 
     verify(invitationValidator).isInvitedMember(testUser, invitationCode);
+  }
+
+  @Test
+  @DisplayName("사용자의 프로젝트가 없을 때 빈 목록 반환")
+  void shouldReturnEmptyListWhenUserHasNoProjects() {
+    // Given
+    int pageSize = 10;
+    Long cursorId = null;
+    when(projectReader.readProjectsFirstPageByRecentView(eq(testUser), eq(sortType), eq(pageSize)))
+        .thenReturn(Collections.emptyList());
+    // When
+    List<Project> result = projectService.findProjects(testUser, sortType, cursorId, pageSize);
+    // Then
+    assertThat(result).isEmpty();
+    verify(projectReader).readProjectsFirstPageByRecentView(testUser, sortType, pageSize);
+    verify(projectReader, never()).readProjectsByRecentView(any(), any(), anyLong(), anyInt());
+  }
+
+  @Test
+  @DisplayName("페이지 크기가 음수일 때 예외 발생")
+  void shouldThrowExceptionWhenPageSizeIsNegative() {
+    // Given
+    Long cursorId = null;
+    int pageSize = -1;
+    // When&Then
+    assertThatThrownBy(() -> projectService.findProjects(testUser, sortType, cursorId, pageSize))
+        .isInstanceOf(CoreException.class)
+        .extracting("errorType")
+        .isEqualTo(CoreErrorType.PAGE_SIZE_NOT_VALID);
+  }
+
+  @Test
+  @DisplayName("유효하지 않은 프로젝트를 조회할 때 예외 발생")
+  void shouldThrowExceptionWhenProjectIsNotExisted() {
+    // Given
+    Long projectId = 5L;
+    when(projectValidator.isProjectExists(projectId))
+        .thenThrow(new CoreException(CoreErrorType.PROJECT_NOT_FOUND));
+    // When&Then
+    assertThatThrownBy(() -> projectService.findProject(testUser, projectId))
+        .isInstanceOf(CoreException.class)
+        .extracting("errorType")
+        .isEqualTo(CoreErrorType.PROJECT_NOT_FOUND);
   }
 }

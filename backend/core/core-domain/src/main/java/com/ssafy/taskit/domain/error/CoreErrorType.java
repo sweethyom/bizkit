@@ -140,7 +140,9 @@ public enum CoreErrorType {
       CoreErrorKind.CLIENT_ERROR,
       CoreErrorCode.I006,
       "이슈는 백로그에서 백로그로 이동할 수 없습니다.",
-      CoreErrorLevel.INFO);
+      CoreErrorLevel.INFO),
+  PAGE_SIZE_NOT_VALID(
+      CoreErrorKind.CLIENT_ERROR, CoreErrorCode.A001, "페이지 크기는 양수여야 합니다.", CoreErrorLevel.INFO);
   private final CoreErrorKind kind;
   private final CoreErrorCode code;
   private final String message;

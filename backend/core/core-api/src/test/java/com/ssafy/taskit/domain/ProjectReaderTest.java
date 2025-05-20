@@ -8,6 +8,7 @@ import com.ssafy.taskit.domain.support.DefaultDateTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,12 +43,15 @@ class ProjectReaderTest {
 
   private DefaultDateTime now;
 
+  ProjectSort sortType;
+
   @BeforeEach
   void setUp() {
     testUser = new User(1L);
     testProjects = new ArrayList<>();
     accessibleProjectIds = Arrays.asList(1L, 2L, 3L);
     now = new DefaultDateTime(LocalDateTime.now(), LocalDateTime.now());
+    sortType = ProjectSort.RECENT_VIEW;
 
     testProjects.add(new Project(1L, 1L, "Test Project", "TEST-KEY1", 0, null, now));
     testProjects.add(new Project(2L, 2L, "Test Project", "TEST-KEY2", 0, null, now));
@@ -155,5 +159,24 @@ class ProjectReaderTest {
     assertThat(result.id()).isEqualTo(project.id());
 
     verify(invitationRepository).findByInvitationCode(invitationCode);
+  }
+
+  @Test
+  @DisplayName("사용자의 프로젝트가 없을 때 빈 목록 반환")
+  void shouldReturnEmptyListWhenUserHasNoProjects() {
+    // Given
+    int pageSize = 10;
+    when(projectRepository.findUserProjectIds(eq(testUser), eq(sortType)))
+        .thenReturn(Collections.emptyList());
+
+    // When
+    List<Project> result =
+        projectReader.readProjectsFirstPageByRecentView(testUser, sortType, pageSize);
+
+    // Then
+    assertThat(result).isEmpty();
+
+    verify(projectRepository).findUserProjectIds(testUser, sortType);
+    verify(projectRepository).findProjectsFirstPage(Collections.emptyList(), pageSize);
   }
 }

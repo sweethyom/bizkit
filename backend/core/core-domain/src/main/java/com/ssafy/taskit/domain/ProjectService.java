@@ -1,5 +1,7 @@
 package com.ssafy.taskit.domain;
 
+import com.ssafy.taskit.domain.error.CoreErrorType;
+import com.ssafy.taskit.domain.error.CoreException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,7 @@ public class ProjectService {
   private final ProjectDeleter projectDeleter;
   private final MemberValidator memberValidator;
   private final InvitationValidator invitationValidator;
+  private final ProjectValidator projectValidator;
   private final MemberAppender memberAppender;
 
   public ProjectService(
@@ -26,6 +29,7 @@ public class ProjectService {
       ProjectDeleter projectDeleter,
       MemberValidator memberValidator,
       InvitationValidator invitationValidator,
+      ProjectValidator projectValidator,
       MemberAppender memberAppender) {
     this.projectAppender = projectAppender;
     this.projectReader = projectReader;
@@ -33,6 +37,7 @@ public class ProjectService {
     this.projectDeleter = projectDeleter;
     this.memberValidator = memberValidator;
     this.invitationValidator = invitationValidator;
+    this.projectValidator = projectValidator;
     this.memberAppender = memberAppender;
   }
 
@@ -45,6 +50,9 @@ public class ProjectService {
 
   public List<Project> findProjects(
       User user, ProjectSort sortType, Long cursorId, Integer pageSize) {
+    if (pageSize <= 0) {
+      throw new CoreException(CoreErrorType.PAGE_SIZE_NOT_VALID);
+    }
     if (cursorId == null) {
       return projectReader.readProjectsFirstPageByRecentView(user, sortType, pageSize);
     }
@@ -52,6 +60,7 @@ public class ProjectService {
   }
 
   public ProjectDetail findProject(User user, Long projectId) {
+    projectValidator.isProjectExists(projectId);
     memberValidator.validateMember(user.id(), projectId);
     boolean isLeader = memberValidator.checkProjectLeader(user, projectId);
     return projectReader.readProject(user, projectId, isLeader);
