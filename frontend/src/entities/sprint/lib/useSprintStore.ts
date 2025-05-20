@@ -13,7 +13,7 @@ interface SprintStore {
 export const useSprintStore = create<SprintStore>((set) => ({
   sprints: [],
   setSprints: (sprints: Sprint[]) => set({ sprints }),
-  addSprint: (sprint: Sprint) => set((state) => ({ sprints: [sprint, ...state.sprints] })),
+  addSprint: (sprint: Sprint) => set((state) => ({ sprints: [...state.sprints, sprint] })),
   updateSprint: (sprint: Sprint) =>
     set((state) => ({ sprints: state.sprints.map((s) => (s.id === sprint.id ? sprint : s)) })),
   updateSprintName: (sprintId: number, name: string) =>

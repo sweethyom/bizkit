@@ -69,7 +69,7 @@ export const IssueCard = ({
             )}
 
             {issue.epic && (
-              <TooltipSection info='에픽'>
+              <TooltipSection info='킷'>
                 <div className='bg-point flex w-fit items-center rounded-sm px-2'>
                   <span className='text-label-sm text-white'>{issue.epic.name}</span>
                 </div>
@@ -117,7 +117,26 @@ export const IssueCard = ({
         <div className='flex w-full items-center justify-between gap-2'>
           <div className='flex flex-col'>
             <div className='flex items-center gap-2'>
+              {issue.issueStatus && issue.issueStatus !== 'UNASSIGNED' && (
+                <TooltipSection info='이슈 진행 상태'>
+                  <div
+                    className={clsx('text-label-sm rounded-full px-2', {
+                      'bg-gray-3/90 text-white': issue.issueStatus === 'TODO',
+                      'bg-point/70 text-white': issue.issueStatus === 'IN_PROGRESS',
+                      'bg-primary/80 text-white': issue.issueStatus === 'DONE',
+                    })}
+                  >
+                    {issue.issueStatus === 'IN_PROGRESS'
+                      ? '진행 중'
+                      : issue.issueStatus === 'DONE'
+                        ? '완료'
+                        : '해야 할 일'}
+                  </div>
+                </TooltipSection>
+              )}
+
               <h3 className='text-label-lg'>{issue.name}</h3>
+
               <TooltipSection
                 info={['중요도', issue.issueImportance === 'HIGH' ? '높음' : '낮음'].join(' ')}
               >
@@ -155,7 +174,7 @@ export const IssueCard = ({
           />
         </div>
 
-        <TooltipSection info='에픽'>
+        <TooltipSection info='스택'>
           <div className='bg-point flex w-fit items-center rounded-sm px-1'>
             {issue.epic && (
               <div className='flex items-center gap-1'>

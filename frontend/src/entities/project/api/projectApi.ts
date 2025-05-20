@@ -43,6 +43,6 @@ export const getProjectDetail = async (id: number) => {
     return response.data;
   } catch (error) {
     console.error(error);
-    // window.location.href = '/my-works';
+    window.location.href = '/my-works';
   }
 };

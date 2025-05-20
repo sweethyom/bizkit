@@ -38,7 +38,7 @@ export const useIssueForm = (epicId: number) => {
         id: issue.data.id,
         name: issueName,
         content: '',
-        key: '생성 시 응답 키',
+        key: `TMP-${issue.data.id}`,
         bizPoint: 0,
         issueImportance: null,
         issueStatus: 'UNASSIGNED',
