@@ -180,7 +180,7 @@ class SprintIssueMoverTest {
 
     sprintIssueMover.moveSprintIssue(user, sprintId, moveSprintIssue);
 
-    verify(issueModifier).modifyIssuePosition(1L, 1500.0);
+    verify(issueModifier).modifyIssuePosition(1L, 1250.0);
   }
 
   @Test
