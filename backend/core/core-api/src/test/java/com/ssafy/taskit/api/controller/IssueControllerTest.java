@@ -704,6 +704,9 @@ class IssueControllerTest extends RestDocsTest {
                 fieldWithPath("data.[].issues.[].issueImportance")
                     .type(JsonFieldType.STRING)
                     .description("이슈 중요도"),
+                fieldWithPath("data.[].issues.[].position")
+                    .type(JsonFieldType.NUMBER)
+                    .description("해당 이슈의 위치값"),
                 fieldWithPath("data.[].issues.[].component.id")
                     .type(JsonFieldType.NUMBER)
                     .description("해당 이슈의 컴포넌트 id"),
