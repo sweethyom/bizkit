@@ -47,7 +47,7 @@ public class SprintDeleter {
     switch (option) {
       case MOVE_TO_BACKLOG -> {
         for (Issue issue : issues) {
-          issueService.modifyIssueSprint(user, issue.id(), new ModifyIssueSprint(0L));
+          issueService.modifyIssueSprint(user, issue.id(), new ModifyIssueSprint(null));
         }
       }
       case DELETE -> {
