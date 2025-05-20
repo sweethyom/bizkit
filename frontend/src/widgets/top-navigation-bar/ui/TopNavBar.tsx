@@ -1,5 +1,6 @@
 import { getProjectDetail, getProjectList, Project, useProjectStore } from '@/entities/project';
 
+import { fetchUserProfile } from '@/shared/api';
 import { ROUTES_MAP } from '@/shared/config';
 import { useUserStore } from '@/shared/lib';
 import { DropDownSection } from '@/shared/ui';
@@ -7,7 +8,6 @@ import { DropDownSection } from '@/shared/ui';
 import { ProfileMenu } from './PorfileMenu';
 import { ProjectsMenu } from './ProjectsMenu';
 
-import { fetchUserProfile } from '@/shared/api/user';
 import { clsx } from 'clsx';
 import { Layers } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';

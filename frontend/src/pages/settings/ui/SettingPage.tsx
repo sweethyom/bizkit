@@ -34,6 +34,9 @@ const SettingPage: React.FC = () => {
       setIsLoading(true);
       try {
         const data = await getProjectSettings(projectId);
+
+        console.log(data);
+
         if (!data.leader) {
           alert('팀장만 접근 가능한 페이지입니다. 스프린트 페이지로 이동합니다.');
           navigate(`/projects/${projectId}/sprint`, { replace: true });
