@@ -42,33 +42,26 @@ public class SprintIssueMover {
     IssueMoveOption moveOption = decision.toMoveType();
 
     switch (moveOption) {
-      case STATUS_ONLY -> issueModifier.modifyIssueStatus(
-          user, moveSprintIssue.issueId(), new ModifyIssueStatus(moveSprintIssue.issueStatus()));
-
-      case COMPONENT_ONLY -> issueModifier.modifyIssueComponent(
-          user, moveSprintIssue.issueId(), new ModifyIssueComponent(moveSprintIssue.componentId()));
-
-      case STATUS_AND_COMPONENT -> {
+      case STATUS_ONLY:
+        issueModifier.modifyIssueStatus(
+            user, moveSprintIssue.issueId(), new ModifyIssueStatus(moveSprintIssue.issueStatus()));
+        break;
+      case COMPONENT_ONLY:
+        issueModifier.modifyIssueComponent(
+            user,
+            moveSprintIssue.issueId(),
+            new ModifyIssueComponent(moveSprintIssue.componentId()));
+        break;
+      case STATUS_AND_COMPONENT:
         issueModifier.modifyIssueStatus(
             user, moveSprintIssue.issueId(), new ModifyIssueStatus(moveSprintIssue.issueStatus()));
         issueModifier.modifyIssueComponent(
             user,
             moveSprintIssue.issueId(),
             new ModifyIssueComponent(moveSprintIssue.componentId()));
-      }
-
-      case NO_CHANGE -> {
-        Double before = moveSprintIssue.beforeIssuePosition();
-        Double after = moveSprintIssue.afterIssuePosition();
-
-        IssuePositionOption option = IssuePositionOption.from(before, after);
-        double newPosition = option.calculate(before, after);
-
-        if (!Objects.equals(issue.position(), newPosition)) {
-          issueModifier.modifyIssuePosition(moveSprintIssue.issueId(), newPosition);
-        }
-        return;
-      }
+        break;
+      case NO_CHANGE:
+        break;
     }
 
     Double before = moveSprintIssue.beforeIssuePosition();
@@ -77,6 +70,8 @@ public class SprintIssueMover {
     IssuePositionOption issuePositionOption = IssuePositionOption.from(before, after);
     double newPosition = issuePositionOption.calculate(before, after);
 
-    issueModifier.modifyIssuePosition(moveSprintIssue.issueId(), newPosition);
+    if (!Objects.equals(issue.position(), newPosition)) {
+      issueModifier.modifyIssuePosition(moveSprintIssue.issueId(), newPosition);
+    }
   }
 }
