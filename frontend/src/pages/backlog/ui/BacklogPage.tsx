@@ -1,6 +1,6 @@
 import { IssueDetailModal, useIssueModalStore } from '@/widgets/issue-detail-modal';
 
-import { EpicForm, useEpic } from '@/entities/epic';
+import { deleteEpic, EpicForm, useEpic } from '@/entities/epic';
 import { moveIssueToSprint, useIssueStore } from '@/entities/issue';
 import { sprintApi, SprintForm, SprintStatus, useSprint } from '@/entities/sprint';
 
@@ -42,14 +42,13 @@ export const BacklogPage = () => {
 
   const [isCreateSprintFormOpen, setIsCreateSprintFormOpen] = useState(false);
   const [isCompleteSprintModalOpen, setIsCompleteSprintModalOpen] = useState(false);
-  const [deleteSprint, setDeleteSprint] = useState<Sprint | null>(null);
 
   const [isCreateEpicFormOpen, setIsCreateEpicFormOpen] = useState(false);
 
   const [startTargetSprintId, setStartTargetSprintId] = useState<number | null>(null);
   const [completeTargetSprintId, setCompleteTargetSprintId] = useState<number | null>(null);
 
-  const { issues, moveIssue } = useIssueStore();
+  const { issues, moveIssue, setIssues } = useIssueStore();
   const { isOpen: isIssueModalOpened } = useIssueModalStore();
 
   const [dragSource, setDragSource] = useState<string | null>(null);
@@ -57,7 +56,7 @@ export const BacklogPage = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
-  const [confirmInfo, setConfirmInfo] = useState<{
+  const [alertInfo, setAlertInfo] = useState<{
     title: string;
     description: string;
     onConfirm: () => void;
@@ -156,12 +155,16 @@ export const BacklogPage = () => {
 
   const handleDeleteSprintConfirmation = async (sprint: Sprint) => {
     if (sprint.sprintStatus === SprintStatus.ONGOING) {
-      alert('스프린트를 종료한 후 삭제해주세요');
+      setShowAlert(true);
+      setAlertInfo({
+        title: '🚨 스프린트 삭제',
+        description: '스프린트를 종료한 후 삭제해주세요',
+        onConfirm: () => setShowAlert(false),
+      });
       return;
     }
 
-    setDeleteSprint(sprint);
-    setConfirmInfo({
+    setAlertInfo({
       title: '스프린트 삭제',
       description: '해당 스프린트에 할당된 모든 이슈가 삭제됩니다.',
       onConfirm: () => {
@@ -191,12 +194,40 @@ export const BacklogPage = () => {
       console.error(err);
     } finally {
       setShowConfirm(false);
-      setDeleteSprint(null);
     }
   };
 
   const handleDeleteEpic = (epicId: number) => {
-    epicSetEpics(epics.filter((e) => e.id !== epicId));
+    console.log('handleDeleteEpic', epicId);
+
+    setAlertInfo({
+      title: '킷 삭제',
+      description: '해당 킷에 할당된 모든 이슈가 삭제됩니다.',
+      onConfirm: async () => {
+        await deleteEpic(epicId);
+
+        epicSetEpics(epics.filter((e) => e.id !== epicId));
+
+        sprints.forEach((s) => {
+          issues.sprint[s.id]?.forEach((issue) => {
+            if (issue.epic?.id === epicId) {
+              issues.sprint[s.id] = issues.sprint[s.id]?.filter((i) => i.id !== issue.id);
+            }
+          });
+
+          setIssues('sprint', s.id, issues.sprint[s.id] || []);
+        });
+
+        setShowAlert(false);
+        setAlertInfo({
+          title: '',
+          description: '',
+          onConfirm: () => {},
+        });
+        setShowConfirm(false);
+      },
+    });
+    setShowConfirm(true);
   };
 
   useEffect(() => {
@@ -275,13 +306,13 @@ export const BacklogPage = () => {
                         const result = await validateSprint(sprint.id);
 
                         if (!result) {
-                          setConfirmInfo({
+                          setAlertInfo({
                             title: '스프린트 시작',
                             description:
                               '스프린트 내 모든 이슈의 정보가 입력되어 있어야 합니다. 누락된 이슈가 있습니다.',
                             onConfirm: () => {
                               setShowAlert(false);
-                              setConfirmInfo({
+                              setAlertInfo({
                                 title: '',
                                 description: '',
                                 onConfirm: () => {},
@@ -414,20 +445,20 @@ export const BacklogPage = () => {
         />
       )}
 
-      {showConfirm && deleteSprint && (
+      {showConfirm && (
         <ConfirmModal
-          title={confirmInfo.title}
-          description={confirmInfo.description}
-          onConfirm={() => confirmInfo.onConfirm()}
+          title={alertInfo.title}
+          description={alertInfo.description}
+          onConfirm={() => alertInfo.onConfirm()}
           onCancel={() => setShowConfirm(false)}
         />
       )}
 
       {showAlert && (
         <AlertModal
-          title={confirmInfo.title}
-          description={confirmInfo.description}
-          onConfirm={() => confirmInfo.onConfirm()}
+          title={alertInfo.title}
+          description={alertInfo.description}
+          onConfirm={() => alertInfo.onConfirm()}
         />
       )}
     </DragDropContext>

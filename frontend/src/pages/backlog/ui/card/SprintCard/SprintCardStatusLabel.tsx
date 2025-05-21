@@ -13,7 +13,7 @@ export const SprintCardStatusLabel = ({ status }: { status: SprintStatus }) => {
       className={clsx(
         'text-label-md ml-auto shrink-0 self-center rounded-full px-2',
         status === SprintStatus.READY && 'bg-gray-3 text-white',
-        status === SprintStatus.ONGOING && 'bg-done text-white',
+        status === SprintStatus.ONGOING && 'bg-done/65 text-white',
         status === SprintStatus.COMPLETED && 'bg-primary text-white',
       )}
     >

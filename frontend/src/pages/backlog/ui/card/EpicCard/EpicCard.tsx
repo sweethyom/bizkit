@@ -2,7 +2,7 @@ import { useIssueModalStore } from '@/widgets/issue-detail-modal';
 
 import { IssueForm } from '@/features/create-issue';
 
-import { deleteEpic, Epic, useEpicForm } from '@/entities/epic';
+import { Epic, useEpicForm } from '@/entities/epic';
 import { IssueCard, useIssue } from '@/entities/issue';
 
 import { Button, DropDownSection, IconButton, UnderlineInput } from '@/shared/ui';
@@ -75,11 +75,7 @@ export const EpicCard = ({ epic, onDeleteIssue, onDeleteEpic, dragSource }: Epic
     },
     {
       children: '킷 삭제',
-      onClick: async () => {
-        const response = await deleteEpic(epic.id);
-        console.log(response);
-        onDeleteEpic(epic.id);
-      },
+      onClick: () => onDeleteEpic(epic.id),
     },
   ];
 
