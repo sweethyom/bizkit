@@ -4,12 +4,24 @@ import { IssueCard } from '@/entities/issue';
 import { ProjectForm, useProject } from '@/entities/project';
 
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 export const MyWorksPage = () => {
   const { projects } = useProject();
-  const { todo, inProgress } = useIssues();
+  const {
+    todo,
+    todoCursorId,
+    inProgress,
+    inProgressCursorId,
+    hasMoreTodo,
+    hasMoreInProgress,
+    getTodoIssues,
+    getInProgressIssues,
+  } = useIssues();
+
+  const todoEndRef = useRef<HTMLDivElement>(null);
+  const inProgressEndRef = useRef<HTMLDivElement>(null);
 
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -19,8 +31,55 @@ export const MyWorksPage = () => {
     navigate(`/projects/${projectId}/backlog`);
   };
 
+  // 할 일 무한 스크롤
+  useEffect(() => {
+    if (!hasMoreTodo) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          getTodoIssues(todoCursorId);
+        }
+      },
+      { threshold: 1 },
+    );
+    const target = todoEndRef.current;
+    if (target) observer.observe(target);
+    return () => {
+      if (target) observer.unobserve(target);
+    };
+  }, [hasMoreTodo, getTodoIssues, todoCursorId]);
+
+  // // 진행 중 무한 스크롤
+  useEffect(() => {
+    if (!hasMoreInProgress) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          getInProgressIssues(inProgressCursorId);
+        }
+      },
+      { threshold: 1 },
+    );
+    const target = inProgressEndRef.current;
+    if (target) observer.observe(target);
+    return () => {
+      if (target) observer.unobserve(target);
+    };
+  }, [hasMoreInProgress, getInProgressIssues, inProgressCursorId]);
+
   return (
     <div className='bg-background-secondary min-h-screen w-full p-4 md:p-8'>
+      <button
+        onClick={() => {
+          console.log(todoCursorId);
+          getTodoIssues(todoCursorId);
+        }}
+      >
+        CLICK
+      </button>
+
       <h1 className='text-heading-md mb-8 font-bold text-black'>내 작업</h1>
 
       <div className='scrollbar-thin scrollbar-thumb-gray-200 overflow-x-auto p-1'>
@@ -83,15 +142,16 @@ export const MyWorksPage = () => {
             <span className='text-primary'>📝</span> 할 일
           </h2>
           <div className='flex min-h-[200px] flex-col gap-4 rounded-xl bg-white/80 p-4 shadow-sm'>
-            {todo.map((task) => (
+            {todo.map((task, index) => (
               <IssueCard
+                ref={index === todo.length - 1 ? todoEndRef : null}
                 key={task.id}
                 issue={task}
                 showMenuButton={false}
                 view='compact'
                 onClick={() => {
                   if (task.project?.id) {
-                    navigate(`/projects/${task.project?.id}/sprint?issueId=${task.id}`);
+                    navigate(`/projects/${task.project?.id}/backlog?issueId=${task.id}`);
                   }
                 }}
               />
@@ -108,15 +168,16 @@ export const MyWorksPage = () => {
             <span className='text-blue-500'>🚧</span> 진행 중
           </h2>
           <div className='flex min-h-[200px] flex-col gap-4 rounded-xl bg-white/80 p-4 shadow-sm'>
-            {inProgress.map((task) => (
+            {inProgress.map((task, index) => (
               <IssueCard
+                ref={index === inProgress.length - 1 ? inProgressEndRef : null}
                 key={task.id}
                 issue={task}
                 showMenuButton={false}
                 view='compact'
                 onClick={() => {
                   if (task.project?.id) {
-                    navigate(`/projects/${task.project?.id}/sprint?issueId=${task.id}`);
+                    navigate(`/projects/${task.project?.id}/backlog?issueId=${task.id}`);
                   }
                 }}
               />
