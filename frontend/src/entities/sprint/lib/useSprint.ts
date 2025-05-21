@@ -97,7 +97,14 @@ export const useSprint = (projectId: number) => {
     async (sprintId: number, toSprintId: number | null) => {
       try {
         await sprintApi.completeSprint(sprintId, toSprintId);
-        updateSprintStatus(sprintId, SprintStatus.COMPLETED);
+        const sprint = sprints.find((s) => s.id === sprintId);
+
+        if (!sprint) return;
+
+        sprint.sprintStatus = SprintStatus.COMPLETED;
+        sprint.completedDate = getFormattedDate(new Date());
+
+        updateSprint(sprint);
       } catch (error) {
         console.log(error);
       }
