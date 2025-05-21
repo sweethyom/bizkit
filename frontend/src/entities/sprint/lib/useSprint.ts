@@ -78,8 +78,6 @@ export const useSprint = (projectId: number) => {
       try {
         const response = await sprintApi.startSprint(sprintId, dueDate);
         console.log(`[useSprint.ts] API response for startSprint:`, response);
-        // updateSprintStatus(sprintId, SprintStatus.ONGOING);
-        console.log(`[useSprint.ts] Updated sprint status to ONGOING in store`);
         const sprint = sprints.find((s) => s.id === sprintId);
         if (sprint) {
           sprint.sprintStatus = SprintStatus.ONGOING;
