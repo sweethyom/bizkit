@@ -113,9 +113,9 @@ const TeamSettingPage: React.FC = () => {
     try {
       const data = await getInvitedMembers(projectId);
       console.log('초대 팀원 목록 데이터:', data);
-      
+
       // 초대 멤버 데이터 유효성 검사
-      const validData = data.map(member => {
+      const validData = data.map((member) => {
         if (!member.invitationCode) {
           console.warn('초대 코드가 없는 멤버 발견:', member);
           // invitationCode가 없는 경우 간단한 코드 부여
@@ -123,12 +123,12 @@ const TeamSettingPage: React.FC = () => {
           // 이는 임시 조치입니다.
           return {
             ...member,
-            invitationCode: `temp-${member.id || member.email}`
+            invitationCode: `temp-${member.id || member.email}`,
           };
         }
         return member;
       });
-      
+
       setInvitedMembers(validData);
     } catch (error) {
       console.error('Failed to fetch invited members:', error);
@@ -160,7 +160,7 @@ const TeamSettingPage: React.FC = () => {
   // 현재 사용자가 팀장인지 검사
   const currentUserEmail = localStorage.getItem('userEmail') || '';
   const isCurrentUserLeader = members.some(
-    (member) => member.email === currentUserEmail && member.leader
+    (member) => member.email === currentUserEmail && member.leader,
   );
 
   // 이메일 유효성 검사
@@ -257,7 +257,7 @@ const TeamSettingPage: React.FC = () => {
 
     // 초대 코드 로깅 및 유효성 검사
     console.log('삭제 처리할 초대 코드:', inviteToDelete.invitationCode);
-    
+
     if (!inviteToDelete.invitationCode) {
       console.error('초대 코드가 없습니다.');
       setError('초대 코드 정보가 없어 초대 취소가 불가합니다.');
@@ -271,7 +271,9 @@ const TeamSettingPage: React.FC = () => {
       const success = await removeInvitedMember(inviteToDelete.invitationCode);
       if (success) {
         setInvitedMembers(
-          invitedMembers.filter((invite) => invite.invitationCode !== inviteToDelete.invitationCode),
+          invitedMembers.filter(
+            (invite) => invite.invitationCode !== inviteToDelete.invitationCode,
+          ),
         );
         setSuccess('초대가 성공적으로 취소되었습니다.');
         setTimeout(() => {
@@ -298,12 +300,14 @@ const TeamSettingPage: React.FC = () => {
     if (!projectId) return;
 
     // 현재 사용자가 팀장인지 확인
-    const isLeader = members.some(member => 
-      member.email === localStorage.getItem('userEmail') && member.leader
+    const isLeader = members.some(
+      (member) => member.email === localStorage.getItem('userEmail') && member.leader,
     );
 
     if (isLeader) {
-      setError('팀장은 프로젝트를 나갈 수 없습니다. 프로젝트를 삭제하거나 팀장 권한을 다른 사용자에게 이전해주세요.');
+      setError(
+        '팀장은 프로젝트를 나갈 수 없습니다. 프로젝트를 삭제하거나 팀장 권한을 다른 사용자에게 이전해주세요.',
+      );
       setShowLeaveConfirmModal(false);
       return;
     }
@@ -321,7 +325,7 @@ const TeamSettingPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to leave team:', error);
-      
+
       // Axios 오류인 경우 더 자세한 오류 처리
       if (axios.isAxiosError(error) && error.response) {
         // 오류 응답에 메시지가 있는 경우 해당 메시지 표시
@@ -355,12 +359,17 @@ const TeamSettingPage: React.FC = () => {
             {isCurrentUserLeader ? (
               <button
                 type='button'
-                onClick={() => setError('팀장은 프로젝트를 나갈 수 없습니다. 프로젝트를 삭제하거나 팀장 권한을 다른 사용자에게 이전해주세요.')}
+                onClick={() =>
+                  setError(
+                    '팀장은 프로젝트를 나갈 수 없습니다. 프로젝트를 삭제하거나 팀장 권한을 다른 사용자에게 이전해주세요.',
+                  )
+                }
                 className={clsx(
-                  'flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 transition-colors cursor-not-allowed opacity-60 focus:outline-none',
+                  'flex cursor-not-allowed items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 opacity-60 transition-colors focus:outline-none',
                 )}
               >
-                <LogOut size={18} className={clsx('mr-2')} />팀장은 나가기 불가
+                <LogOut size={18} className={clsx('mr-2')} />
+                팀장은 나가기 불가
               </button>
             ) : (
               <button
@@ -526,10 +535,15 @@ const TeamSettingPage: React.FC = () => {
                             <div className={clsx('flex items-center')}>
                               <div
                                 className={clsx(
-                                  'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xl font-semibold text-indigo-600',
+                                  'bg-gray-2 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-xl font-semibold text-indigo-600',
                                 )}
                               >
-                                {member.nickname.charAt(0).toUpperCase()}
+                                <img
+                                  src={member.profileImage ?? '/images/default-profile.png'}
+                                  alt={member.nickname}
+                                  className={clsx('h-10 w-10 rounded-full')}
+                                />
+                                {/* {member.nickname.charAt(0).toUpperCase()} */}
                               </div>
                               <div className={clsx('ml-4')}>
                                 <div className={clsx('text-sm font-medium text-gray-900')}>
@@ -688,12 +702,12 @@ const TeamSettingPage: React.FC = () => {
                       {invitedMembers.map((invite) => {
                         // 초대 코드가 없는 경우 처리
                         const hasValidCode = !!invite.invitationCode;
-                        
+
                         return (
                           <tr
                             key={invite.invitationCode || invite.id || invite.email}
                             className={clsx('transition-colors hover:bg-gray-50', {
-                              'opacity-70': !hasValidCode
+                              'opacity-70': !hasValidCode,
                             })}
                           >
                             <td className={clsx('px-6 py-4 whitespace-nowrap')}>
@@ -1007,7 +1021,7 @@ const TeamSettingPage: React.FC = () => {
                 )}
               >
                 {(memberToDelete && isDeleting === memberToDelete.id) ||
-                  (inviteToDelete && isDeletingInvite === inviteToDelete.invitationId) ? (
+                (inviteToDelete && isDeletingInvite === inviteToDelete.invitationId) ? (
                   <>
                     <div
                       className={clsx(
