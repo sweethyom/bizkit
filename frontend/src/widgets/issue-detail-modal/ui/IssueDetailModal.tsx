@@ -14,7 +14,17 @@ import { PopoverInput } from './PopOverMenu';
 import { Tag } from './Tag';
 
 import { clsx } from 'clsx';
-import { Briefcase, Flag, Hash, Layers, Save, User, X } from 'lucide-react';
+import {
+  Briefcase,
+  BringToFront,
+  Component,
+  Flag,
+  Hash,
+  Layers,
+  Save,
+  User,
+  X,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 
@@ -238,7 +248,7 @@ export const IssueDetailModal = () => {
                 setAnchorRef(componentRef as React.RefObject<HTMLSpanElement>);
               }}
             >
-              <Layers size={14} />
+              <Component size={14} />
               {component?.name === 'UNASSIGNED' ? '컴포넌트' : component?.name || '없음'}
             </Tag>
 
@@ -267,7 +277,7 @@ export const IssueDetailModal = () => {
                 setAnchorRef(epicRef as React.RefObject<HTMLSpanElement>);
               }}
             >
-              <Layers size={14} />
+              <BringToFront size={14} />
               {epic?.name || '없음'}
             </Tag>
 
