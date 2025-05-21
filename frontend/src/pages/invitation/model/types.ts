@@ -6,6 +6,6 @@ export interface ProjectInvitation {
   leader: {
     id: number;
     nickname: string;
-    image: string | null;
+    profileImgUrl: string | null;
   };
 }

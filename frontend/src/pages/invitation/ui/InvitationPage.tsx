@@ -2,15 +2,7 @@
 import { acceptInvitation, getInvitationProjectInfo } from '@/pages/invitation/api/invitationApi';
 import { ProjectInvitation } from '@/pages/invitation/model/types';
 import { clsx } from 'clsx';
-import {
-  AlertCircle,
-  ArrowLeft,
-  Building,
-  CheckCircle,
-  Loader,
-  UserPlus,
-  Users
-} from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle, Loader, UserPlus, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
@@ -57,13 +49,13 @@ const InvitationPage: React.FC = () => {
       setIsAccepting(true);
       setError(null);
       const success = await acceptInvitation(invitationId);
-      
+
       if (success) {
         setSuccess('프로젝트 초대를 수락했습니다.');
         // 3초 후 프로젝트 페이지로 이동
         setTimeout(() => {
           // 성공 후 이동할 페이지 (예: 프로젝트 페이지)
-          navigate(`/projects/${projectInfo?.id}`);
+          navigate(`/projects/${projectInfo?.id}/backlog`);
         }, 3000);
       }
     } catch (err) {
@@ -156,18 +148,18 @@ const InvitationPage: React.FC = () => {
               <div className={clsx('flex justify-center')}>
                 <div
                   className={clsx(
-                    'h-24 w-24 overflow-hidden rounded-full bg-indigo-100 shadow-inner',
+                    'bg-gray-2 relative h-24 w-24 overflow-hidden rounded-full shadow-inner',
                   )}
                 >
-                  {projectInfo?.image ? (
+                  {projectInfo && projectInfo.image ? (
                     <img
                       src={projectInfo.image}
-                      alt={`${projectInfo.name} 프로젝트 이미지`}
-                      className={clsx('h-full w-full object-cover')}
+                      alt={projectInfo.name}
+                      className='size-12 object-cover'
                     />
                   ) : (
-                    <div className={clsx('flex h-full w-full items-center justify-center')}>
-                      <Building className={clsx('h-12 w-12 text-indigo-400')} />
+                    <div className='text-heading-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-400'>
+                      📁
                     </div>
                   )}
                 </div>
@@ -181,10 +173,10 @@ const InvitationPage: React.FC = () => {
               {/* 팀장 정보 */}
               <div className={clsx('mt-4 flex items-center justify-center')}>
                 <div className={clsx('flex items-center space-x-3')}>
-                  <div className={clsx('h-10 w-10 overflow-hidden rounded-full bg-indigo-100')}>
-                    {projectInfo?.leader.image ? (
+                  <div className={clsx('bg-gray-2 h-10 w-10 overflow-hidden rounded-full')}>
+                    {projectInfo?.leader.profileImgUrl ? (
                       <img
-                        src={projectInfo.leader.image}
+                        src={projectInfo.leader.profileImgUrl}
                         alt={`${projectInfo.leader.nickname}의 프로필`}
                         className={clsx('h-full w-full object-cover')}
                       />
