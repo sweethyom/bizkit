@@ -717,7 +717,11 @@ const TeamSettingPage: React.FC = () => {
                                     'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-xl font-semibold text-orange-600',
                                   )}
                                 >
-                                  {invite.nickname.charAt(0).toUpperCase()}
+                                  <img
+                                    src={invite.profileImage ?? '/images/default-profile.png'}
+                                    alt={invite.nickname}
+                                    className={clsx('h-10 w-10 rounded-full')}
+                                  />
                                 </div>
                                 <div className={clsx('ml-4')}>
                                   <div className={clsx('text-sm font-medium text-gray-900')}>
