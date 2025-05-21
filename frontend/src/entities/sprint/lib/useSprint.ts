@@ -109,7 +109,7 @@ export const useSprint = (projectId: number) => {
         console.log(error);
       }
     },
-    [updateSprintStatus],
+    [updateSprint, sprints],
   );
 
   return {
