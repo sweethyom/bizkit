@@ -19,7 +19,7 @@ let refreshTokenPromise: Promise<TokenInfo | null> | null = null;
 const logout = () => {
   tokenStorage.remove();
   useUserStore.getState().clearUser();
-  // window.location.href = '/signin';
+  window.location.href = '/signin';
 };
 
 // 요청 인터셉터

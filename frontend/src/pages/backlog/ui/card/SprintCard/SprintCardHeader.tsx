@@ -1,4 +1,4 @@
-import { Sprint } from '@/entities/sprint';
+import { Sprint, SprintStatus } from '@/entities/sprint';
 import { getByteSize } from '@/shared/lib/byteUtils';
 import { IconButton, UnderlineInput } from '@/shared/ui';
 import { ChangeEvent, useEffect, useRef } from 'react';
@@ -90,7 +90,9 @@ export const SprintCardHeader = ({
         )}
 
         <p className='text-label-md text-gray-4 text-nowrap'>
-          {remainIssueCount !== undefined && <>할 일 개수: {remainIssueCount}</>}
+          {sprint.sprintStatus !== SprintStatus.COMPLETED && remainIssueCount !== undefined && (
+            <>할 일 개수: {remainIssueCount}</>
+          )}
         </p>
       </div>
       <div className='flex h-full flex-shrink-0 items-start'>

@@ -51,4 +51,8 @@ export const ROUTES_MAP = {
     path: '/reset-password',
     name: 'ResetPassword',
   },
+  notFound: {
+    path: '*',
+    name: 'NotFound',
+  },
 };

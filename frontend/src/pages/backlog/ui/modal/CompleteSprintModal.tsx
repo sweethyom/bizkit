@@ -1,7 +1,9 @@
 import { Issue, useIssueStore } from '@/entities/issue';
 import { SprintStatus } from '@/entities/sprint';
-import clsx from 'clsx';
-import { X } from 'lucide-react';
+
+import { Modal } from '@/shared/ui';
+
+import { clsx } from 'clsx';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -79,6 +81,7 @@ export const CompleteSprintModal = ({
       // );
 
       incompleteIssues.forEach((issue) => {
+        console.log(issue);
         moveIssue(
           issue.id,
           { type: 'sprint', id: currentSprintId, index: 0 },
@@ -103,51 +106,42 @@ export const CompleteSprintModal = ({
   };
 
   return createPortal(
-    <div className='animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black/50'>
-      <div ref={containerRef} className='relative w-full max-w-sm rounded-lg bg-white p-4'>
-        <button
-          className='absolute top-3 right-3 cursor-pointer rounded-full p-1 transition-colors hover:bg-gray-100'
-          onClick={closeModal}
-          aria-label='닫기'
-        >
-          <X className='h-5 w-5' />
-        </button>
-        <div className='flex flex-col gap-4'>
-          <div className='flex flex-col gap-2'>
-            <h2 className='text-label-xl font-bold'>스프린트 완료</h2>
-            <p className='text-label-md text-gray-4 break-keep'>
-              스프린트를 완료하기 전 스프린트 내 완료되지 않은 이슈들을 이동시켜야 합니다.
-            </p>
-          </div>
+    <Modal closeModal={closeModal}>
+      <div className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-2'>
+          <h2 className='text-label-xl font-bold'>스프린트 완료</h2>
+          <p className='text-label-md text-gray-4 break-keep'>
+            스프린트를 완료하기 전 스프린트 내 완료되지 않은 이슈들을 이동시켜야 합니다.
+          </p>
+        </div>
 
-          <div className='flex flex-col gap-2'>
-            <h3 className='text-label-md font-bold'>이동 가능한 위치</h3>
-            <div className='flex max-h-[200px] flex-col gap-2 overflow-auto'>
-              <MenuItem type='epic' onClick={() => handleMoveAllIssues(null)} disabled={loading}>
-                스택
-              </MenuItem>
-              {sprints
-                .filter(
-                  (sprint) =>
-                    sprint.sprintStatus !== SprintStatus.COMPLETED &&
-                    sprint.sprintStatus !== SprintStatus.ONGOING &&
-                    sprint.id !== currentSprintId,
-                )
-                .map((sprint) => (
-                  <MenuItem
-                    key={sprint.id}
-                    onClick={() => handleMoveAllIssues(sprint.id)}
-                    disabled={loading}
-                  >
-                    {sprint.name}
-                  </MenuItem>
-                ))}
-            </div>
-            {loading && <div className='py-2 text-center text-blue-500'>이슈 이동 중...</div>}
+        <div className='flex flex-col gap-2'>
+          <h3 className='text-label-md font-bold'>이동 가능한 위치</h3>
+          <div className='flex max-h-[200px] flex-col gap-2 overflow-auto'>
+            <MenuItem type='epic' onClick={() => handleMoveAllIssues(null)} disabled={loading}>
+              스택
+            </MenuItem>
+            {sprints
+              .filter(
+                (sprint) =>
+                  sprint.sprintStatus !== SprintStatus.COMPLETED &&
+                  sprint.sprintStatus !== SprintStatus.ONGOING &&
+                  sprint.id !== currentSprintId,
+              )
+              .map((sprint) => (
+                <MenuItem
+                  key={sprint.id}
+                  onClick={() => handleMoveAllIssues(sprint.id)}
+                  disabled={loading}
+                >
+                  {sprint.name}
+                </MenuItem>
+              ))}
           </div>
+          {loading && <div className='py-2 text-center text-blue-500'>이슈 이동 중...</div>}
         </div>
       </div>
-    </div>,
+    </Modal>,
     document.body,
   );
 };

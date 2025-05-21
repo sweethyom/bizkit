@@ -38,14 +38,13 @@ export const deleteIssue = async (issueId: number) => {
   }
 };
 
-export const moveIssueToSprint = async (issueId: number, sprintId: number) => {
+export const moveIssueToSprint = async (issueId: number, sprintId: number | null) => {
   try {
     console.log(`[issueApi.ts] Moving issue ${issueId} to sprint ${sprintId}`);
     const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/move-sprint`, {
       targetId: sprintId,
     });
 
-    console.log(`[issueApi.ts] Move issue response:`, response.data);
     return response.data;
   } catch (error) {
     console.error('[issueApi.ts] Error moving issue to sprint:', error);

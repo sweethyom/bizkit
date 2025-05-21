@@ -122,7 +122,7 @@ export const IssueCard = ({
           <div className='flex flex-col'>
             <div className='flex items-center gap-2'>
               {issue.issueStatus && issue.issueStatus !== 'UNASSIGNED' && (
-                <TooltipSection info='이슈 진행 상태'>
+                <TooltipSection info='진행 상황'>
                   <div
                     className={clsx('text-label-sm rounded-full px-2', {
                       'bg-gray-3/90 text-white': issue.issueStatus === 'TODO',

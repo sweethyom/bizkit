@@ -2,9 +2,9 @@ import { IssueDetailModal, useIssueModalStore } from '@/widgets/issue-detail-mod
 
 import { EpicForm, useEpic } from '@/entities/epic';
 import { moveIssueToSprint, useIssueStore } from '@/entities/issue';
-import { SprintForm, SprintStatus, useSprint } from '@/entities/sprint';
+import { sprintApi, SprintForm, SprintStatus, useSprint } from '@/entities/sprint';
 
-import { Button } from '@/shared/ui';
+import { AlertModal, Button, ConfirmModal } from '@/shared/ui';
 
 import { EmptyCard } from './card/EmptyCard';
 import { EpicCard } from './card/EpicCard';
@@ -12,10 +12,12 @@ import { SkeletonCard } from './card/SkeletonCard';
 import { SprintCard } from './card/SprintCard';
 import { CompleteSprintModal } from './modal/CompleteSprintModal';
 
+import { Sprint } from '@/shared/model';
 import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 import { Plus } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
+import { StartSprintModal } from './modal/StartSprintModal';
 
 export const BacklogPage = () => {
   const { projectId } = useParams();
@@ -40,10 +42,9 @@ export const BacklogPage = () => {
 
   const [isCreateSprintFormOpen, setIsCreateSprintFormOpen] = useState(false);
   const [isCompleteSprintModalOpen, setIsCompleteSprintModalOpen] = useState(false);
+  const [deleteSprint, setDeleteSprint] = useState<Sprint | null>(null);
 
   const [isCreateEpicFormOpen, setIsCreateEpicFormOpen] = useState(false);
-
-  const [startDueDate, setStartDueDate] = useState<string>('');
 
   const [startTargetSprintId, setStartTargetSprintId] = useState<number | null>(null);
   const [completeTargetSprintId, setCompleteTargetSprintId] = useState<number | null>(null);
@@ -53,78 +54,91 @@ export const BacklogPage = () => {
 
   const [dragSource, setDragSource] = useState<string | null>(null);
 
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+
+  const [confirmInfo, setConfirmInfo] = useState<{
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  }>({
+    title: '',
+    description: '',
+    onConfirm: () => {},
+  });
+
   const handleMoveIssue = useCallback(
     async (result: DropResult) => {
-      if (result.destination === null) return;
+      const { destination, source, draggableId } = result;
+      if (!destination) return;
 
-      const issueId = Number(result.draggableId.split('-').pop());
+      const idParts = draggableId.split('-');
+      const issueId = Number(idParts.at(-1));
+      const fromType = idParts[0] as 'sprint' | 'epic';
+      const fromId = Number(idParts[1]);
 
       const from = {
-        type: result.draggableId.split('-')[0] as 'sprint' | 'epic',
-        id: Number(result.draggableId.split('-')[1]),
-        index: result.source.index,
+        type: fromType as 'sprint' | 'epic',
+        id: fromId,
+        index: source.index,
       };
 
-      if (result.destination.droppableId === 'epic-backlog') {
+      const isSameLocation =
+        destination.droppableId === source.droppableId && destination.index === source.index;
+      if (isSameLocation) return;
+
+      // 목적지가 epic-backlog인 경우 (sprint → epic only)
+      const isToEpicBacklog = destination.droppableId === 'epic-backlog';
+      const fromIssues = issues[from.type][from.id];
+      const targetIssue = fromIssues[from.index];
+
+      // epic → sprint: epic count 감소 & 상태 변경
+      if (from.type === 'epic') {
+        const epic = epics.find((e) => e.id === from.id);
+        if (!epic) return;
+
+        targetIssue.issueStatus = 'TODO';
+        epicSetEpics(
+          epics.map((e) =>
+            e.id === epic.id ? { ...e, cntRemainIssues: e.cntRemainIssues - 1 } : e,
+          ),
+        );
+      }
+
+      if (isToEpicBacklog) {
         if (from.type === 'epic') return;
 
-        const targetIssue = issues.sprint[from.id][from.index];
+        const epicId = targetIssue.epic?.id;
+        if (!epicId) return;
+
         targetIssue.issueStatus = 'UNASSIGNED';
 
-        const to = {
-          type: 'epic' as 'sprint' | 'epic',
-          id: targetIssue.epic!.id,
-          index: result.destination.index,
-        };
-
-        console.log(epics.find((epic) => epic.id === to.id));
-
+        const to = { type: 'epic' as const, id: epicId, index: destination.index };
         moveIssue(issueId, from, to);
 
         try {
-          await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : 0);
-
-          const targetEpic = epics.find((epic) => epic.id === to.id);
-
-          if (!targetEpic) return;
+          await moveIssueToSprint(issueId, null);
+          const epic = epics.find((e) => e.id === epicId);
+          if (!epic) return;
 
           epicSetEpics(
-            epics.map((epic) => {
-              if (epic.id === to.id) {
-                return { ...epic, cntRemainIssues: targetEpic.cntRemainIssues + 1 };
-              }
-              return epic;
-            }),
+            epics.map((e) =>
+              e.id === epic.id ? { ...e, cntRemainIssues: e.cntRemainIssues + 1 } : e,
+            ),
           );
-        } catch (error) {
-          console.error(error);
+        } catch (err) {
+          console.error(err);
         }
 
         return;
       }
 
-      if (from.type === 'epic') {
-        const targetIssue = issues.epic[from.id][from.index];
-        targetIssue.issueStatus = 'TODO';
-
-        const fromEpic = epics.find((epic) => epic.id === from.id);
-
-        if (!fromEpic) return;
-
-        epicSetEpics(
-          epics.map((epic) => {
-            if (epic.id === from.id) {
-              return { ...epic, cntRemainIssues: fromEpic.cntRemainIssues - 1 };
-            }
-            return epic;
-          }),
-        );
-      }
-
+      // 목적지가 epic이 아닌 일반 sprint or epic으로 이동하는 경우
+      const [toType, toIdStr] = destination.droppableId.split('-');
       const to = {
-        type: result.destination.droppableId.split('-')[0] as 'sprint' | 'epic',
-        id: Number(result.destination.droppableId.split('-')[1]),
-        index: result.destination.index,
+        type: toType as 'sprint' | 'epic',
+        id: Number(toIdStr),
+        index: destination.index,
       };
 
       if (from.type === to.type && from.id === to.id) return;
@@ -132,16 +146,53 @@ export const BacklogPage = () => {
       moveIssue(issueId, from, to);
 
       try {
-        await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : 0);
-      } catch (error) {
-        console.error(error);
+        await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : null);
+      } catch (err) {
+        console.error(err);
       }
     },
     [epics, issues, moveIssue, epicSetEpics],
   );
 
-  const handleDeleteSprint = (sprintId: number) => {
-    setSprints(sprints.filter((s) => s.id !== sprintId));
+  const handleDeleteSprintConfirmation = async (sprint: Sprint) => {
+    if (sprint.sprintStatus === SprintStatus.ONGOING) {
+      alert('스프린트를 종료한 후 삭제해주세요');
+      return;
+    }
+
+    setDeleteSprint(sprint);
+    setConfirmInfo({
+      title: '스프린트 삭제',
+      description: '해당 스프린트에 할당된 모든 이슈가 삭제됩니다.',
+      onConfirm: () => {
+        handleDeleteSprint(sprint);
+      },
+    });
+    setShowConfirm(true);
+  };
+
+  const handleDeleteSprint = async (sprint: Sprint) => {
+    if (!sprint) return;
+
+    try {
+      await sprintApi.deleteSprint(sprint.id);
+
+      issues.sprint[sprint.id]?.forEach((issue) => {
+        if (!issue.epic?.id) return;
+
+        const epic = epics.find((e) => e.id === issue.epic?.id);
+        if (!epic) return;
+
+        epic.cntTotalIssues -= 1;
+      });
+
+      setSprints(sprints.filter((s) => s.id !== sprint.id));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setShowConfirm(false);
+      setDeleteSprint(null);
+    }
   };
 
   const handleDeleteEpic = (epicId: number) => {
@@ -160,8 +211,8 @@ export const BacklogPage = () => {
         handleMoveIssue(result);
       }}
     >
-      <div className='flex flex-col gap-4'>
-        <div className='bg-background-secondary flex items-center justify-between px-12 py-8'>
+      <div className='flex flex-col'>
+        <div className='bg-background-secondary flex items-center justify-between px-12 py-6'>
           <div className='flex flex-col gap-2'>
             <h1 className='text-heading-xs font-bold'>프로젝트 스택</h1>
             <p className='text-label-lg text-gray-5'>프로젝트 작업 목록을 관리하세요</p>
@@ -176,11 +227,11 @@ export const BacklogPage = () => {
           </div>
         </div>
 
-        <section className='bg-background-primary flex justify-between gap-6 px-12 py-6'>
+        <section className='bg-background-primary flex justify-between gap-6 px-12 py-6 pb-30'>
           <section className='flex flex-1/2 flex-col gap-4'>
             <div className='flex items-center gap-2'>
               <div className='bg-primary h-6 w-1 rounded-full' />
-              <h2 className='text-label-xl'>스프린트</h2>
+              <h2 className='text-label-xl font-semibold'>스프린트</h2>
             </div>
 
             <div className='flex flex-col gap-3'>
@@ -222,57 +273,36 @@ export const BacklogPage = () => {
                       sprint={sprint}
                       onStartSprint={async () => {
                         const result = await validateSprint(sprint.id);
-                        if (!result) return;
 
-                        const defaultDate = (() => {
-                          const d = new Date();
-                          d.setDate(d.getDate() + 7);
-                          return d.toISOString().slice(0, 10);
-                        })();
+                        if (!result) {
+                          setConfirmInfo({
+                            title: '스프린트 시작',
+                            description:
+                              '스프린트 내 모든 이슈의 정보가 입력되어 있어야 합니다. 누락된 이슈가 있습니다.',
+                            onConfirm: () => {
+                              setShowAlert(false);
+                              setConfirmInfo({
+                                title: '',
+                                description: '',
+                                onConfirm: () => {},
+                              });
+                            },
+                          });
+                          setShowAlert(true);
+
+                          return;
+                        }
+
                         setStartTargetSprintId(sprint.id);
-                        setStartDueDate(defaultDate);
                       }}
                       onCompleteSprint={() => {
                         setCompleteTargetSprintId(sprint.id);
                         setIsCompleteSprintModalOpen(true);
                       }}
-                      onDeleteSprint={handleDeleteSprint}
+                      onDeleteSprint={handleDeleteSprintConfirmation}
                       dragSource={dragSource}
                     />
                   ))
-              )}
-
-              {startTargetSprintId !== null && (
-                <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50'>
-                  <div className='flex min-w-[320px] flex-col gap-4 rounded-lg bg-white p-6 shadow-lg'>
-                    <h2 className='text-lg font-bold'>스프린트 시작</h2>
-                    <label className='text-sm font-medium'>예상 종료일</label>
-                    <input
-                      type='date'
-                      className='rounded border px-2 py-1'
-                      value={startDueDate}
-                      min={new Date().toISOString().split('T')[0]}
-                      onChange={(e) => setStartDueDate(e.target.value)}
-                    />
-                    <div className='mt-4 flex justify-end gap-2'>
-                      <button
-                        className='bg-primary rounded px-4 py-2 text-white'
-                        onClick={async () => {
-                          await startSprint(startTargetSprintId, startDueDate);
-                          setStartTargetSprintId(null);
-                        }}
-                      >
-                        시작
-                      </button>
-                      <button
-                        className='rounded bg-gray-200 px-4 py-2 text-gray-700'
-                        onClick={() => setStartTargetSprintId(null)}
-                      >
-                        취소
-                      </button>
-                    </div>
-                  </div>
-                </div>
               )}
             </div>
           </section>
@@ -281,7 +311,7 @@ export const BacklogPage = () => {
             <div className='relative flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <div className='bg-point h-6 w-1 rounded-full' />
-                <h2 className='text-label-xl'>스택</h2>
+                <h2 className='text-label-xl font-semibold'>스택</h2>
               </div>
 
               {!isLoadingEpics && epics.length > 0 && (
@@ -355,6 +385,16 @@ export const BacklogPage = () => {
 
       {isIssueModalOpened && <IssueDetailModal />}
 
+      {startTargetSprintId !== null && (
+        <StartSprintModal
+          closeModal={() => setStartTargetSprintId(null)}
+          startSprint={async (dueDate) => {
+            await startSprint(startTargetSprintId, dueDate);
+            setStartTargetSprintId(null);
+          }}
+        ></StartSprintModal>
+      )}
+
       {isCompleteSprintModalOpen && completeTargetSprintId !== null && (
         <CompleteSprintModal
           closeModal={() => {
@@ -371,6 +411,23 @@ export const BacklogPage = () => {
             setIsCompleteSprintModalOpen(false);
             setCompleteTargetSprintId(null);
           }}
+        />
+      )}
+
+      {showConfirm && deleteSprint && (
+        <ConfirmModal
+          title={confirmInfo.title}
+          description={confirmInfo.description}
+          onConfirm={() => confirmInfo.onConfirm()}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
+
+      {showAlert && (
+        <AlertModal
+          title={confirmInfo.title}
+          description={confirmInfo.description}
+          onConfirm={() => confirmInfo.onConfirm()}
         />
       )}
     </DragDropContext>

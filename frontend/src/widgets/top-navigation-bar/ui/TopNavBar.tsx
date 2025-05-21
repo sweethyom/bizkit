@@ -9,7 +9,7 @@ import { ProfileMenu } from './PorfileMenu';
 import { ProjectsMenu } from './ProjectsMenu';
 
 import { clsx } from 'clsx';
-import { Layers } from 'lucide-react';
+import { ChevronDown, Layers } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation, useParams } from 'react-router';
 
@@ -118,6 +118,27 @@ export const TopNavBar = () => {
                 </li>
                 <li>
                   <DropDownSection
+                    button={(toggle) => {
+                      const settingPaths = [
+                        ROUTES_MAP.teamSettings.path.replace(':projectId', String(projectId)),
+                        ROUTES_MAP.componentSettings.path.replace(':projectId', String(projectId)),
+                        ROUTES_MAP.projectSettings.path.replace(':projectId', String(projectId)),
+                      ];
+                      const isActive = settingPaths.some((path) => location.pathname === path);
+                      return (
+                        <button
+                          type='button'
+                          className={clsx(
+                            'flex cursor-pointer items-center gap-1 rounded hover:text-black',
+                            isActive ? 'font-bold text-black' : 'text-gray-4',
+                          )}
+                          onClick={toggle}
+                        >
+                          설정
+                          <ChevronDown size={16} />
+                        </button>
+                      );
+                    }}
                     items={[
                       {
                         children: '팀 설정',
@@ -148,35 +169,6 @@ export const TopNavBar = () => {
                         disabled: !project?.leader,
                       },
                     ]}
-                    button={(toggle) => {
-                      const settingPaths = [
-                        ROUTES_MAP.teamSettings.path.replace(':projectId', String(projectId)),
-                        ROUTES_MAP.componentSettings.path.replace(':projectId', String(projectId)),
-                        ROUTES_MAP.projectSettings.path.replace(':projectId', String(projectId)),
-                      ];
-                      const isActive = settingPaths.some((path) => location.pathname === path);
-                      return (
-                        <button
-                          type='button'
-                          className={clsx(
-                            'flex items-center gap-1 rounded px-2 py-1 hover:text-black',
-                            isActive ? 'font-bold text-black' : 'text-gray-4',
-                          )}
-                          onClick={toggle}
-                        >
-                          설정
-                          <svg width='16' height='16' fill='none' viewBox='0 0 24 24'>
-                            <path
-                              d='M6 9l6 6 6-6'
-                              stroke='currentColor'
-                              strokeWidth='2'
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                            />
-                          </svg>
-                        </button>
-                      );
-                    }}
                   />
                 </li>
               </>

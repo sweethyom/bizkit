@@ -33,7 +33,7 @@ export const EmptyCard = ({
       {actionText && onActionClick && (
         <button
           className={clsx(
-            'text-label-lg flex items-center gap-2 rounded px-6 py-2 font-semibold text-white transition',
+            'text-label-lg flex cursor-pointer items-center gap-2 rounded px-6 py-2 font-semibold text-white transition',
             {
               'bg-primary hover:bg-primary/80': type === 'sprint',
               'bg-point hover:bg-point/80': type === 'epic',

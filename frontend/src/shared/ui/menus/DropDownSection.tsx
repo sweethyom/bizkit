@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { DropDownItemProps, DropDownMenu } from './DropDownMenu';
 
 interface DropDownSectionProps {
@@ -25,9 +25,9 @@ export const DropDownSection = ({ items, button }: DropDownSectionProps) => {
     };
   }, []);
 
-  const toggleVisibility = () => {
+  const toggleVisibility = useCallback(() => {
     setIsOpen(!isOpen);
-  };
+  }, [isOpen]);
 
   return (
     <div className='relative'>

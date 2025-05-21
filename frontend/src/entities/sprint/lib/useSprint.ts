@@ -1,6 +1,7 @@
 import { SprintStatus } from '@/entities/sprint';
 import { sprintApi } from '@/entities/sprint/api/sprintApi';
 
+import { getFormattedDate } from '@/shared/lib';
 import { Issue } from '@/shared/model';
 
 import { useSprintStore } from './useSprintStore';
@@ -8,7 +9,7 @@ import { useSprintStore } from './useSprintStore';
 import { useCallback, useEffect, useState } from 'react';
 
 export const useSprint = (projectId: number) => {
-  const { sprints, setSprints, updateSprintStatus } = useSprintStore();
+  const { sprints, setSprints, updateSprintStatus, updateSprint } = useSprintStore();
   const [isLoading, setIsLoading] = useState(true);
 
   const [startSprintError, setStartSprintError] = useState<{
@@ -19,11 +20,9 @@ export const useSprint = (projectId: number) => {
 
   useEffect(() => {
     if (startSprintError) {
-      alert(startSprintError.message);
-
       const timer = setTimeout(() => {
         setStartSprintError(null);
-      }, 3000);
+      }, 5000);
 
       return () => clearTimeout(timer);
     }
@@ -75,18 +74,25 @@ export const useSprint = (projectId: number) => {
   }, []);
 
   const startSprint = useCallback(
-    async (sprintId: number, dueDate?: string) => {
-      console.log(`[useSprint.ts] Starting sprint with ID: ${sprintId}, dueDate: ${dueDate}`);
+    async (sprintId: number, dueDate: string) => {
       try {
         const response = await sprintApi.startSprint(sprintId, dueDate);
         console.log(`[useSprint.ts] API response for startSprint:`, response);
-        updateSprintStatus(sprintId, SprintStatus.ONGOING);
+        // updateSprintStatus(sprintId, SprintStatus.ONGOING);
         console.log(`[useSprint.ts] Updated sprint status to ONGOING in store`);
+        const sprint = sprints.find((s) => s.id === sprintId);
+        if (sprint) {
+          sprint.sprintStatus = SprintStatus.ONGOING;
+          sprint.startDate = getFormattedDate(new Date());
+          sprint.dueDate = dueDate || null;
+          updateSprint(sprint);
+          // updateSprintStatus(sprintId, SprintStatus.ONGOING);
+        }
       } catch (error) {
         console.error(`[useSprint.ts] Error starting sprint:`, error);
       }
     },
-    [updateSprintStatus],
+    [sprints, updateSprint],
   );
 
   const completeSprint = useCallback(

@@ -77,8 +77,6 @@ export const sprintApi = {
         id: toSprintId,
       });
 
-      console.log(response.data);
-
       return response.data;
     } catch (error) {
       console.error(error);

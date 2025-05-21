@@ -20,18 +20,18 @@ export const EpicForm = ({ projectId, handleVisibility }: EpicFormProps) => {
         handleVisibility();
       }}
     >
-      <div className={cn('flex justify-between gap-4 p-4')}>
+      <div className='flex justify-between gap-4 p-4'>
         <div className='flex w-full flex-col gap-1'>
           <UnderlineInput
             type='text'
-            classNames='flex-1 text-label-lg mt-2'
+            classNames='flex-1 !text-label-lg mt-2'
             value={name}
             onChange={handleNameChange}
           />
           <p className='text-label-sm text-gray-4 self-end'>{byteLength} / 40 byte</p>
         </div>
 
-        <div className={cn('flex shrink-0 gap-2')}>
+        <div className='flex shrink-0 gap-2'>
           <Button size='sm' variant='solid' color='point' type='submit' disabled={!isValid}>
             생성
           </Button>
