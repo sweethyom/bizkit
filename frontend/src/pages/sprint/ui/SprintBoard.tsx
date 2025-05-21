@@ -1,60 +1,143 @@
 import { useSprintBoardData } from '@/pages/sprint/model/useSprintBoardData';
 import { useSprintBoardDrag } from '@/pages/sprint/model/useSprintBoardDrag';
 import { useSprintBoardFilter } from '@/pages/sprint/model/useSprintBoardFilter';
+import { Button } from '@/shared/ui';
+import { IssueDetailModal, useIssueModalStore } from '@/widgets/issue-detail-modal';
 import { DragDropContext } from '@hello-pangea/dnd';
-import { useCallback, useEffect, useState } from 'react';
+import { X } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
-import { Issue } from '../model/types';
+import { Issue, SprintData } from '../model/types';
 import { SprintBoardBody } from './SprintBoardBody';
 import { SprintBoardHeader } from './SprintBoardHeader';
 import { SprintErrorState } from './SprintErrorState';
 import { SprintFilterSection } from './SprintFilterSection';
-import { SprintIssueDetailModal } from './SprintIssueDetailModal';
 import { SprintLoadingState } from './SprintLoadingState';
 
 export const SprintBoard: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
+
+  // 스프린트 데이터 관리 훅
   const { sprintData, loading, error, updateIssue, deleteIssue, refreshData } =
     useSprintBoardData(projectId);
 
+  // 스프린트 보드 데이터 상태 관리
+  const [boardData, setBoardData] = useState<SprintData | null>(null);
+
+  // sprintData가 변경되면 boardData 업데이트
+  useEffect(() => {
+    if (sprintData) {
+      setBoardData(sprintData);
+    }
+  }, [sprintData]);
+
+  // 필터링 관련 훅
   const {
     activeFilter,
     setActiveFilter,
     getFilterName,
     getTotalFilteredIssuesCount,
     getFilteredSprintData,
-  } = useSprintBoardFilter(sprintData);
+  } = useSprintBoardFilter(boardData || sprintData);
 
-  // React Hooks 규칙: 조건부로 Hook을 호출하면 안됨
+  // 드래그 앤 드롭 처리 훅
   const { onDragEnd } = useSprintBoardDrag(
-    sprintData,
-    updateIssue,
-    // 데이터를 갱신하기 위한 함수 전달
-    (newData) => {
-      // 외부에서 데이터 갱신이 필요한 경우 refreshData 호출
-      refreshData();
-    },
-    projectId,
+    boardData, // 현재 화면에 표시된 데이터
+    updateIssue, // 이슈 업데이트 콜백
+    setBoardData, // 데이터 업데이트 함수
+    projectId, // 프로젝트 ID
   );
 
-  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // 이슈 모달 스토어 사용
+  const {
+    openModal,
+    closeModal,
+    isOpen: isIssueModalOpen,
+    issue: modalIssue,
+  } = useIssueModalStore();
 
-  // 셀렉터 이벤트 핸들러
-  const handleIssueClick = useCallback((issue: Issue) => {
-    console.log('Issue clicked:', issue.id);
-    setIsModalOpen(true);
-    setSelectedIssue(issue);
-  }, []);
+  // 모달에서 이슈 업데이트 감지 및 처리
+  const prevIssueRef = useRef<Issue | null>(null);
+  const isUpdatingRef = useRef(false);
 
-  const handleCloseModal = useCallback(() => {
-    setIsModalOpen(false);
-    setSelectedIssue(null);
-  }, []);
+  // 모달이 닫힐 때 isUpdatingRef 초기화
+  useEffect(() => {
+    if (!isIssueModalOpen) {
+      isUpdatingRef.current = false;
+    }
+  }, [isIssueModalOpen]);
+
+  useEffect(() => {
+    // 현재 업데이트 중이면 무한 루프 방지
+    if (isUpdatingRef.current) return;
+
+    if (modalIssue && isIssueModalOpen) {
+      // 이전 이슈와 현재 이슈를 비교하여 변경이 있을 때만 업데이트
+      if (
+        !prevIssueRef.current ||
+        JSON.stringify(prevIssueRef.current) !== JSON.stringify(modalIssue)
+      ) {
+        console.log('이슈 업데이트 감지:', modalIssue.id, modalIssue.name);
+
+        // 현재 이슈 상태 저장
+        prevIssueRef.current = JSON.parse(JSON.stringify(modalIssue));
+
+        // 업데이트 중 플래그 설정
+        isUpdatingRef.current = true;
+
+        try {
+          // 스프린트 보드 형식에 맞게 이슈 변환
+          const sprintBoardIssue: Issue = {
+            ...(modalIssue as any),
+            title: modalIssue.name || modalIssue.title || '',
+          };
+
+          // 보드 데이터 업데이트
+          updateIssue(sprintBoardIssue as Issue);
+          console.log('스프린트 보드에 이슈 업데이트 성공:', sprintBoardIssue.title);
+        } finally {
+          // 업데이트 완료 플래그 설정
+          setTimeout(() => {
+            isUpdatingRef.current = false;
+          }, 0);
+        }
+      }
+    } else if (!isIssueModalOpen) {
+      // 모달이 닫혔을 때 ref 초기화
+      prevIssueRef.current = null;
+    }
+  }, [modalIssue, isIssueModalOpen, updateIssue, refreshData]);
+
+  // 이슈 클릭 핸들러
+  const handleIssueClick = useCallback(
+    (issue: Issue) => {
+      console.log('이슈 클릭:', issue.id);
+      // 참조 사비를 방지하기 위해 데이터 복사
+      const issueCopy = JSON.parse(JSON.stringify(issue));
+      openModal(issueCopy);
+    },
+    [openModal],
+  );
+
+  // 이슈 삭제 핸들러
+  const handleDeleteIssue = useCallback(async () => {
+    const issue = useIssueModalStore.getState().issue;
+    if (issue) {
+      try {
+        await deleteIssue(issue.id);
+        closeModal();
+        // 삭제 후 데이터 새로고침
+        refreshData();
+      } catch (error) {
+        console.error('이슈 삭제 오류:', error);
+      }
+    }
+  }, [deleteIssue, closeModal, refreshData]);
 
   // 펼쳐진 컴포넌트 그룹 관리
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
 
+  // 컴포넌트 그룹 펼치기/접기 토글 핸들러
   const handleToggleExpand = useCallback((componentName: string) => {
     setExpandedComponents((prev) => {
       const newSet = new Set(prev);
@@ -71,6 +154,7 @@ export const SprintBoard: React.FC = () => {
   useEffect(() => {
     if (sprintData) {
       const initialExpandedComponents = new Set<string>();
+
       sprintData.statusGroups.forEach((statusGroup) => {
         statusGroup.componentGroups.forEach((componentGroup) => {
           if (componentGroup.isExpanded) {
@@ -78,28 +162,35 @@ export const SprintBoard: React.FC = () => {
           }
         });
       });
+
       setExpandedComponents(initialExpandedComponents);
     }
   }, [sprintData]);
 
+  // 로딩 중 표시
   if (loading) {
     return <SprintLoadingState />;
   }
 
+  // 에러 표시
   if (error) {
     return <SprintErrorState error={error} projectId={projectId} />;
   }
 
+  // 데이터 없음 표시
   if (!sprintData) {
-    return <SprintErrorState error='데이터 없음' projectId={projectId} />;
+    return <SprintErrorState error='데이터를 불러올 수 없습니다' projectId={projectId} />;
   }
 
-  const filteredData = getFilteredSprintData() || sprintData;
+  // 표시할 데이터 결정
+  const displayData = boardData || sprintData;
+  const filteredData = getFilteredSprintData() || displayData;
   const filterName = getFilterName();
   const totalFilteredCount = getTotalFilteredIssuesCount();
 
   return (
     <div className='flex flex-col gap-4'>
+      {/* 헤더 */}
       <SprintBoardHeader
         activeFilter={activeFilter}
         filterName={filterName}
@@ -107,12 +198,14 @@ export const SprintBoard: React.FC = () => {
       />
 
       <section className='bg-background-primary flex flex-col gap-4 p-4'>
+        {/* 필터 섹션 */}
         <SprintFilterSection
-          sprintData={sprintData}
+          sprintData={displayData}
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}
         />
 
+        {/* 드래그 앤 드롭 컨텍스트 */}
         <DragDropContext onDragEnd={onDragEnd}>
           <SprintBoardBody
             sprintData={filteredData}
@@ -124,13 +217,24 @@ export const SprintBoard: React.FC = () => {
         </DragDropContext>
       </section>
 
-      <SprintIssueDetailModal
-        isOpen={isModalOpen}
-        selectedIssue={selectedIssue}
-        onClose={handleCloseModal}
-        onDelete={deleteIssue}
-        onUpdate={updateIssue}
-      />
+      {/* 이슈 상세 모달 */}
+      {isIssueModalOpen && (
+        <>
+          <IssueDetailModal />
+          {/* 삭제 버튼 */}
+          <div className='fixed right-8 bottom-8 z-[60]'>
+            <Button
+              color='warning'
+              variant='solid'
+              onClick={handleDeleteIssue}
+              className='flex items-center gap-1 shadow-lg'
+            >
+              <X size={18} />
+              이슈 삭제
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

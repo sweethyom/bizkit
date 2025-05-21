@@ -140,7 +140,7 @@ export const IssueDetailModal = () => {
             {isEditing.name ? (
               <div className='flex flex-1 items-center gap-2'>
                 <input
-                  value={name}
+                  value={name || ''}
                   onChange={handleNameChange}
                   className='text-label-xxl border-gray-3 focus:border-gray-5 border-b px-2 py-1 font-bold transition-colors outline-none'
                   autoFocus
@@ -150,8 +150,14 @@ export const IssueDetailModal = () => {
                   color='primary'
                   variant='solid'
                   onClick={() => {
-                    onSubmitName();
-                    setIsEditing({ ...isEditing, name: false });
+                    try {
+                      onSubmitName();
+                      console.log('이름 수정 완료');
+                    } catch (error) {
+                      console.error('이름 저장 오류:', error);
+                    } finally {
+                      setIsEditing({ ...isEditing, name: false });
+                    }
                   }}
                 />
                 <IconButton
@@ -166,7 +172,7 @@ export const IssueDetailModal = () => {
                 className='hover:bg-gray-2 text-label-xxl flex w-fit items-center rounded-md border-b border-transparent px-2 py-1 font-bold transition-colors'
                 onClick={() => setIsEditing({ ...isEditing, name: true })}
               >
-                {name}
+                {name || '이슈 이름'}
               </h2>
             )}
           </div>

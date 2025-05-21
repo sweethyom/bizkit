@@ -8,11 +8,14 @@ export const getProjectComponents = async (projectId?: string): Promise<any[]> =
       throw new Error('Project ID is required');
     }
 
+    console.log(`[sprintApi.ts] 프로젝트 컴포넌트 목록 조회 - 프로젝트 ID: ${projectId}`);
     const response = await api.get<ApiResponse<any>>(`/projects/${projectId}/components`);
 
     if (response.data.result === 'SUCCESS' && response.data.data) {
+      console.log(`[sprintApi.ts] 프로젝트 컴포넌트 목록 조회 결과:`, response.data.data);
       return response.data.data;
     } else {
+      console.log(`[sprintApi.ts] 프로젝트 컴포넌트 목록 없음`);
       return [];
     }
   } catch (error) {
@@ -276,12 +279,17 @@ export const getOngoingSprintComponentIssue = async (
       throw new Error('Project ID is required');
     }
 
-    // API 호출
+    // API 호출 - 컴포넌트별 활성 스프린트 이슈 목록 조회
     const url = `/sprints/ongoing/${projectId}/components/issues`;
     const params: any = {};
 
     if (componentId) {
       params.componentId = componentId;
+      console.log(
+        `[sprintApi.ts] 컴포넌트별 이슈 조회 - 컴포넌트 ID: ${componentId}, 프로젝트 ID: ${projectId}`,
+      );
+    } else {
+      console.log(`[sprintApi.ts] 전체 이슈 조회 (componentId 없음) - 프로젝트 ID: ${projectId}`);
     }
 
     const response = await api.get<ApiResponse<any>>(url, { params });
@@ -289,11 +297,28 @@ export const getOngoingSprintComponentIssue = async (
     if (response.data.result === 'SUCCESS') {
       const data = response.data.data || [];
 
-      if (data.length === 0) {
-        return [];
+      // 디버깅을 위한 로깅 추가
+      if (componentId) {
+        console.log(`[sprintApi.ts] 컴포넌트 ${componentId}의 이슈 조회 결과:`, data);
+      } else {
+        console.log(`[sprintApi.ts] 전체 이슈 조회 결과:`, data);
       }
 
-      // 응답 데이터 변환
+      // data가 비어있어도 빈 배열 반환 - 빈 배열은 원래 이슈가 없는 경우가 아니라 기본 상태를 표시
+      // 배열이 비어있을 경우에도 기본 상태그룹을 추가
+      if (data.length === 0) {
+        console.log(`[sprintApi.ts] 이슈 데이터가 없음 - 컴포넌트 ID: ${componentId || '없음'}`);
+        if (!componentId) {
+          // 컴포넌트 ID가 없는 경우(전체 조회)에만 기본 그룹 반환
+          return [
+            { issueStatus: 'TODO', issues: [] },
+            { issueStatus: 'IN_PROGRESS', issues: [] },
+            { issueStatus: 'DONE', issues: [] },
+          ];
+        }
+        return []; // 특정 컴포넌트 조회시 이슈가 없으면 빈 배열 반환
+      }
+
       return data.map((group: any) => ({
         issueStatus: group.issueStatus,
         issues: group.issues.map((issueData: any) => ({
@@ -309,7 +334,10 @@ export const getOngoingSprintComponentIssue = async (
             typeof issueData.component === 'string'
               ? issueData.component
               : issueData.component
-                ? issueData.component.name || ''
+                ? {
+                    id: issueData.component.id.toString(),
+                    name: issueData.component.name || '',
+                  }
                 : '',
           assignee: issueData.user
             ? {
@@ -337,20 +365,19 @@ export const getOngoingSprintComponentIssue = async (
               : 'done') as 'todo' | 'inProgress' | 'done',
           description: issueData.content || '',
           sprint: issueData.sprint?.name || '',
+          // API에서 제공하는 position 값 직접 사용
+          position: issueData.position,
         })),
       }));
     } else {
       console.error(
-        `[sprintApi.ts] API returned error for component ${componentId}:`,
+        `[sprintApi.ts] API 오류 응답 (컴포넌트 ID: ${componentId || '없음'}):`,
         response.data,
       );
       return [];
     }
   } catch (error) {
-    console.error(
-      `[sprintApi.ts] Error fetching ongoing sprint component issues for component ${componentId}:`,
-      error,
-    );
+    console.error(`[sprintApi.ts] 이슈 조회 오류 (컴포넌트 ID: ${componentId || '없음'}):`, error);
     return [];
   }
 };
@@ -364,15 +391,15 @@ export const getOngoingSprintComponentIssues = async (
       throw new Error('Project ID is required');
     }
 
+    console.log(
+      `[sprintApi.ts] 활성 스프린트 모든 컴포넌트의 이슈 조회 시작 - 프로젝트 ID: ${projectId}`,
+    );
+
     // 1. 프로젝트의 컴포넌트 목록 가져오기
     const components = await getProjectComponents(projectId);
+    console.log(`[sprintApi.ts] 프로젝트에서 ${components.length}개의 컴포넌트 조회됨`);
 
-    // 2. 컴포넌트가 없으면 기본 조회 시도 ('미분류' 컴포넌트)
-    if (components.length === 0) {
-      return getOngoingSprintComponentIssue(projectId);
-    }
-
-    // 3. 추가: 활성 스프린트가 있는지 확인 (optional)
+    // 2. 활성 스프린트 확인
     try {
       const sprints = await getProjectSprints(projectId);
       const hasActiveSprint = sprints.some(
@@ -380,50 +407,97 @@ export const getOngoingSprintComponentIssues = async (
       );
 
       if (!hasActiveSprint) {
+        console.log('[sprintApi.ts] 활성 스프린트가 없음');
         return [];
       }
+      console.log('[sprintApi.ts] 활성 스프린트 확인됨');
     } catch (error) {
+      console.error('[sprintApi.ts] 스프린트 상태 확인 중 오류:', error);
       // 오류는 기록하지만 계속 진행
     }
 
-    // 4. 컴포넌트별로 이슈 가져오기
+    // 3. 결과를 저장할 배열
     const allIssueGroups: ComponentIssueGroup[] = [];
 
-    // 4.1 미분류 이슈 추가 조회
-    const unclassifiedIssues = await getOngoingSprintComponentIssue(projectId);
-    if (unclassifiedIssues.length > 0) {
-      allIssueGroups.push(...unclassifiedIssues);
-    }
+    // 4. 컴포넌트별로 이슈 가져오기
+    if (components.length === 0) {
+      console.log('[sprintApi.ts] 컴포넌트가 없음, 미분류 이슈만 조회');
 
-    // 4.2 컴포넌트별 이슈 조회
-    for (const component of components) {
-      const componentId = component.id;
-      const componentIssues = await getOngoingSprintComponentIssue(
-        projectId,
-        componentId.toString(),
-      );
+      // 4.1 컴포넌트가 없는 경우, 미할당된 이슈 조회 (componentId 없이 호출)
+      const unassignedIssues = await getOngoingSprintComponentIssue(projectId);
+      if (unassignedIssues && unassignedIssues.length > 0) {
+        console.log(`[sprintApi.ts] 미할당 이슈 ${unassignedIssues.length}개 그룹 발견`);
+        allIssueGroups.push(...unassignedIssues);
+      }
+    } else {
+      // 4.2 각 컴포넌트별로 이슈 조회
+      for (const component of components) {
+        const componentId = component.id;
+        console.log(`[sprintApi.ts] 컴포넌트 ${componentId}(${component.name}) 이슈 조회 중...`);
 
-      if (componentIssues.length > 0) {
-        // 컴포넌트 이름 설정 - API에서 리턴하는 컴포넌트 이름이 없을 수 있으므로 수정
-        componentIssues.forEach((group) => {
-          group.issues.forEach((issue) => {
-            // 컴포넌트 이름이 없으면 프로젝트 컴포넌트 목록에서 가져온 이름 사용
-            if (!issue.component || issue.component === '') {
-              issue.component = component.name;
+        const componentIssues = await getOngoingSprintComponentIssue(
+          projectId,
+          componentId.toString(),
+        );
+
+        if (componentIssues && componentIssues.length > 0) {
+          console.log(
+            `[sprintApi.ts] 컴포넌트 ${componentId}에서 ${componentIssues.length}개 상태 그룹 발견`,
+          );
+
+          // 이슈 개수 계산
+          let issueCount = 0;
+          componentIssues.forEach((group) => {
+            if (group.issues && Array.isArray(group.issues)) {
+              issueCount += group.issues.length;
             }
           });
-        });
 
-        allIssueGroups.push(...componentIssues);
+          console.log(`[sprintApi.ts] 컴포넌트 ${componentId}에서 총 ${issueCount}개 이슈 발견`);
+
+          // 컴포넌트 이름 설정
+          componentIssues.forEach((group) => {
+            group.issues.forEach((issue) => {
+              // 컴포넌트 정보가 문자열일 경우 객체로 변환
+              if (typeof issue.component === 'string') {
+                issue.component = {
+                  id: componentId.toString(),
+                  name: component.name,
+                };
+              }
+              // 컴포넌트 객체지만 name이 없는 경우 설정
+              else if (typeof issue.component === 'object' && issue.component) {
+                if (!issue.component.name) {
+                  issue.component.name = component.name;
+                }
+              }
+            });
+          });
+
+          allIssueGroups.push(...componentIssues);
+        } else {
+          console.log(`[sprintApi.ts] 컴포넌트 ${componentId}에서 이슈가 없음`);
+        }
       }
     }
 
+    // 전체 결과 요약
+    let totalGroups = 0;
+    let totalIssues = 0;
+    allIssueGroups.forEach((group) => {
+      totalGroups++;
+      if (group.issues && Array.isArray(group.issues)) {
+        totalIssues += group.issues.length;
+      }
+    });
+
     console.log(
-      `[sprintApi.ts] Total issue groups found across all components: ${allIssueGroups.length}`,
+      `[sprintApi.ts] 모든 컴포넌트에서 총 ${totalGroups}개 상태 그룹, ${totalIssues}개 이슈 발견`,
     );
+
     return allIssueGroups;
   } catch (error) {
-    console.error('[sprintApi.ts] Error fetching ongoing sprint issues for all components:', error);
+    console.error('[sprintApi.ts] 전체 컴포넌트 이슈 조회 오류:', error);
     return [];
   }
 };

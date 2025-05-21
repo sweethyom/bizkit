@@ -12,11 +12,11 @@ export interface Issue {
   component: string;
   assignee: string | Assignee | null; // 문자열 또는 객체 또는 null
   storyPoints: number;
-  priority: 'low' | 'high';
+  priority: 'low' | 'medium' | 'high';
   status: 'todo' | 'inProgress' | 'done';
   description?: string; // 이슈 상세 내용
   sprint?: string; // 스프린트 정보
-  position?: number; // 이슈의 순서 값
+  position?: number | null; // 이슈의 순서 값 (null 허용)
 }
 
 // GET /components/{componentId}/issues API 응답을 위한 인터페이스
@@ -49,5 +49,6 @@ export interface StatusGroup {
 }
 
 export interface SprintData {
+  sprintId: string | null; // null 허용 추가
   statusGroups: StatusGroup[];
 }

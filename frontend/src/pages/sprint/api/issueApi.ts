@@ -5,9 +5,9 @@ import {
   updateIssueBizPoint,
   updateIssueComponent as updateIssueComponentEntity,
   updateIssueContent as updateIssueContentEntity,
+  updateIssueImportance as updateIssueImportanceEntity,
   updateIssueName as updateIssueNameEntity,
   updateIssueStatus as updateIssueStatusEntity,
-  updateIssueImportance as updateIssueImportanceEntity,
 } from '@/entities/issue';
 import { Issue } from '@/pages/sprint/model/types';
 import { api, ApiResponse } from '@/shared/api';
@@ -186,11 +186,16 @@ export const updateIssueSprint = async (
   issueId: string,
   sprintId: string | null,
 ): Promise<void> => {
-  // 실제 API 호출
-  const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/sprint`, { sprintId });
+  try {
+    // 실제 API 호출
+    const response = await api.patch<ApiResponse<void>>(`/issues/${issueId}/sprint`, { sprintId });
 
-  if (response.data.result !== 'SUCCESS') {
-    throw new Error(`Failed to update issue sprint to ${sprintId}`);
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(`Failed to update issue sprint to ${sprintId}`);
+    }
+  } catch (error) {
+    console.error(`[API] 이슈 스프린트 변경 실패:`, error);
+    throw error;
   }
 };
 
@@ -198,29 +203,18 @@ export const updateIssueSprint = async (
 export const moveIssue = async (
   sprintId: string,
   moveIssueId: string,
-  newStatus?: 'TODO' | 'IN_PROGRESS' | 'DONE',  // API와 일치하는 형태로 변경
+  status?: 'TODO' | 'IN_PROGRESS' | 'DONE', // API 형식으로 전달
   componentId?: string,
   beforeIssuePosition?: number | null,
   afterIssuePosition?: number | null,
 ): Promise<void> => {
   try {
-    // sprintId와 moveIssueId는 필수
     if (!sprintId || !moveIssueId) {
-      throw new Error('Sprint ID and Issue ID are required');
+      throw new Error('스프린트 ID와 이슈 ID는 필수입니다');
     }
 
-    console.log(`[이슈 이동] 스프린트=${sprintId}, 이슈=${moveIssueId}, 상태=${newStatus}, 컴포넌트=${componentId}`);
-    console.log(`[이슈 이동] 이전 위치=${beforeIssuePosition}, 이후 위치=${afterIssuePosition}`);
-
     // API 요청 데이터 구성
-    const requestData: {
-      moveIssueId: number;
-      componentId?: number;
-      status?: string;
-      beforeIssuePosition?: number | null;
-      afterIssuePosition?: number | null;
-      position?: number;  // 계산된 위치 값
-    } = {
+    const requestData: any = {
       moveIssueId: Number(moveIssueId),
     };
 
@@ -229,23 +223,11 @@ export const moveIssue = async (
       requestData.componentId = Number(componentId);
     }
 
-    if (newStatus) {
-      // 이미 API 형식의 상태값을 받으므로 그대로 사용
-      requestData.status = newStatus;
+    if (status) {
+      requestData.status = status;
     }
 
-    // 이전/이후 이슈 위치를 기반으로 새 위치 값 계산
-    if (beforeIssuePosition !== undefined && beforeIssuePosition !== null && 
-        afterIssuePosition !== undefined && afterIssuePosition !== null) {
-      // 이전과 이후 이슈 사이의 위치 값 계산
-      const calculatedPosition = beforeIssuePosition + (afterIssuePosition - beforeIssuePosition) / 2;
-      console.log(`[이슈 이동] 계산된 새 위치 값: ${calculatedPosition}`);
-      
-      // 계산된 position 값 추가 - API가 지원한다면 이 값을 사용
-      requestData.position = calculatedPosition;
-    }
-
-    // beforeIssuePosition과 afterIssuePosition도 전송
+    // position 관련 데이터 처리
     if (beforeIssuePosition !== undefined && beforeIssuePosition !== null) {
       requestData.beforeIssuePosition = beforeIssuePosition;
     }
@@ -254,22 +236,41 @@ export const moveIssue = async (
       requestData.afterIssuePosition = afterIssuePosition;
     }
 
-    console.log('[API 요청 데이터]', requestData);
+    // API 호출 시도
+    try {
+      const response = await api.patch<ApiResponse<void>>(
+        `/sprints/${sprintId}/moveIssues`,
+        requestData,
+      );
 
-    // API 호출
-    const response = await api.patch<ApiResponse<void>>(
-      `/sprints/${sprintId}/moveIssues`,
-      requestData
-    );
-
-    if (response.data.result !== 'SUCCESS') {
-      throw new Error(`Failed to move issue ${moveIssueId} in sprint ${sprintId}`);
+      if (response.data.result === 'SUCCESS') {
+        return;
+      }
+    } catch (apiError: any) {
+      // 오류 코드가 S010인 경우 (옮기려는 이슈가 해당 스프린트에 없음)
+      if (apiError.response?.data?.error?.code === 'S010') {
+        // 대체 방식으로 처리
+      } else {
+        throw apiError; // 다른 오류는 그대로 전파
+      }
     }
-    
-    console.log(`[이슈 이동 성공] 이슈 ${moveIssueId} 이동 완료`);
-  } catch (error) {
-    console.error(`Error moving issue: ${error}`);
-    throw new Error(`Failed to move issue`);
+
+    // 직접 API 호출 방식 (moveIssues API 실패 시)
+    // 1. 필요시 상태 변경
+    if (status) {
+      const clientStatus =
+        status === 'TODO' ? 'todo' : status === 'IN_PROGRESS' ? 'inProgress' : 'done';
+
+      await updateIssueStatus(moveIssueId, clientStatus as 'todo' | 'inProgress' | 'done');
+    }
+
+    // 2. 필요시 컴포넌트 변경
+    if (componentId) {
+      await updateIssueComponent(moveIssueId, componentId);
+    }
+  } catch (error: any) {
+    console.error(`[API] 이슈 이동 오류:`, error);
+    throw error;
   }
 };
 

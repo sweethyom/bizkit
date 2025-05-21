@@ -63,23 +63,38 @@ export const useIssueModal = () => {
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!issue || getByteSize(e.target.value) > 40) return;
 
+    console.log('이름 변경 중:', e.target.value);
     setName(e.target.value);
   };
 
   const onSubmitName = async () => {
-    if (!issue || !name.trim() || getByteSize(name) > 40) return;
+    if (!issue || !name || !name.trim() || getByteSize(name) > 40) return;
 
-    if (name.trim() === issue.name.trim()) {
+    // 기존 이름과 같으면 업데이트하지 않고 리턴
+    if (issue.name && name.trim() === issue.name.trim()) {
+      console.log('이름이 동일하여 업데이트하지 않음:', name);
       setName(issue.name.trim());
       return;
     }
 
     try {
+      console.log('이슈 이름 업데이트 시도:', issue.id, name);
       await updateIssueName(issue.id, name);
+      console.log('이슈 이름 업데이트 성공');
 
-      issue.name = name.trim();
-      updateIssue(issue);
-      setName(issue.name.trim());
+      // 새로운 이름으로 복사본 생성
+      const updatedIssue = JSON.parse(JSON.stringify(issue));
+      updatedIssue.name = name.trim();
+      
+      // Zustand 스토어 업데이트
+      updateIssue(updatedIssue);
+      
+      // 이슈 모달 스토어 업데이트
+      useIssueModalStore.setState({ issue: updatedIssue });
+      
+      // 로컬 상태 업데이트
+      setName(name.trim());
+      console.log('새로운 이름 설정 완료:', name.trim());
     } catch (error) {
       console.error('Error in onSubmitName:', error);
     }
@@ -92,8 +107,8 @@ export const useIssueModal = () => {
   const onSubmitContent = async () => {
     if (!issue) return;
 
-    if (content.trim() === issue.content?.trim()) {
-      setContent(issue.content.trim() ?? '');
+    if (!content || (content.trim() === (issue.content || '')?.trim())) {
+      setContent((issue.content || '')?.trim() ?? '');
       return;
     }
 
