@@ -1,8 +1,9 @@
 import { useIssueModalStore } from '@/widgets/issue-detail-modal';
 
-import { Issue, IssueCard, useIssue } from '@/entities/issue';
+import { IssueCard, useIssue } from '@/entities/issue';
 import { Sprint, SprintStatus, useSprintForm } from '@/entities/sprint';
 
+import { Issue } from '@/shared/model';
 import { DropDownSection, IconButton } from '@/shared/ui';
 
 import { SprintCardHeader } from './SprintCardHeader';
@@ -18,7 +19,7 @@ interface SprintCardProps {
   startError: { sprintId: number; message: string; invalidIssues: Issue[] } | null;
   dragSource: string | null;
   onStartSprint: () => void;
-  onCompleteSprint: () => void;
+  onCompleteSprint: (incompleteIssues: Issue[]) => void;
   onDeleteSprint: (sprint: Sprint) => void;
 }
 
@@ -71,7 +72,7 @@ export const SprintCard = ({
       children: sprint.sprintStatus === SprintStatus.ONGOING ? '스프린트 종료' : '스프린트 시작',
       onClick: async () => {
         if (sprint.sprintStatus === SprintStatus.ONGOING) {
-          onCompleteSprint();
+          onCompleteSprint(issues.filter((issue) => issue.issueStatus !== 'DONE') as Issue[]);
         } else {
           onStartSprint();
         }

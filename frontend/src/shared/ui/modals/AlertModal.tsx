@@ -9,11 +9,16 @@ export const AlertModal = ({
   description,
   onConfirm,
   className,
+  additionalButton,
 }: {
   title: string;
-  description: string;
+  description: React.ReactNode;
   onConfirm: () => void;
   className?: string;
+  additionalButton?: {
+    label: string;
+    onClick: () => void;
+  };
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -53,10 +58,21 @@ export const AlertModal = ({
       >
         <div className='flex flex-col gap-2'>
           <h2 className='mb-2 text-xl font-semibold'>{title}</h2>
-          <p className='text-gray-5'>{description}</p>
+          <div className='text-gray-5'>{description}</div>
         </div>
 
         <div className='mt-8 flex justify-end gap-3'>
+          {additionalButton && (
+            <Button
+              size='sm'
+              variant='outline'
+              onClick={additionalButton.onClick}
+              className='px-4 py-2 text-sm font-medium'
+            >
+              {additionalButton.label}
+            </Button>
+          )}
+
           <Button
             size='sm'
             color='primary'

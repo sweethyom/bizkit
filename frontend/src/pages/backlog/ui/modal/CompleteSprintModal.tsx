@@ -40,7 +40,6 @@ const MenuItem = ({
 
 interface CompleteSprintModalProps {
   closeModal: () => void;
-  currentSprintId: number;
   incompleteIssues: Issue[];
   sprints: { id: number; name: string; sprintStatus: SprintStatus }[];
   onComplete?: (toSprintId: number | null) => void;
@@ -48,7 +47,6 @@ interface CompleteSprintModalProps {
 
 export const CompleteSprintModal = ({
   closeModal,
-  currentSprintId,
   incompleteIssues,
   sprints,
   onComplete,
@@ -80,11 +78,18 @@ export const CompleteSprintModal = ({
       //   ),
       // );
 
+      const fromSprint = sprints.find((sprint) => sprint.sprintStatus === SprintStatus.ONGOING);
+
+      if (!fromSprint) return;
+
       incompleteIssues.forEach((issue) => {
-        console.log(issue);
         moveIssue(
           issue.id,
-          { type: 'sprint', id: currentSprintId, index: 0 },
+          {
+            type: 'sprint',
+            id: fromSprint.id,
+            index: 0,
+          },
           {
             type: toSprintId === null ? 'epic' : 'sprint',
             id: toSprintId ?? issue.epic?.id ?? 0,
@@ -125,8 +130,7 @@ export const CompleteSprintModal = ({
               .filter(
                 (sprint) =>
                   sprint.sprintStatus !== SprintStatus.COMPLETED &&
-                  sprint.sprintStatus !== SprintStatus.ONGOING &&
-                  sprint.id !== currentSprintId,
+                  sprint.sprintStatus !== SprintStatus.ONGOING,
               )
               .map((sprint) => (
                 <MenuItem

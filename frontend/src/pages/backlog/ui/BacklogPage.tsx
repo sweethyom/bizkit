@@ -12,7 +12,7 @@ import { SkeletonCard } from './card/SkeletonCard';
 import { SprintCard } from './card/SprintCard';
 import { CompleteSprintModal } from './modal/CompleteSprintModal';
 
-import { Sprint } from '@/shared/model';
+import { Issue, Sprint } from '@/shared/model';
 import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd';
 import { Plus } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -30,6 +30,7 @@ export const BacklogPage = () => {
     startSprint,
     completeSprint,
     setSprints,
+    setStartSprintError,
   } = useSprint(Number(projectId));
 
   const {
@@ -55,10 +56,21 @@ export const BacklogPage = () => {
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [showAdditionalAlert, setShowAdditionalAlert] = useState(false);
 
   const [alertInfo, setAlertInfo] = useState<{
     title: string;
     description: string;
+    onConfirm: () => void;
+  }>({
+    title: '',
+    description: '',
+    onConfirm: () => {},
+  });
+
+  const [additionalAlertInfo, setAdditionalAlertInfo] = useState<{
+    title: string;
+    description: React.ReactNode;
     onConfirm: () => void;
   }>({
     title: '',
@@ -152,6 +164,25 @@ export const BacklogPage = () => {
     },
     [epics, issues, moveIssue, epicSetEpics],
   );
+
+  const handleCompleteSprintConfirmation = (sprintId: number, incompleteIssues: Issue[]) => {
+    setCompleteTargetSprintId(sprintId);
+
+    if (incompleteIssues.length > 0) {
+      setIsCompleteSprintModalOpen(true);
+      return;
+    }
+
+    handleCompleteSprint(sprintId, null);
+  };
+
+  const handleCompleteSprint = async (sprintId: number, toSprintId: number | null) => {
+    if (!sprintId) return;
+
+    await completeSprint(sprintId, toSprintId);
+    setIsCompleteSprintModalOpen(false);
+    setCompleteTargetSprintId(null);
+  };
 
   const handleDeleteSprintConfirmation = async (sprint: Sprint) => {
     if (sprint.sprintStatus === SprintStatus.ONGOING) {
@@ -307,7 +338,7 @@ export const BacklogPage = () => {
 
                         if (!result) {
                           setAlertInfo({
-                            title: '스프린트 시작',
+                            title: '🚨 스프린트 시작',
                             description:
                               '스프린트 내 모든 이슈의 정보가 입력되어 있어야 합니다. 누락된 이슈가 있습니다.',
                             onConfirm: () => {
@@ -326,9 +357,8 @@ export const BacklogPage = () => {
 
                         setStartTargetSprintId(sprint.id);
                       }}
-                      onCompleteSprint={() => {
-                        setCompleteTargetSprintId(sprint.id);
-                        setIsCompleteSprintModalOpen(true);
+                      onCompleteSprint={(incompleteIssues: Issue[]) => {
+                        handleCompleteSprintConfirmation(sprint.id, incompleteIssues);
                       }}
                       onDeleteSprint={handleDeleteSprintConfirmation}
                       dragSource={dragSource}
@@ -432,15 +462,12 @@ export const BacklogPage = () => {
             setIsCompleteSprintModalOpen(false);
             setCompleteTargetSprintId(null);
           }}
-          currentSprintId={completeTargetSprintId}
           incompleteIssues={(issues.sprint[completeTargetSprintId] || []).filter(
             (issue) => issue.issueStatus !== 'DONE',
           )}
           sprints={sprints}
           onComplete={async (toSprintId: number | null) => {
-            await completeSprint(completeTargetSprintId, toSprintId);
-            setIsCompleteSprintModalOpen(false);
-            setCompleteTargetSprintId(null);
+            await handleCompleteSprint(completeTargetSprintId, toSprintId);
           }}
         />
       )}
@@ -459,6 +486,60 @@ export const BacklogPage = () => {
           title={alertInfo.title}
           description={alertInfo.description}
           onConfirm={() => alertInfo.onConfirm()}
+          additionalButton={
+            alertInfo.title === '🚨 스프린트 시작'
+              ? {
+                  label: '자세히 보기',
+                  onClick: () => {
+                    setShowAlert(false);
+                    setAdditionalAlertInfo({
+                      title: '정보가 누락된 이슈 목록',
+                      description: (
+                        <div className='border-gray-2 h-64 overflow-x-clip overflow-y-auto rounded-md border p-1'>
+                          {startSprintError?.invalidIssues.length || 0 > 0 ? (
+                            startSprintError?.invalidIssues.map((issue, index) => (
+                              <div
+                                key={index}
+                                className='mb-1 cursor-pointer rounded-md p-3 transition-colors hover:bg-gray-100'
+                                onClick={() => {
+                                  setStartSprintError({
+                                    ...startSprintError,
+                                    invalidIssues: startSprintError?.invalidIssues.filter(
+                                      (i) => i.id === issue.id,
+                                    ),
+                                  });
+                                }}
+                              >
+                                <div className='flex items-center'>
+                                  <div className='mr-3 h-2 w-2 rounded-full bg-red-500'></div>
+                                  <span>{issue.name}</span>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className='p-3 text-center text-gray-500'>
+                              검색 결과가 없습니다
+                            </div>
+                          )}
+                        </div>
+                      ),
+                      onConfirm: () => {
+                        setShowAdditionalAlert(false);
+                      },
+                    });
+                    setShowAdditionalAlert(true);
+                  },
+                }
+              : undefined
+          }
+        />
+      )}
+
+      {showAdditionalAlert && (
+        <AlertModal
+          title={additionalAlertInfo.title}
+          description={additionalAlertInfo.description}
+          onConfirm={() => additionalAlertInfo.onConfirm()}
         />
       )}
     </DragDropContext>

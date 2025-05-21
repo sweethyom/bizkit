@@ -90,7 +90,7 @@ export const IssueCard = ({
 
             {showMenuButton && (
               <div className='relative ml-auto'>
-                <IconButton icon='ellipsis' onClick={() => { }} />
+                <IconButton icon='ellipsis' onClick={() => {}} />
               </div>
             )}
           </div>
@@ -126,7 +126,7 @@ export const IssueCard = ({
                   <div
                     className={clsx('text-label-sm rounded-full px-2', {
                       'bg-gray-3/90 text-white': issue.issueStatus === 'TODO',
-                      'bg-point/70 text-white': issue.issueStatus === 'IN_PROGRESS',
+                      'bg-point/80 text-white': issue.issueStatus === 'IN_PROGRESS',
                       'bg-primary/80 text-white': issue.issueStatus === 'DONE',
                     })}
                   >
@@ -178,7 +178,7 @@ export const IssueCard = ({
           />
         </div>
 
-        <TooltipSection info='스택'>
+        <TooltipSection info='킷'>
           <div className='bg-point flex w-fit items-center rounded-sm px-1'>
             {issue.epic && (
               <div className='flex items-center gap-1'>
