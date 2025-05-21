@@ -1,7 +1,7 @@
 import { Issue } from '@/pages/sprint/model/types';
 import { Draggable } from '@hello-pangea/dnd';
 import { clsx } from 'clsx';
-import { Clock, Hash, Star, Tag } from 'lucide-react';
+import { Briefcase, BringToFront, Hash } from 'lucide-react';
 
 interface IssueCardProps {
   issue: Issue;
@@ -92,21 +92,14 @@ export const IssueCard: React.FC<IssueCardProps> = ({ issue, index, onIssueClick
             <div className='mb-3 flex flex-wrap gap-1'>
               {issue.epic && (
                 <div className='inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700'>
-                  <Star size={12} className='mr-1' />
+                  <BringToFront size={12} className='mr-1' />
                   {issue.epic}
-                </div>
-              )}
-
-              {issue.component && (
-                <div className='inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700'>
-                  <Tag size={12} className='mr-1' />
-                  {issue.component}
                 </div>
               )}
 
               {issue.storyPoints > 0 && (
                 <div className='inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700'>
-                  <Clock size={12} className='mr-1' />
+                  <Briefcase size={12} className='mr-1' />
                   {issue.storyPoints}점
                 </div>
               )}
@@ -118,7 +111,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({ issue, index, onIssueClick
                 <div className='flex items-center gap-1 text-xs text-gray-600'>
                   {typeof issue.assignee !== 'string' && issue.assignee?.profileImageUrl ? (
                     <img
-                      src={issue.assignee.profileImageUrl}
+                      src={issue.assignee.profileImageUrl ?? '/images/default-profile.png'}
                       alt={issue.assignee.nickname || '담당자'}
                       className='h-6 w-6 rounded-full border border-gray-200 object-cover shadow-sm'
                     />

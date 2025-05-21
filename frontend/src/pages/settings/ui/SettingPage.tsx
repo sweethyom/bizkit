@@ -169,7 +169,7 @@ const SettingPage: React.FC = () => {
     try {
       await deleteProject(projectId);
       // 성공 후 홈페이지로 이동
-      navigate('/', { replace: true });
+      navigate('/my-works', { replace: true });
     } catch (error) {
       console.error('Failed to delete project:', error);
       setFormError('프로젝트 삭제에 실패했습니다.');

@@ -9,6 +9,7 @@ interface SprintErrorStateProps {
 export const SprintErrorState: React.FC<SprintErrorStateProps> = ({ error, projectId }) => {
   const isNoIssuesError = error.includes('이슈가 없습니다');
   const isNoSprintError = error.includes('스프린트가 존재하지 않습니다');
+  const isNoActiveSprintError = error.includes('준비된 스프린트가 있지만 활성화되지 않았습니다');
 
   return (
     <div className='flex h-screen flex-col items-center justify-center bg-gray-50'>
@@ -44,10 +45,19 @@ export const SprintErrorState: React.FC<SprintErrorStateProps> = ({ error, proje
             </Link>
           )}
 
+          {isNoActiveSprintError && projectId && (
+            <Link
+              to={`/projects/${projectId}/backlog`}
+              className='bg-primary hover:bg-primary/80 w-full rounded-md py-2 text-center font-medium text-white transition-colors'
+            >
+              스택에서 스프린트 시작하기
+            </Link>
+          )}
+
           <button
             onClick={() => window.location.reload()}
-            className={`w-full rounded-md py-2 font-medium transition-colors ${
-              isNoSprintError || isNoIssuesError
+            className={`w-full cursor-pointer rounded-md py-2 font-medium transition-colors ${
+              isNoSprintError || isNoIssuesError || isNoActiveSprintError
                 ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 : 'bg-primary hover:bg-primary/80 text-white'
             }`}
