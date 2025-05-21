@@ -4,7 +4,7 @@ import { useSprintBoardFilter } from '@/pages/sprint/model/useSprintBoardFilter'
 import { Button } from '@/shared/ui';
 import { IssueDetailModal, useIssueModalStore } from '@/widgets/issue-detail-modal';
 import { DragDropContext } from '@hello-pangea/dnd';
-import { X } from 'lucide-react';
+import { Layers, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import { Issue, SprintData } from '../model/types';
@@ -189,21 +189,28 @@ export const SprintBoard: React.FC = () => {
   const totalFilteredCount = getTotalFilteredIssuesCount();
 
   return (
-    <div className='flex flex-col gap-4'>
+    <div className='flex flex-col gap-4 transition-all duration-300'>
       {/* 헤더 */}
-      <SprintBoardHeader
-        activeFilter={activeFilter}
-        filterName={filterName}
-        totalFilteredCount={totalFilteredCount}
-      />
+      <div className='rounded-lg border-none bg-white/60 shadow-md backdrop-blur-sm'>
+        <div className='p-4'>
+          <SprintBoardHeader
+            activeFilter={activeFilter}
+            filterName={filterName}
+            totalFilteredCount={totalFilteredCount}
+          />
+        </div>
+      </div>
 
       <section className='bg-background-primary flex flex-col gap-4 p-4'>
         {/* 필터 섹션 */}
-        <SprintFilterSection
-          sprintData={displayData}
-          activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
-        />
+        <div className='mb-4'>
+          <SprintFilterSection
+            sprintData={displayData}
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+            className='w-full'
+          />
+        </div>
 
         {/* 드래그 앤 드롭 컨텍스트 */}
         <DragDropContext onDragEnd={onDragEnd}>
@@ -222,15 +229,15 @@ export const SprintBoard: React.FC = () => {
         <>
           <IssueDetailModal />
           {/* 삭제 버튼 */}
-          <div className='fixed right-8 bottom-8 z-[60]'>
+          <div className='fixed right-8 bottom-8 z-[60] transition-all duration-300'>
             <Button
               color='warning'
               variant='solid'
               onClick={handleDeleteIssue}
-              className='flex items-center gap-1 shadow-lg'
+              className='flex items-center gap-2 rounded-full bg-red-600 px-5 py-6 text-white shadow-lg transition-all duration-200 hover:bg-red-700 hover:shadow-xl'
             >
               <X size={18} />
-              이슈 삭제
+              <span>이슈 삭제</span>
             </Button>
           </div>
         </>

@@ -1,8 +1,8 @@
 import { Issue, StatusGroup } from '@/pages/sprint/model/types';
 import { ComponentGroup } from '@/pages/sprint/ui/ComponentGroup';
 import { Droppable } from '@hello-pangea/dnd';
-import { ChevronDown, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { CheckCircle, Clock, CheckCircle2, ChevronRight } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { clsx } from 'clsx';
 
 interface StatusColumnProps {
@@ -15,21 +15,15 @@ interface StatusColumnProps {
 }
 
 const statusColors = {
-  todo: 'border-l-primary',
-  inProgress: 'border-l-amber-500',
-  done: 'border-l-emerald-500',
+  todo: 'bg-gray-600',
+  inProgress: 'bg-orange-500',
+  done: 'bg-blue-600',
 };
 
 const statusIcons = {
-  todo: <div className='size-4 rounded-full bg-primary'></div>,
-  inProgress: <div className='size-4 rounded-full bg-amber-500'></div>,
-  done: <div className='size-4 rounded-full bg-emerald-500'></div>,
-};
-
-const statusHeaderColors = {
-  todo: 'text-primary',
-  inProgress: 'text-amber-600',
-  done: 'text-emerald-600',
+  todo: <CheckCircle className="h-4 w-4" />,
+  inProgress: <Clock className="h-4 w-4" />,
+  done: <CheckCircle2 className="h-4 w-4" />,
 };
 
 export const StatusColumn: React.FC<StatusColumnProps> = ({
@@ -47,6 +41,7 @@ export const StatusColumn: React.FC<StatusColumnProps> = ({
   );
   
   const [isExpanded, setIsExpanded] = useState(true);
+  const contentRef = useRef<HTMLDivElement>(null);
   
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -54,101 +49,117 @@ export const StatusColumn: React.FC<StatusColumnProps> = ({
 
   return (
     <div
-      className={`flex flex-col overflow-hidden rounded-md border border-l-6 shadow-sm ${statusColors[statusGroup.status]} bg-white`}
+      className="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md transition-all duration-200 hover:shadow-lg"
     >
-      {/* 상태 헤더 */}
+      {/* Status Header */}
       <div 
         onClick={toggleExpanded}
-        className={`${isExpanded ? 'border-b border-gray-200' : ''} flex cursor-pointer items-center justify-between p-4 ${statusHeaderColors[statusGroup.status]}`}
+        className={`${statusColors[statusGroup.status]} flex cursor-pointer items-center justify-between p-4 text-white hover:brightness-105 transition-all duration-200`}
       >
-        <div className='flex items-center gap-2'>
-          <ChevronRight
+        <div className='flex items-center gap-3'>
+          <div
             className={clsx(
-              'transition-transform',
-              statusHeaderColors[statusGroup.status],
-              isExpanded ? 'rotate-90' : 'rotate-0',
+              "transition-transform duration-200",
+              isExpanded ? "rotate-90" : "rotate-0"
             )}
-          />
-          {statusIcons[statusGroup.status]}
-          <h2 className='text-label-xl font-semibold'>{statusGroup.title}</h2>
+          >
+            <ChevronRight className="h-5 w-5 text-white" />
+          </div>
+          
+          <div className='flex items-center justify-center size-6 rounded-full bg-white/20 backdrop-blur-sm'>
+            {statusIcons[statusGroup.status]}
+          </div>
+          
+          <h2 className='text-lg font-bold'>{statusGroup.title}</h2>
         </div>
-        <span className='bg-gray-100 text-gray-700 inline-flex items-center justify-center rounded-full px-2.5 py-1 text-sm font-medium'>
+        
+        <span 
+          className='bg-white/20 text-white inline-flex items-center justify-center rounded-full px-3 py-1 text-sm font-medium backdrop-blur-sm hover:bg-white/30 transition-all duration-200'
+        >
           {totalIssues}
         </span>
       </div>
 
-      {/* 컴포넌트 그룹 영역 - 애니메이션 적용 */}
+      {/* Component Groups Area with Animation */}
       <div
         style={{
           maxHeight: isExpanded ? '100vh' : '0',
-          transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          overflow: 'hidden',
+          opacity: isExpanded ? 1 : 0.8,
+          transition: "max-height 0.3s ease-in-out, opacity 0.2s ease"
         }}
+        className="overflow-hidden"
       >
-        <Droppable
-          droppableId={statusGroup.id}
-          type='COMPONENT_GROUP'
-          isDropDisabled={true} // 컴포넌트 그룹 자체는 드래그 앤 드롭하지 않음
-        >
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              className='max-h-[calc(100vh-200px)] overflow-y-auto p-4 bg-white'
-            >
-              {/* 모든 컴포넌트 그룹 항상 표시 */}
-              {statusGroup.componentGroups.map((componentGroup) => {
-                // 필터링 경우에는 비어있는 컴포넌트 그룹은 표시하지 않음
-                const noIssuesInComponent = componentGroup.issues.length === 0;
-
-                // 필터가 활성화되었고 해당 컴포넌트에 이슈가 없는 경우에만 표시하지 않음
-                if (filterActive && noIssuesInComponent) {
-                  return null;
-                }
-
-                return (
-                  <ComponentGroup
-                    key={componentGroup.id}
-                    componentGroup={{
-                      ...componentGroup,
-                      isExpanded: expandedComponents.has(componentGroup.name),
-                    }}
-                    statusId={statusGroup.id}
-                    onToggleExpand={() => onToggleExpand(componentGroup.name)}
-                    onIssueClick={onIssueClick}
-                    maxIssueCount={componentIssueCounts[componentGroup.name] || 0}
-                  />
-                );
-              })}
-
-              {/* 전체 필터링 결과가 없는 경우에만 메시지 표시 */}
-              {filterActive &&
-                statusGroup.componentGroups.every(
-                  (group) => group.issues.length === 0 || (filterActive && group.issues.length === 0),
-                ) && (
-                  <div className='flex h-32 flex-col items-center justify-center py-8 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300'>
-                    <svg
-                      className='mb-3 h-12 w-12 text-gray-300'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                      xmlns='http://www.w3.org/2000/svg'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth='2'
-                        d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'
-                      ></path>
-                    </svg>
-                    <p className='text-center'>필터링된 결과가 없습니다.</p>
-                    <p className='mt-1 text-sm'>필터를 변경하거나 초기화해 보세요.</p>
-                  </div>
+        <div ref={contentRef}>
+          <Droppable
+            droppableId={statusGroup.id}
+            type='COMPONENT_GROUP'
+            isDropDisabled={true} // Component groups themselves are not draggable
+          >
+            {(provided, snapshot) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className={clsx(
+                  'max-h-[calc(100vh-200px)] overflow-y-auto p-4 bg-white transition-colors duration-200',
+                  snapshot.isDraggingOver && 'bg-gray-100/50'
                 )}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+              >
+                {statusGroup.componentGroups.map((componentGroup, idx) => {
+                  // Don't show empty component groups when filtering
+                  const noIssuesInComponent = componentGroup.issues.length === 0;
+
+                  // Only hide if filter is active and component has no issues
+                  if (filterActive && noIssuesInComponent) {
+                    return null;
+                  }
+
+                  return (
+                    <div
+                      key={componentGroup.id}
+                      className="transition-all duration-200"
+                    >
+                      <ComponentGroup
+                        componentGroup={{
+                          ...componentGroup,
+                          isExpanded: expandedComponents.has(componentGroup.name),
+                        }}
+                        statusId={statusGroup.id}
+                        onToggleExpand={() => onToggleExpand(componentGroup.name)}
+                        onIssueClick={onIssueClick}
+                        maxIssueCount={componentIssueCounts[componentGroup.name] || 0}
+                      />
+                    </div>
+                  );
+                })}
+
+                {/* No results message when filtering */}
+                {filterActive &&
+                  statusGroup.componentGroups.every(
+                    (group) => group.issues.length === 0 || (filterActive && group.issues.length === 0),
+                  ) && (
+                    <div className='flex h-24 flex-col items-center justify-center py-4 text-gray-500 bg-gray-50/80 rounded-lg border border-dashed border-gray-300 mt-2 transition-all duration-300'>
+                      <svg
+                        className='mb-2 h-10 w-10 text-gray-300'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                        xmlns='http://www.w3.org/2000/svg'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth='2'
+                          d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'
+                        ></path>
+                      </svg>
+                      <p className='text-sm'>필터링된 결과가 없습니다</p>
+                    </div>
+                  )}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </div>
       </div>
     </div>
   );

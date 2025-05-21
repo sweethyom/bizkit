@@ -26,27 +26,29 @@ export const ComponentGroup: React.FC<ComponentGroupProps> = ({
   const hasNoIssues = issueCount === 0;
 
   return (
-    <div className='mb-3'>
+    <div className='mb-4'>
       <div
-        className={`flex cursor-pointer items-center justify-between rounded-t-md border p-3 ${
+        className={`flex cursor-pointer items-center justify-between rounded-md border p-4 ${
           componentGroup.isExpanded 
-            ? 'border-primary bg-primary/5' 
+            ? 'border-gray-300 bg-gray-50' 
             : 'border-gray-200 bg-white'
-        } ${hasNoIssues ? 'opacity-80' : ''} shadow-sm transition-all hover:bg-gray-50`}
+        } ${hasNoIssues ? 'opacity-85' : ''} shadow-sm transition-all hover:bg-gray-50`}
         onClick={() => onToggleExpand(componentGroup.id)}
       >
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center gap-3'>
           {componentGroup.isExpanded ? (
-            <ChevronDown className='h-5 w-5 text-primary' />
+            <ChevronDown className='h-5 w-5 text-gray-600' />
           ) : (
-            <ChevronRight className='h-5 w-5 text-gray-500' />
+            <ChevronRight className='h-5 w-5 text-gray-400' />
           )}
-          <Component className='h-5 w-5 text-point' />
-          <span className='font-medium text-gray-700'>{componentGroup.name}</span>
+          <div className='flex items-center justify-center size-7 rounded-full bg-gray-100 text-gray-600'>
+            <Component className='h-4 w-4' />
+          </div>
+          <span className='text-sm font-medium text-gray-700'>{componentGroup.name}</span>
         </div>
 
         <div className='flex items-center'>
-          <span className='inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-gray-100 px-2 text-xs font-medium text-gray-700'>
+          <span className='inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-gray-600 px-2 text-xs font-medium text-white'>
             {issueCount}
           </span>
         </div>
@@ -64,8 +66,8 @@ export const ComponentGroup: React.FC<ComponentGroupProps> = ({
                 ref={provided.innerRef}
                 {...provided.droppableProps}
                 className={clsx(
-                  'min-h-[50px] rounded-b-md p-3 transition-colors border border-t-0 border-gray-200',
-                  snapshot.isDraggingOver ? 'bg-primary/5' : 'bg-white',
+                  'min-h-[50px] rounded-md p-4 mt-2 transition-colors border border-gray-200',
+                  snapshot.isDraggingOver ? 'bg-gray-100 border-gray-300' : 'bg-white',
                 )}
               >
                 {componentGroup.issues.length > 0 ? (
