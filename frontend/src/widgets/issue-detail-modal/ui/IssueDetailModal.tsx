@@ -278,6 +278,7 @@ export const IssueDetailModal = () => {
             <Tag
               ref={epicRef}
               name='킷'
+              className='!bg-point/30 !font-bold !text-orange-600'
               onClick={() => {
                 setEditField('epic');
                 setAnchorRef(epicRef as React.RefObject<HTMLSpanElement>);
