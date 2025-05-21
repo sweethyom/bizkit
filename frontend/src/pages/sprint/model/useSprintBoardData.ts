@@ -49,11 +49,11 @@ export const useSprintBoardData = (projectId?: string) => {
           setSprintData(createEmptySprintData(activeSprint?.id?.toString() || null));
           if (hasReadySprints) {
             setError(
-              '준비된 스프린트가 있지만, 시작되지 않았습니다. 백로그 페이지에서 스프린트를 시작해 주세요.',
+              '준비된 스프린트가 있지만, 시작되지 않았습니다. 스택 페이지에서 스프린트를 시작해 주세요.',
             );
           } else {
             setError(
-              '현재 프로젝트에 활성 스프린트가 존재하지 않습니다. 스프린트를 먼저 생성해주세요.',
+              '현재 프로젝트에 진행 중인 스프린트가 존재하지 않습니다. 스프린트를 먼저 생성해주세요.',
             );
           }
           setLoading(false);
@@ -120,7 +120,7 @@ export const useSprintBoardData = (projectId?: string) => {
         if (!hasAnyIssues) {
           // 활성 스프린트가 있지만 이슈가 없는 경우 - 오류가 아니라 정보 메시지
           setError(
-            '현재 활성 스프린트에는 이슈가 없습니다. 백로그에서 이슈를 스프린트로 추가해 보세요.',
+            '현재 활성 스프린트에는 이슈가 없습니다. 스택에서 이슈를 스프린트로 추가해 보세요.',
           );
         } else {
           setError(null);
