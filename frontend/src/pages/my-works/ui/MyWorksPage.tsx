@@ -71,15 +71,6 @@ export const MyWorksPage = () => {
 
   return (
     <div className='bg-background-secondary min-h-screen w-full p-4 md:p-8'>
-      <button
-        onClick={() => {
-          console.log(todoCursorId);
-          getTodoIssues(todoCursorId);
-        }}
-      >
-        CLICK
-      </button>
-
       <h1 className='text-heading-md mb-8 font-bold text-black'>내 작업</h1>
 
       <div className='scrollbar-thin scrollbar-thumb-gray-200 overflow-x-auto p-1'>
