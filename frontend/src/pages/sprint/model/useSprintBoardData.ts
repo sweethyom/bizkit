@@ -1,7 +1,9 @@
 import { deleteIssue as apiDeleteIssue } from '@/pages/sprint/api/issueApi';
+
 import { getOngoingSprintComponentIssues, getProjectSprints } from '@/pages/sprint/api/sprintApi';
 import { Issue, SprintData } from '@/pages/sprint/model/types';
 import { useCallback, useEffect, useState } from 'react';
+
 import { createEmptySprintData, transformApiResponseToSprintData } from '../lib/transformers';
 
 /**
@@ -20,6 +22,11 @@ export const useSprintBoardData = (projectId?: string) => {
       }
 
       localStorage.setItem('currentProjectId', projectId);
+      setLoading(true);
+      console.log(
+        `[useSprintBoardData] 활성 스프린트 데이터 로드 시작 - 프로젝트 ID: ${projectId}`,
+      );
+
       setLoading(true);
       console.log(
         `[useSprintBoardData] 활성 스프린트 데이터 로드 시작 - 프로젝트 ID: ${projectId}`,
@@ -66,7 +73,6 @@ export const useSprintBoardData = (projectId?: string) => {
         console.log('[useSprintBoardData] 컴포넌트별 이슈 응답 데이터:', componentIssueGroups);
 
         const convertedData = transformApiResponseToSprintData(componentIssueGroups);
-
         // 활성 스프린트 ID 설정
         if (activeSprint) {
           convertedData.sprintId = activeSprint.id.toString();
