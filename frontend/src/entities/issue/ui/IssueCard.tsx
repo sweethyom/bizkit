@@ -5,6 +5,7 @@ import { DropDownSection, IconButton, TooltipSection } from '@/shared/ui';
 import { clsx } from 'clsx';
 
 interface IssueCardProps {
+  ref?: React.RefObject<HTMLDivElement | null> | null;
   issue: Issue | null;
   isError?: boolean;
   view?: 'compact' | 'detail';
@@ -15,6 +16,7 @@ interface IssueCardProps {
 }
 
 export const IssueCard = ({
+  ref,
   issue,
   isError,
   view = 'detail',
@@ -40,7 +42,7 @@ export const IssueCard = ({
           }
         }}
       >
-        <div className='flex flex-col gap-2'>
+        <div ref={ref} className='flex flex-col gap-2'>
           <div className='flex w-full items-center gap-4'>
             <div className='flex flex-col'>
               <div className='flex items-center gap-2'>
