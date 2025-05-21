@@ -61,11 +61,19 @@ export const BacklogPage = () => {
   const [alertInfo, setAlertInfo] = useState<{
     title: string;
     description: string;
-    onConfirm: () => void;
+    confirmButton: {
+      color: 'primary' | 'warning' | 'point';
+      label: string;
+      onClick: () => void;
+    };
   }>({
     title: '',
     description: '',
-    onConfirm: () => {},
+    confirmButton: {
+      color: 'primary',
+      label: '',
+      onClick: () => {},
+    },
   });
 
   const [additionalAlertInfo, setAdditionalAlertInfo] = useState<{
@@ -83,10 +91,14 @@ export const BacklogPage = () => {
       const { destination, source, draggableId } = result;
       if (!destination) return;
 
-      const idParts = draggableId.split('-');
-      const issueId = Number(idParts.at(-1));
-      const fromType = idParts[0] as 'sprint' | 'epic';
-      const fromId = Number(idParts[1]);
+      const draggableInfo = draggableId.split('-');
+
+      const issueId = Number(draggableInfo.at(-1));
+
+      const fromType = draggableInfo[0] as 'sprint' | 'epic';
+      const fromId = Number(draggableInfo[1]);
+      const toType = destination.droppableId.split('-')[0] as 'sprint' | 'epic';
+      const toId = Number(destination.droppableId.split('-')[1]);
 
       const from = {
         type: fromType as 'sprint' | 'epic',
@@ -94,75 +106,188 @@ export const BacklogPage = () => {
         index: source.index,
       };
 
-      const isSameLocation =
-        destination.droppableId === source.droppableId && destination.index === source.index;
+      const to = {
+        type: toType as 'sprint' | 'epic',
+        id: toId,
+        index: destination.index,
+      };
+
+      if (from.type === 'epic' && to.type === 'epic') return;
+
+      if (to.type === 'epic') {
+        const issue = issues.sprint[from.id]?.find((i) => i.id === issueId);
+        const toEpic = epics.find((e) => e.id === issue?.epic?.id);
+
+        if (!issue || !toEpic) return;
+
+        to.id = toEpic.id;
+      }
+
+      const isSameLocation = from.type === to.type && from.id === to.id;
+
       if (isSameLocation) return;
 
-      // 목적지가 epic-backlog인 경우 (sprint → epic only)
-      const isToEpicBacklog = destination.droppableId === 'epic-backlog';
-      const fromIssues = issues[from.type][from.id];
-      const targetIssue = fromIssues[from.index];
+      const moveIssueFromEpicToSprint = async (
+        issueId: number,
+        epicId: number,
+        sprintId: number,
+      ) => {
+        const issue = issues.epic[epicId]?.find((i) => i.id === issueId);
+        const epic = epics.find((e) => e.id === epicId);
+        const sprint = sprints.find((s) => s.id === sprintId);
 
-      // epic → sprint: epic count 감소 & 상태 변경
-      if (from.type === 'epic') {
-        const epic = epics.find((e) => e.id === from.id);
-        if (!epic) return;
+        if (!epic || !sprint || !issue) return;
 
-        targetIssue.issueStatus = 'TODO';
+        issue.issueStatus = 'TODO';
         epicSetEpics(
           epics.map((e) =>
             e.id === epic.id ? { ...e, cntRemainIssues: e.cntRemainIssues - 1 } : e,
           ),
         );
-      }
+        console.log(from, to);
+        // setIssues('sprint', to.id, issues.sprint[to.id]);
 
-      if (isToEpicBacklog) {
-        if (from.type === 'epic') return;
-
-        const epicId = targetIssue.epic?.id;
-        if (!epicId) return;
-
-        targetIssue.issueStatus = 'UNASSIGNED';
-
-        const to = { type: 'epic' as const, id: epicId, index: destination.index };
         moveIssue(issueId, from, to);
 
-        try {
-          await moveIssueToSprint(issueId, null);
-          const epic = epics.find((e) => e.id === epicId);
-          if (!epic) return;
+        await moveIssueToSprint(issueId, sprintId);
+      };
 
-          epicSetEpics(
-            epics.map((e) =>
-              e.id === epic.id ? { ...e, cntRemainIssues: e.cntRemainIssues + 1 } : e,
-            ),
-          );
-        } catch (err) {
-          console.error(err);
+      const moveIssueFromEpicToOnGoingSprint = (issueId: number, epicId: number) => {
+        setShowConfirm(true);
+        setAlertInfo({
+          title: '🚨 이슈 이동',
+          description:
+            '진행 중인 스프린트에 이슈를 추가하지 않을 것을 권장합니다. 정말 추가 하시겠습니까?',
+          confirmButton: {
+            color: 'primary',
+            label: '확인',
+            onClick: () => {
+              moveIssueFromEpicToSprint(issueId, epicId, to.id);
+              setShowConfirm(false);
+
+              setAlertInfo({
+                title: '',
+                description: '',
+                confirmButton: {
+                  color: 'primary',
+                  label: '확인',
+                  onClick: () => {},
+                },
+              });
+            },
+          },
+        });
+      };
+
+      const moveIssueFromSprintToSprint = async (issueId: number, sprintId: number) => {
+        // const issue = issues.epic[epicId]?.find((i) => i.id === issueId);
+        // const epic = epics.find((e) => e.id === epicId);
+
+        // if (!epic || !issue) return;
+
+        moveIssue(issueId, from, to);
+        setIssues('sprint', to.id, issues.sprint[to.id]);
+
+        await moveIssueToSprint(issueId, sprintId);
+      };
+
+      const moveIssueFromSprintToOnGoingSprint = (issueId: number, toSprintId: number) => {
+        setShowConfirm(true);
+        setAlertInfo({
+          title: '🚨 이슈 이동',
+          description:
+            '진행 중인 스프린트에 이슈를 추가하지 않을 것을 권장합니다. 정말 추가 하시겠습니까?',
+          confirmButton: {
+            color: 'primary',
+            label: '확인',
+            onClick: () => {
+              moveIssueFromSprintToSprint(issueId, toSprintId);
+              setShowConfirm(false);
+              setAlertInfo({
+                title: '',
+                description: '',
+                confirmButton: {
+                  color: 'primary',
+                  label: '확인',
+                  onClick: () => {},
+                },
+              });
+            },
+          },
+        });
+      };
+
+      const moveIssueFromSprintToEpic = async (
+        issueId: number,
+        sprintId: number,
+        epicId: number,
+      ) => {
+        const issue = issues.sprint[sprintId]?.find((i) => i.id === issueId);
+        const sprint = sprints.find((s) => s.id === sprintId);
+        const epic = epics.find((e) => e.id === epicId);
+
+        if (!epic || !sprint || !issue) return;
+
+        issue.issueStatus = 'UNASSIGNED';
+        epicSetEpics(
+          epics.map((e) =>
+            e.id === epic.id ? { ...e, cntRemainIssues: e.cntRemainIssues + 1 } : e,
+          ),
+        );
+        console.log(from, to);
+        // setIssues('epic', to.id, issues.epic[to.id]);
+
+        moveIssue(issueId, from, to);
+
+        await moveIssueToSprint(issueId, null);
+      };
+
+      if (to.type === 'sprint') {
+        const targetSprint = sprints.find((s) => s.id === to.id);
+        if (!targetSprint) return;
+
+        if (targetSprint.sprintStatus === SprintStatus.ONGOING) {
+          if (from.type === 'epic') {
+            moveIssueFromEpicToOnGoingSprint(issueId, from.id);
+            return;
+          }
+
+          if (from.type === 'sprint') {
+            moveIssueFromSprintToOnGoingSprint(issueId, to.id);
+            return;
+          }
+        }
+
+        if (from.type === 'epic') {
+          moveIssueFromEpicToSprint(issueId, from.id, to.id);
+          return;
+        }
+
+        if (from.type === 'sprint') {
+          moveIssueFromSprintToSprint(issueId, to.id);
+          return;
         }
 
         return;
       }
 
-      // 목적지가 epic이 아닌 일반 sprint or epic으로 이동하는 경우
-      const [toType, toIdStr] = destination.droppableId.split('-');
-      const to = {
-        type: toType as 'sprint' | 'epic',
-        id: Number(toIdStr),
-        index: destination.index,
-      };
+      if (to.type === 'epic') {
+        const targetEpic = epics.find((e) => e.id === to.id);
+        if (!targetEpic) return;
 
-      if (from.type === to.type && from.id === to.id) return;
+        if (from.type === 'epic') return;
 
-      moveIssue(issueId, from, to);
+        if (from.type === 'sprint') {
+          moveIssueFromSprintToEpic(issueId, from.id, to.id);
+          return;
+        }
 
-      try {
-        await moveIssueToSprint(issueId, to.type === 'sprint' ? to.id : null);
-      } catch (err) {
-        console.error(err);
+        return;
       }
+
+      return;
     },
-    [epics, issues, moveIssue, epicSetEpics],
+    [issues, sprints, epics, moveIssue, epicSetEpics, setIssues],
   );
 
   const handleCompleteSprintConfirmation = (sprintId: number, incompleteIssues: Issue[]) => {
@@ -190,7 +315,11 @@ export const BacklogPage = () => {
       setAlertInfo({
         title: '🚨 스프린트 삭제',
         description: '스프린트를 종료한 후 삭제해주세요',
-        onConfirm: () => setShowAlert(false),
+        confirmButton: {
+          color: 'warning',
+          label: '확인',
+          onClick: () => setShowAlert(false),
+        },
       });
       return;
     }
@@ -198,8 +327,12 @@ export const BacklogPage = () => {
     setAlertInfo({
       title: '스프린트 삭제',
       description: '해당 스프린트에 할당된 모든 이슈가 삭제됩니다.',
-      onConfirm: () => {
-        handleDeleteSprint(sprint);
+      confirmButton: {
+        color: 'warning',
+        label: '확인',
+        onClick: () => {
+          handleDeleteSprint(sprint);
+        },
       },
     });
     setShowConfirm(true);
@@ -234,28 +367,36 @@ export const BacklogPage = () => {
     setAlertInfo({
       title: '킷 삭제',
       description: '해당 킷에 할당된 모든 이슈가 삭제됩니다.',
-      onConfirm: async () => {
-        await deleteEpic(epicId);
+      confirmButton: {
+        color: 'warning',
+        label: '확인',
+        onClick: async () => {
+          await deleteEpic(epicId);
 
-        epicSetEpics(epics.filter((e) => e.id !== epicId));
+          epicSetEpics(epics.filter((e) => e.id !== epicId));
 
-        sprints.forEach((s) => {
-          issues.sprint[s.id]?.forEach((issue) => {
-            if (issue.epic?.id === epicId) {
-              issues.sprint[s.id] = issues.sprint[s.id]?.filter((i) => i.id !== issue.id);
-            }
+          sprints.forEach((s) => {
+            issues.sprint[s.id]?.forEach((issue) => {
+              if (issue.epic?.id === epicId) {
+                issues.sprint[s.id] = issues.sprint[s.id]?.filter((i) => i.id !== issue.id);
+              }
+            });
+
+            setIssues('sprint', s.id, issues.sprint[s.id] || []);
           });
 
-          setIssues('sprint', s.id, issues.sprint[s.id] || []);
-        });
-
-        setShowAlert(false);
-        setAlertInfo({
-          title: '',
-          description: '',
-          onConfirm: () => {},
-        });
-        setShowConfirm(false);
+          setShowAlert(false);
+          setAlertInfo({
+            title: '',
+            description: '',
+            confirmButton: {
+              color: 'primary',
+              label: '',
+              onClick: () => {},
+            },
+          });
+          setShowConfirm(false);
+        },
       },
     });
     setShowConfirm(true);
@@ -341,13 +482,21 @@ export const BacklogPage = () => {
                             title: '🚨 스프린트 시작',
                             description:
                               '스프린트 내 모든 이슈의 정보가 입력되어 있어야 합니다. 누락된 이슈가 있습니다.',
-                            onConfirm: () => {
-                              setShowAlert(false);
-                              setAlertInfo({
-                                title: '',
-                                description: '',
-                                onConfirm: () => {},
-                              });
+                            confirmButton: {
+                              color: 'primary',
+                              label: '확인',
+                              onClick: () => {
+                                setShowAlert(false);
+                                setAlertInfo({
+                                  title: '',
+                                  description: '',
+                                  confirmButton: {
+                                    color: 'primary',
+                                    label: '확인',
+                                    onClick: () => {},
+                                  },
+                                });
+                              },
                             },
                           });
                           setShowAlert(true);
@@ -476,7 +625,7 @@ export const BacklogPage = () => {
         <ConfirmModal
           title={alertInfo.title}
           description={alertInfo.description}
-          onConfirm={() => alertInfo.onConfirm()}
+          confirmButton={alertInfo.confirmButton}
           onCancel={() => setShowConfirm(false)}
         />
       )}
@@ -485,7 +634,7 @@ export const BacklogPage = () => {
         <AlertModal
           title={alertInfo.title}
           description={alertInfo.description}
-          onConfirm={() => alertInfo.onConfirm()}
+          confirmButton={alertInfo.confirmButton}
           additionalButton={
             alertInfo.title === '🚨 스프린트 시작'
               ? {
@@ -539,7 +688,13 @@ export const BacklogPage = () => {
         <AlertModal
           title={additionalAlertInfo.title}
           description={additionalAlertInfo.description}
-          onConfirm={() => additionalAlertInfo.onConfirm()}
+          confirmButton={{
+            color: 'primary',
+            label: '확인',
+            onClick: () => {
+              setShowAdditionalAlert(false);
+            },
+          }}
         />
       )}
     </DragDropContext>

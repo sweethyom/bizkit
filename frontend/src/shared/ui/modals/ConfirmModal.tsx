@@ -7,13 +7,17 @@ import { createPortal } from 'react-dom';
 export const ConfirmModal = ({
   title,
   description,
-  onConfirm,
+  confirmButton,
   onCancel,
   className,
 }: {
   title: string;
   description: string;
-  onConfirm: () => void;
+  confirmButton: {
+    color: 'primary' | 'warning' | 'point';
+    label: string;
+    onClick: () => void;
+  };
   onCancel: () => void;
   className?: string;
 }) => {
@@ -77,11 +81,11 @@ export const ConfirmModal = ({
           </Button>
           <Button
             size='sm'
-            color='warning'
-            onClick={onConfirm}
+            color={confirmButton.color as 'primary' | 'warning' | 'point'}
+            onClick={confirmButton.onClick}
             className='px-4 py-2 text-sm font-medium'
           >
-            삭제
+            {confirmButton.label}
           </Button>
         </div>
       </div>

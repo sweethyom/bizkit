@@ -7,13 +7,17 @@ import { createPortal } from 'react-dom';
 export const AlertModal = ({
   title,
   description,
-  onConfirm,
+  confirmButton,
   className,
   additionalButton,
 }: {
   title: string;
   description: React.ReactNode;
-  onConfirm: () => void;
+  confirmButton: {
+    color: string;
+    label: string;
+    onClick: () => void;
+  };
   className?: string;
   additionalButton?: {
     label: string;
@@ -25,13 +29,13 @@ export const AlertModal = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        onConfirm();
+        confirmButton.onClick();
       }
     };
 
     const handleEscapeKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onConfirm();
+        confirmButton.onClick();
       }
     };
 
@@ -42,7 +46,7 @@ export const AlertModal = ({
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscapeKey);
     };
-  }, [onConfirm]);
+  }, [confirmButton, confirmButton.onClick]);
 
   return createPortal(
     <div className='animate-fadeIn fixed inset-0 z-50 flex items-center justify-center bg-black/50'>
@@ -75,11 +79,11 @@ export const AlertModal = ({
 
           <Button
             size='sm'
-            color='primary'
-            onClick={onConfirm}
+            color={confirmButton.color as 'primary' | 'warning' | 'point'}
+            onClick={confirmButton.onClick}
             className='px-4 py-2 text-sm font-medium'
           >
-            확인
+            {confirmButton.label}
           </Button>
         </div>
       </div>
