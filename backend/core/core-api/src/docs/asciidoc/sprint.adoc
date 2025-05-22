@@ -1,0 +1,42 @@
+== 스프린트 관련 API
+
+=== 스프린트 등록
+
+operation::append-sprint[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
+
+=== 스프린트 목록 조회
+
+operation::find-sprints[snippets='http-request,path-parameters,http-response,response-fields']
+
+=== 스프린트 이름 수정
+
+operation::modify-sprint-name[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
+
+=== 스프린트 삭제
+
+operation::delete-sprint[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
+
+=== 스프린트 예상 종료일 수정
+
+operation::modify-sprint-dueDate[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
+
+=== 스프린트 시작
+
+스프린트가 시작되면
+스프린트의 상태가 진행중으로 바뀜
+
+operation::start-sprint[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
+
+=== 스프린트 종료
+
+스프린트가 종료되면
+
+1. 스프린트의 종료일에 종료 당일 날짜가 업데이트 되고
+2. 스프린트의 상태가 complete로 변경
+
+operation::complete-sprint[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
+
+=== 활성 스프린트내에 이슈 이동
+
+
+operation::move-sprint-issue[snippets='http-request,path-parameters,request-fields,http-response,response-fields']

@@ -1,0 +1,38 @@
+sonar {
+    properties {
+        property "sonar.host.url", "https://sonarqube.dukcode.org"
+        property "sonar.branch.name", getBranchName()
+        property "sonar.exclusions", "**/build/generated/**"
+        property "sonar.scm.provider", "git"
+
+        // property "sonar.java.coveragePlugin", "jacoco"
+        // property "sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml")
+    }
+}
+
+// 지원 모듈 및 테스트 모듈 분석 제외
+configure(subprojects.findAll {
+    it.path.startsWith(':support') || it.path.startsWith(':tests')
+}) {
+    sonar {
+        skipProject = true
+    }
+}
+
+// 모든 하위 모듈 테스트 실행 후 분석 수행
+tasks.named('sonar') {
+    dependsOn subprojects*.test
+    doFirst {
+        println "SonarQube 분석 시작 (브랜치: ${getBranchName()})"
+    }
+}
+
+def getBranchName() {
+    def branchName = System.getenv("BRANCH_NAME")
+    if (!branchName) {
+        def proc = "git rev-parse --abbrev-ref HEAD".execute()
+        proc.waitFor() // 명령어 실행 완료 대기
+        branchName = "[local] ${proc.text.trim()}"
+    }
+    return branchName
+}

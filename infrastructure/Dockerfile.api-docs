@@ -1,0 +1,5 @@
+FROM nginx:alpine
+
+COPY backend/support/restdocs/build/docs/asciidoc/index.html /usr/share/nginx/html/index.html
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,5 @@
+taskit:
+  verification-code:
+    length: 6
+    expires-in-seconds: 180
+    request-cooldown-seconds: 60
