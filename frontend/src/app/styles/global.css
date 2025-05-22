@@ -1,0 +1,117 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+@import 'tailwindcss';
+
+@theme {
+  /* Grayscales */
+  --color-white: #ffffff;
+  --color-gray-0: #fafafa;
+  --color-gray-1: #f7f7f7;
+  --color-gray-2: #f0f0f0;
+  --color-gray-3: #bebebe;
+  --color-gray-4: #808080;
+  --color-gray-5: #444444;
+  --color-black: #1a1a1a;
+
+  /* Brand Colors */
+  --color-primary: #4575f5;
+  --color-primary-sub: #c3dcff;
+
+  --color-secondary: #3f4cb2;
+  --color-secondary-sub: #98a9f0;
+
+  --color-tertiary: #0c1f6f;
+  --color-tertiary-sub: #6f85e3;
+
+  /* Product Colors */
+  --color-point: #f77721;
+  --color-point-sub: #ffcab2;
+
+  --color-warning: #ff6060;
+  --color-warning-sub: #ffe2e2;
+  --color-success: #4575f5;
+  --color-done: #008000;
+
+  /* System Colors */
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #fafafa;
+  --color-background-tertiary: #f0f0f0;
+
+  /* Typography */
+  --text-heading-xxl: 56px;
+  --text-heading-xl: 48px;
+  --text-heading-lg: 40px;
+  --text-heading-md: 32px;
+  --text-heading-xs: 28px;
+
+  --text-heading-xxl--line-height: 64px;
+  --text-heading-xl--line-height: 56px;
+  --text-heading-lg--line-height: 48px;
+  --text-heading-md--line-height: 40px;
+  --text-heading-xs--line-height: 36px;
+
+  --text-label-xxl: 24px;
+  --text-label-xl: 18px;
+  --text-label-lg: 16px;
+  --text-label-md: 14px;
+  --text-label-sm: 12px;
+
+  --text-label-xxl--line-height: 32px;
+  --text-label-xl--line-height: 26px;
+  --text-label-lg--line-height: 24px;
+  --text-label-md--line-height: 22px;
+  --text-label-sm--line-height: 20px;
+
+  --text-paragraph-xxl: 24px;
+  --text-paragraph-xl: 18px;
+  --text-paragraph-lg: 16px;
+  --text-paragraph-md: 14px;
+  --text-paragraph-sm: 12px;
+
+  --text-paragraph-xxl--line-height: 36px;
+  --text-paragraph-xl--line-height: 28px;
+  --text-paragraph-lg--line-height: 24px;
+  --text-paragraph-md--line-height: 20px;
+  --text-paragraph-xs--line-height: 20px;
+}
+
+:root {
+  font-family: 'Pretendard', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+html {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out forwards;
+}
